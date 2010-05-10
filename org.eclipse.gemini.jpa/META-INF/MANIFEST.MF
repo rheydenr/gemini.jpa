@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gemini JPA
+Bundle-SymbolicName: org.eclipse.gemini.jpa
+Bundle-Version: 1.0.0
+Bundle-Activator: org.eclipse.gemini.jpa.provider.EclipseLinkOSGiProvider
+Bundle-Vendor: Oracle Corporation
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: javax.naming,
+ javax.persistence;version="1.1.0",
+ javax.persistence.criteria;version="1.1.0",
+ javax.persistence.metamodel;version="1.1.0",
+ javax.persistence.spi;version="1.1.0",
+ javax.sql,
+ javax.xml.parsers,
+ org.osgi.framework;version="1.3.0",
+ org.osgi.service.jdbc,
+ org.osgi.service.jpa,
+ org.osgi.service.packageadmin;version="1.2.0",
+ org.osgi.util.tracker,
+ org.xml.sax,
+ org.xml.sax.helpers
+Bundle-ClassPath: .
+Require-Bundle: org.eclipse.persistence.incubator.geminijpa.jpa,
+ org.eclipse.persistence.incubator.geminijpa.core,
+ org.eclipse.persistence.asm
+Export-Package: org.eclipse.gemini.jpa.provider
