@@ -49,7 +49,6 @@ import org.eclipse.gemini.jpa.PersistenceServicesUtil;
 import org.eclipse.gemini.jpa.PersistenceUnitBundleUtil;
 import org.eclipse.gemini.jpa.PlainDriverDataSource;
 
-
 import static org.osgi.service.jdbc.DataSourceFactory.*;
 
 import static org.eclipse.gemini.jpa.GeminiUtil.*;

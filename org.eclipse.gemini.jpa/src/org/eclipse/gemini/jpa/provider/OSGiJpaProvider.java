@@ -12,7 +12,7 @@
  * Contributors:
  *     mkeith - Gemini JPA work 
  ******************************************************************************/
-package com.oracle.gemini.jpa.provider;
+package org.eclipse.gemini.jpa.provider;
 
 import java.util.Collection;
 
@@ -21,7 +21,7 @@ import javax.persistence.spi.PersistenceProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
-import com.oracle.gemini.jpa.PUnitInfo;
+import org.eclipse.gemini.jpa.PUnitInfo;
 
 /**
  * This is the interface that a provider must implement in order to
