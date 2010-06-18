@@ -312,10 +312,15 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
 
         ServiceReference[] dsfRefs = null;
         Properties props = getJdbcProperties(pUnitInfo, properties);
-        String driverName = (String) props.get(JDBC_DRIVER_CLASS);
-        String url = (String) props.get(JDBC_URL);
+        String driverName = (String) props.get(JPA_JDBC_DRIVER_PROPERTY);
+
+/**   TODO Fix goes in here 
+        String driverName = (String) props.p
         
-        String filterString = "(" + JDBC_DRIVER_CLASS + "=" + driverName + ")";
+        (JPA_JDBC_DRIVER_PROPERTY);
+   **/     
+        
+        String filterString = "(" + OSGI_JDBC_DRIVER_CLASS + "=" + driverName + ")";
         debug("EclipseProvider acquireDataSource - pUnit = ", 
                 pUnitInfo.getUnitName(), " filter = ", filterString);
         try {
@@ -354,7 +359,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         if (driverName == null)
             driverName = pUnitInfo.getDriverClassName();
         if (driverName != null) 
-            props.put(JDBC_DRIVER_CLASS, driverName);
+            props.put(JPA_JDBC_DRIVER_PROPERTY, driverName);
 
         String url = (String)properties.get(GeminiUtil.JPA_JDBC_URL_PROPERTY);
         if (url == null)
