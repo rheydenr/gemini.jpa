@@ -443,7 +443,7 @@ public class PersistenceServicesUtil {
         ServiceReference[] dsfRefs = null;
 
         // See if the data source factory service for the specified driver is registered
-        String filter = "(" + DataSourceFactory.JDBC_DRIVER_CLASS + "=" + 
+        String filter = "(" + DataSourceFactory.OSGI_JDBC_DRIVER_CLASS + "=" + 
                         pUnitInfo.getDriverClassName() + ")";
         try {
             dsfRefs = pUnitInfo.getBundle().getBundleContext().getServiceReferences(
