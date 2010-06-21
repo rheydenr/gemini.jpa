@@ -53,6 +53,8 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
 
         if (method.getName().equals("hashCode"))
             return this.hashCode();
+        else if (method.getName().equals("toString"))
+            return this.toString();
         
         // ***NOTE: What if the provider supports multiple EMFs?
         // Should we ignore the cache and just call the provider each time?

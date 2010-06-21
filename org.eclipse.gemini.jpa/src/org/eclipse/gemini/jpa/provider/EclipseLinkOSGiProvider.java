@@ -311,14 +311,17 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     protected DataSource acquireDataSource(PUnitInfo pUnitInfo, Map<?,?> properties) {
 
         ServiceReference[] dsfRefs = null;
-        Properties props = getJdbcProperties(pUnitInfo, properties);
-        String driverName = (String) props.get(JPA_JDBC_DRIVER_PROPERTY);
-
-/**   TODO Fix goes in here 
-        String driverName = (String) props.p
         
-        (JPA_JDBC_DRIVER_PROPERTY);
-   **/     
+        // Get the driver name from either the pUnitInfo or the runtime properties
+        String driverName = (String)properties.get(GeminiUtil.JPA_JDBC_DRIVER_PROPERTY);
+        if (driverName == null)
+            driverName = pUnitInfo.getDriverClassName();
+
+        // We at least need a driver name. If we don't have one we are basically hosed
+        if (driverName == null)
+            fatalError("No driver was specified", null);
+
+        Properties props = getJdbcProperties(pUnitInfo, properties);
         
         String filterString = "(" + OSGI_JDBC_DRIVER_CLASS + "=" + driverName + ")";
         debug("EclipseProvider acquireDataSource - pUnit = ", 
@@ -333,7 +336,9 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         DataSourceFactory dsf = (DataSourceFactory) getBundleContext().getService(dsfRefs[0]);
         Driver driver = null;
         try {
-             driver = dsf.createDriver(props);
+            // There is no standard way of getting JDBC properties from JPA
+            // (apart from the url/user/pw that are passed into the data source below)
+            driver = dsf.createDriver(null);
         } catch (SQLException sqlEx) {
             fatalError("Could not create data source for " + driverName, sqlEx);
         }
@@ -343,23 +348,21 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     protected String fullDescriptorPath(PUnitInfo pUnitInfo) {
         return pUnitInfo.getDescriptorInfo().fullDescriptorPath();
     }
-    
+
+    /*
+     * Return the current JDBC url, user and password properties. The props set in the
+     * XML file (from pUnitInfo) will be overridden by any properties of the same name
+     * in the runtime properties Map passed in. The resulting properties will be passed
+     * to a JDBC driver.
+     */
     protected Properties getJdbcProperties(PUnitInfo pUnitInfo, Map<?,?> properties) {
 
-        // Try to get the right properties from the ones in the pUnitInfo (XML file)
-        // and the ones passed in the Map. This method is probably never going to be right...
-        // Assume the Map, passed in at runtime, overrides the XML file
         Properties props = new Properties();
         
-        // Get the 4 driver properties, if they exist (driver, url, user, password)
-        debug("EclipseProvider - getJDBCProperties - fromMap: ", properties); 
+        // Get the 3 driver properties, if they exist (url, user, password)
+        debug("EclipseProvider - getJDBCProperties");
+        debug("  fromMap: ", properties);
         debug("  fromDescriptor: ", pUnitInfo);
-
-        String driverName = (String)properties.get(GeminiUtil.JPA_JDBC_DRIVER_PROPERTY);
-        if (driverName == null)
-            driverName = pUnitInfo.getDriverClassName();
-        if (driverName != null) 
-            props.put(JPA_JDBC_DRIVER_PROPERTY, driverName);
 
         String url = (String)properties.get(GeminiUtil.JPA_JDBC_URL_PROPERTY);
         if (url == null)
