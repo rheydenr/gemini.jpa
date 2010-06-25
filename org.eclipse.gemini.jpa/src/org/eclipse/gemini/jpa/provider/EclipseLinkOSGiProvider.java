@@ -14,7 +14,6 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa.provider;
 
-import java.net.URL;
 import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -63,6 +62,8 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     /* Static constants */
     /*==================*/
 
+    public static final String ORG_ECLIPSE_GEMINI_BUNDLE = "org.eclipse.gemini.bundle";
+    
     public static final String PROVIDER_CLASS_NAME = "org.eclipse.persistence.jpa.PersistenceProvider";
     public static final String ANCHOR_CLASS_NAME   = "Jpa$Anchor";
     
@@ -97,6 +98,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     public void start(BundleContext context) throws Exception {
         
         debug("EclipseProvider starting...");
+
         // Initialize our state
         ctx = context;
         pUnitsByName = Collections.synchronizedMap(new HashMap<String, PUnitInfo>());
@@ -117,6 +119,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     public void stop(BundleContext context) throws Exception {
 
         debug("EclipseProvider stopping...");
+
         // Take the extender offline and unregister ourselves as a provider
         extender.stopListening();
         servicesUtil.unregisterProviderService();
@@ -164,6 +167,10 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     public void assignPersistenceUnitsInBundle(Bundle b, Collection<PUnitInfo> pUnits) {
 
         debug("EclipseProvider assignPersistenceUnitsInBundle: ", b.getSymbolicName());
+
+        // Run Initializer to process PU and register transformers
+//        GeminiOSGiInitializer.getInstance().registerBundle(getBundleContext(), b, pUnits);
+        
         //TODO Check state of bundle in assign call
 
         // TODO Problem installing fragments in PDE
@@ -180,6 +187,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     public void registerPersistenceUnits(Collection<PUnitInfo> pUnits) {
         
         debug("EclipseProvider registerPersistenceUnits: ", pUnits);
+
         if (pUnits == null) return;
 
         for (PUnitInfo info : pUnits) {
@@ -214,6 +222,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     public void unregisterPersistenceUnits(Collection<PUnitInfo> pUnits) {
 
         debug("EclipseProvider unregisterPersistenceUnits: ", pUnits);
+
         EntityManagerFactory emf1 = null, 
                              emf2 = null;
 
@@ -237,7 +246,9 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     public void unassignPersistenceUnitsInBundle(Bundle b, Collection<PUnitInfo> pUnits) {
         
         debug("EclipseProvider unassignPersistenceUnitsInBundle: ", b.getSymbolicName());
+
         // Make sure we don't have any artifacts associated with the bundle
+//        GeminiOSGiInitializer.getInstance().unregisterBundle(b,pUnits);
     }
     
     /*=============================*/
@@ -254,6 +265,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         
         debug("EclipseJPAProvider createEMF invoked for p-unit: ", emName);
         debug("Properties map: ", properties);
+
         PUnitInfo pUnitInfo = pUnitsByName.get(emName);
         if (pUnitInfo == null)
             fatalError("createEntityManagerFactory() called on provider, but provider has not registered the p-unit " + emName, null);
