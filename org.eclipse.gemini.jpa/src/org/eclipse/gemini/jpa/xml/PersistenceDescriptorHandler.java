@@ -27,6 +27,7 @@ import org.eclipse.gemini.jpa.PUnitInfo;
 
 import static org.eclipse.gemini.jpa.GeminiUtil.*;
 
+
 /**
  * Parser handler for parsing the persistence descriptors.
  * This class does not parse the descriptors in their entirety,
@@ -120,7 +121,7 @@ public class PersistenceDescriptorHandler extends DefaultHandler {
     /* Helper methods */
     /*================*/
     
-    protected boolean nullOrEmpty(String s) { return s == null || s.isEmpty(); }
+    protected boolean nullOrEmpty(String s) { return s == null || s.length() == 0; }
 
     protected String contentFromChars(char[] chars, int start, int length) {
         StringBuilder s = new StringBuilder(length);
