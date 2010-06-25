@@ -227,7 +227,11 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
         } else {
             warning("Cannot support bundle " + b.getSymbolicName() +  
                     " because it is not JPA-compatible with the assigned provider " + 
-                    osgiJpaProvider.getProviderClassName());
+                    osgiJpaProvider.getProviderClassName() + ". This is because the " +
+                    "persistence unit bundle has resolved to a different javax.persistence " +
+                    "than the provider. \nTo fix this, uninstall one of the javax.persistence " +
+                    "bundles so that both the persistence unit bundle and the provider resolve " +
+                    "to the same javax.persistence package.");
             unassignPersistenceUnitsInBundle(b);
             // No point in updating/refreshing. 
             // (It would likely just re-resolve to the same JPA interface package.)
