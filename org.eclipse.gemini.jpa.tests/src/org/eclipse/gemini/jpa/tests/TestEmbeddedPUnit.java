@@ -15,12 +15,12 @@
  */
 package org.eclipse.gemini.jpa.tests;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.jpa.EntityManagerFactoryBuilder;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityManager;
+
+import model.embeddedaccount.EmbAccount;
 
 import org.junit.*;
 
@@ -31,28 +31,53 @@ import org.junit.*;
  */
 public class TestEmbeddedPUnit extends JpaTest {
         
-    public static final String UNIT_UNDER_TEST = "EmbeddedAccounts";
+    public static final String TEST_NAME = "TestEmbeddedPUnit";
+    public static final String PERSISTENCE_UNIT_UNDER_TEST = "EmbeddedAccounts";
 
+    protected static EntityManagerFactory emf;
+    
     public static boolean shouldRun(String unitName, boolean isEMF) {
-        return UNIT_UNDER_TEST.equals(unitName) && isEMF;
+        return PERSISTENCE_UNIT_UNDER_TEST.equals(unitName) && isEMF;
     }
+
+    /* === Test Methods === */
 
     @BeforeClass
     public static void classSetUp() {
-        slog("In setup");
-        emf = lookupEntityManagerFactory(UNIT_UNDER_TEST);
-        slog("Got EMF - " + emf);
+        slog(TEST_NAME, "In setup");
+        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        slog(TEST_NAME, "Got EMF - " + emf);
     }
 
     @AfterClass
     public static void classCleanUp() {
-        emf.close();
-        emf = null;
+        if (emf != null) {
+            emf.close();
+            emf = null;
+        }
+    }
+
+    /* === Subclassed methods === */
+
+    public EntityManagerFactory getEmf() { return emf; }
+
+    public Object newObject() {
+        EmbAccount a = new EmbAccount();
+        a.setBalance(100.0);
+        return a;
     }
     
-    // Helper methods
+    public Object findObject() {
+        EntityManager em = emf.createEntityManager();
+        Object obj = em.find(EmbAccount.class, 1);
+        em.close();
+        return obj;
+    }
 
-    static void slog(String msg) {
-        System.out.println("***** TestEmbeddedPUnit - " + msg);
-    }    
+    public Object queryObjects() {
+        EntityManager em = emf.createEntityManager();
+        List<?> result = em.createQuery("SELECT a FROM EmbAccount a").getResultList();
+        em.close();
+        return result;
+    }
 }

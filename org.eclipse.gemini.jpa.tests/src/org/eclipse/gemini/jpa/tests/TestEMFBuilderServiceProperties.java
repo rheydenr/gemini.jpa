@@ -18,8 +18,8 @@ package org.eclipse.gemini.jpa.tests;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import javax.persistence.EntityManagerFactory;
+
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
 import org.junit.*;
@@ -32,34 +32,37 @@ import org.junit.*;
  */
 public class TestEMFBuilderServiceProperties extends JpaTest {
 
-    public static final String UNIT_UNDER_TEST = "AccountsNoDataSource";
+    public static final String TEST_NAME = "TestEMFBuilderServiceProperties";
+    public static final String PERSISTENCE_UNIT_UNDER_TEST = "AccountsNoDataSource";
+
+    public static EntityManagerFactory emf;
 
     public static boolean shouldRun(String unitName, boolean isEMF) {
-        return UNIT_UNDER_TEST.equals(unitName) && !isEMF;
+        return PERSISTENCE_UNIT_UNDER_TEST.equals(unitName) && !isEMF;
     }
 
     @BeforeClass
     public static void classSetUp() {
-        slog("In setup");
-        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(UNIT_UNDER_TEST);
+        slog(TEST_NAME, "In setup");
+        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
         Map<String,String> props = new HashMap<String,String>();        
         props.put("javax.persistence.jdbc.driver", "org.apache.derby.jdbc.ClientDriver");
         props.put("javax.persistence.jdbc.url", "jdbc:derby://localhost:1527/accountDB;create=true");
         props.put("javax.persistence.jdbc.user", "app");
         props.put("javax.persistence.jdbc.password", "app");
         emf = emfb.createEntityManagerFactory(props);
-        slog("Got EMF - " + emf);
+        slog(TEST_NAME, "Got EMF - " + emf);
     }
 
     @AfterClass
     public static void classCleanUp() {
-        emf.close();
-        emf = null;
+        if (emf != null) {
+            emf.close();
+            emf = null;
+        }
     }
-    
-    // Helper methods
-    
-    static void slog(String msg) {
-        System.out.println("***** TestEMFBuilderServiceProperties - " + msg);
-    }    
+
+    /* === Subclassed methods === */
+
+    public EntityManagerFactory getEmf() { return emf; }
 }

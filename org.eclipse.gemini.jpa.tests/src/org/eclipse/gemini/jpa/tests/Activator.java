@@ -15,8 +15,6 @@
  */
 package org.eclipse.gemini.jpa.tests;
 
-import model.account.Account;
-
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -65,7 +63,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
         emfTracker.close();
     }
 
-    void runTest(String descr, Class testClass) {
+    void runTest(String descr, Class<?> testClass) {
         log("Running " + descr + ": ");
         
         Result r = JUnitCore.runClasses(testClass);
@@ -85,9 +83,11 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
         String unitName = (String)ref.getProperty(EntityManagerFactoryBuilder.JPA_UNIT_NAME);
 
         if (unitName != null) {
-            // We have a JPA service - which one is it?
+            // We have a JPA service. Is it an EMF or an EMFBuilder?
             boolean isEmfService = EntityManagerFactory.class.isInstance(service);
 
+            // Now ask each test if it should run based on the punit name and whether 
+            // the service is an EMF or an EMFBuilder.
             if (TestStaticPersistence.shouldRun(unitName, isEmfService))
                 runTest("JPA Static Persistence tests", TestStaticPersistence.class);
             if (TestEMFService.shouldRun(unitName, isEmfService))

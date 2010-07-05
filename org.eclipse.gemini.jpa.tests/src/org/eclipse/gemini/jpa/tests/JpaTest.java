@@ -34,57 +34,80 @@ import model.account.*;
  * 
  * @author mkeith
  */
-public class JpaTest {
+public abstract class JpaTest {
     
     public static BundleContext context;        
-    public static EntityManagerFactory emf;
-        
+
+    /* === Methods that *must* be subclassed === */
+
+    public abstract EntityManagerFactory getEmf();
+
+    /* === Methods that *may* be subclassed === */
+    
+    public Object newObject() {
+        Account a = new Account();
+        a.setBalance(100.0);
+        return a;
+    }
+    
+    public Object findObject() {
+        EntityManager em = getEmf().createEntityManager();
+        Object obj = em.find(Account.class, 1);
+        em.close();
+        return obj;
+    }
+
+    public Object queryObjects() {
+        EntityManager em = getEmf().createEntityManager();
+        List<?> result = em.createQuery("SELECT a FROM Account a").getResultList();
+        em.close();
+        return result;
+    }
+
+    /* === Test Methods === */
+    
     @Test
     public void testGettingEntityManager() {
         log("testGettingEntityManager");
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = getEmf().createEntityManager();
         log("Got EM - " + em);
     }
 
     @Test
     public void testPersisting() {
         log("testPersisting");
-        EntityManager em = emf.createEntityManager();
-        Account a = new Account();
-        a.setBalance(100.0);
+        EntityManager em = getEmf().createEntityManager();
+        Object obj = newObject();
         em.getTransaction().begin();
         log("testPersisting - tx begun");
         try {
-            em.persist(a);
+            em.persist(obj);
         } catch (Exception e) {
             log("Error calling persist(): ");
             e.printStackTrace(System.out);
         }
         log("testPersisting - tx committing");
         em.getTransaction().commit();
-        log("Persisted " + a);
+        em.close();
+        log("Persisted " + obj);
     }
     
     @Test
     public void testFinding() {
         log("testFinding");
-        EntityManager em = emf.createEntityManager();
-        Account a = em.find(Account.class, 1);
-        log("Find returned - " + a);
+        log("Find returned - " + findObject());
     }
 
     @Test
     public void testQuerying() {
         log("testQuerying");
-        EntityManager em = emf.createEntityManager();
-        List<?> result = em.createQuery("SELECT a FROM Account a").getResultList();
-        log("Query returned - " + result);
+        log("Query returned - " + queryObjects());
     }
 
     @Test
     public void testGettingMetamodel() {
         log("testGettingMetamodel");
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = getEmf().createEntityManager();
         Set<EntityType<?>> s = em.getMetamodel().getEntities();
         for (EntityType<?> et : s) {
             log("Managed Entity name: " + et.getName());
@@ -93,9 +116,9 @@ public class JpaTest {
         }
     }
     
-    // Helper methods
+    /* === Helper methods === */
 
-    public static EntityManagerFactory lookupEntityManagerFactory(String puName) {
+    public static EntityManagerFactory lookupEntityManagerFactory(String testName, String puName) {
         String filter = "(osgi.unit.name="+puName+")";
         ServiceReference[] refs = null;
         try {
@@ -103,13 +126,13 @@ public class JpaTest {
         } catch (InvalidSyntaxException isEx) {
             new RuntimeException("Bad filter", isEx);
         }
-        slog("EMF Service refs looked up from registry: " + refs);
+        slog(testName, "EMF Service refs looked up from registry: " + refs);
         return (refs == null)
             ? null
             : (EntityManagerFactory) context.getService(refs[0]);
     }
     
-    static EntityManagerFactoryBuilder lookupEntityManagerFactoryBuilder(String puName) {
+    static EntityManagerFactoryBuilder lookupEntityManagerFactoryBuilder(String testName, String puName) {
         String filter = "(osgi.unit.name="+puName+")";
         ServiceReference[] refs = null;
         try {
@@ -117,16 +140,16 @@ public class JpaTest {
         } catch (InvalidSyntaxException isEx) {
             new RuntimeException("Bad filter", isEx);
         }
-        slog("EMF Builder Service refs looked up from registry: " + refs);
+        slog(testName, "EMF Builder Service refs looked up from registry: " + refs);
         return (refs == null)
             ? null
             : (EntityManagerFactoryBuilder) context.getService(refs[0]);
     }
 
-    static void slog(String msg) {
-        System.out.println("***** " + msg);
+    static void slog(String testName, String msg) {
+        System.out.println("***** " + testName + " - " + msg);
     }    
     void log(String msg) {
-        System.out.println("***** " + this.getClass().getSimpleName() + " " + msg);
+        System.out.println("***** " + this.getClass().getSimpleName() + " - " + msg);
     }    
 }

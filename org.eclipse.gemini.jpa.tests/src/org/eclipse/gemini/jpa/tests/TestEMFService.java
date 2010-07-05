@@ -15,10 +15,7 @@
  */
 package org.eclipse.gemini.jpa.tests;
 
-import javax.persistence.*;
-
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import javax.persistence.EntityManagerFactory;
 
 import org.junit.*;
 
@@ -29,28 +26,33 @@ import org.junit.*;
  */
 public class TestEMFService extends JpaTest {
         
-    public static final String UNIT_UNDER_TEST = "Accounts";
+    public static final String TEST_NAME = "TestEMFService";
+    public static final String PERSISTENCE_UNIT_UNDER_TEST = "Accounts";
+
+    protected static EntityManagerFactory emf;
 
     public static boolean shouldRun(String unitName, boolean isEMF) {
-        return UNIT_UNDER_TEST.equals(unitName) && isEMF;
+        return PERSISTENCE_UNIT_UNDER_TEST.equals(unitName) && isEMF;
     }
+
+    /* === Test Methods === */
 
     @BeforeClass
     public static void classSetUp() {
-        slog("In setup");
-        emf = lookupEntityManagerFactory(UNIT_UNDER_TEST);
-        slog("Got EMF - " + emf);
+        slog(TEST_NAME, "In setup");
+        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        slog(TEST_NAME, "Got EMF - " + emf);
     }
 
     @AfterClass
     public static void classCleanUp() {
-        emf.close();
-        emf = null;
+        if (emf != null) {
+            emf.close();
+            emf = null;
+        }
     }
     
-    // Helper methods
-    
-    static void slog(String msg) {
-        System.out.println("***** TestEMFService - " + msg);
-    }    
+    /* === Subclassed methods === */
+
+    public EntityManagerFactory getEmf() { return emf; }
 }
