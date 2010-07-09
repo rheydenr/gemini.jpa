@@ -127,14 +127,12 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
     // Local method to compare properties passed in Map to ones in persistence descriptor or in previously set props
     protected void verifyJDBCProperties(String driver, String driverUrl, Map<?,?> props) {
 
-//        String driver =  pUnitInfo.getDriverClassName();
         if (driver != null) {
             String propDriver = (String) props.get(JPA_JDBC_DRIVER_PROPERTY);
             if ((propDriver != null) && !driver.equals(propDriver)) {
                 throw new IllegalArgumentException();
             }
         }
-//        String url =  pUnitInfo.getDriverUrl();
         if (driverUrl != null) {
             String propUrl = (String) props.get(JPA_JDBC_URL_PROPERTY);
             if ((propUrl != null) && !driverUrl.equals(propUrl)) {
