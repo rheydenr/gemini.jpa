@@ -1,18 +1,17 @@
-/*
- * Copyright (C) 2010 Oracle Corporation
+/*******************************************************************************
+ * Copyright (c) 2010 Oracle.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Apache License v2.0 which accompanies this distribution. 
+ * The Eclipse Public License is available at
+ *     http://www.eclipse.org/legal/epl-v10.html
+ * and the Apache License v2.0 is available at 
+ *     http://www.opensource.org/licenses/apache2.0.php.
+ * You may elect to redistribute this code under either of these licenses.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * Contributors:
+ *     mkeith - Gemini JPA tests 
+ ******************************************************************************/
 package org.eclipse.gemini.jpa.tests;
 
 import org.junit.runner.JUnitCore;
@@ -38,13 +37,13 @@ import org.osgi.service.jpa.EntityManagerFactoryBuilder;
  */
 public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
+    BundleContext ctx;
+    
     ServiceTracker emfTracker;
     ServiceTracker emfbTracker;
 
-    BundleContext ctx;
-    
     public void start(BundleContext context) throws Exception {
-        log("Tests active ");
+        log("Tests active");
 
         ctx = context;
         JpaTest.context = context;
@@ -59,6 +58,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
     }
 
     public void stop(BundleContext context) throws Exception {
+        log("Tests stopped");
         emfbTracker.close();
         emfTracker.close();
     }
@@ -85,6 +85,8 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
         if (unitName != null) {
             // We have a JPA service. Is it an EMF or an EMFBuilder?
             boolean isEmfService = EntityManagerFactory.class.isInstance(service);
+            
+            log("------------------ Added JPA Service for persistence unit " + unitName + ", EMF = " + isEmfService);
 
             // Now ask each test if it should run based on the punit name and whether 
             // the service is an EMF or an EMFBuilder.
