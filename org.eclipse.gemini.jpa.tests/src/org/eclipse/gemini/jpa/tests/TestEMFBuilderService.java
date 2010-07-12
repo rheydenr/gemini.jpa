@@ -45,7 +45,7 @@ public class TestEMFBuilderService extends JpaTest {
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
         EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
-        Map<String,String> props = new HashMap<String,String>();        
+        Map<String,Object> props = new HashMap<String,Object>();        
         emf = emfb.createEntityManagerFactory(props);
         slog(TEST_NAME, "Got EMF - " + emf);
     }

@@ -44,7 +44,7 @@ public class TestEMFBuilderServiceProperties extends JpaTest {
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
         EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
-        Map<String,String> props = new HashMap<String,String>();        
+        Map<String,Object> props = new HashMap<String,Object>();        
         props.put("javax.persistence.jdbc.driver", "org.apache.derby.jdbc.ClientDriver");
         props.put("javax.persistence.jdbc.url", "jdbc:derby://localhost:1527/accountDB;create=true");
         props.put("javax.persistence.jdbc.user", "app");
