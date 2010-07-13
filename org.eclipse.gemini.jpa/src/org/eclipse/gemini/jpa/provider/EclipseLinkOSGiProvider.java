@@ -97,7 +97,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     
     public void start(BundleContext context) throws Exception {
         
-        debug("EclipseProvider starting...");
+        debug("EclipseLinkProvider starting...");
 
         // Initialize our state
         ctx = context;
@@ -113,12 +113,12 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         // Kick the extender to go looking for persistence bundles
         extender.startListening();
         extender.lookForExistingBundles();
-        debug("EclipseProvider started");
+        debug("EclipseLink Provider started");
     }
     
     public void stop(BundleContext context) throws Exception {
 
-        debug("EclipseProvider stopping...");
+        debug("EclipseLinkProvider stopping...");
 
         // Take the extender offline and unregister ourselves as a provider
         extender.stopListening();
@@ -135,7 +135,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         for (Map.Entry<Bundle,List<PUnitInfo>> entry : pUnitInfos.entrySet()) {
             unassignPersistenceUnitsInBundle(entry.getKey(), entry.getValue());
         }        
-        debug("EclipseProvider stopped");
+        debug("EclipseLinkProvider stopped");
     }
     
     /*==============================*/
@@ -166,11 +166,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
      */
     public void assignPersistenceUnitsInBundle(Bundle b, Collection<PUnitInfo> pUnits) {
 
-        debug("EclipseProvider assignPersistenceUnitsInBundle: ", b.getSymbolicName());
-
-        // Run Initializer to process PU and register transformers
-//        GeminiOSGiInitializer.getInstance().registerBundle(getBundleContext(), b, pUnits);
-        
+        debug("EclipseLinkProvider assignPersistenceUnitsInBundle: ", b.getSymbolicName());        
         //TODO Check state of bundle in assign call
 
         // TODO Problem installing fragments in PDE
@@ -186,7 +182,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
      */
     public void registerPersistenceUnits(Collection<PUnitInfo> pUnits) {
         
-        debug("EclipseProvider registerPersistenceUnits: ", pUnits);
+        debug("EclipseLinkProvider registerPersistenceUnits: ", pUnits);
 
         if (pUnits == null) return;
 
@@ -194,14 +190,15 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
             String pUnitName = info.getUnitName();
             int attempts = 0;
             while (pUnitsByName.containsKey(pUnitName) && (attempts < MAX_EVENT_COLLISION_TRIES)) {
-                // We hit a race condition due to event ordering 
-                // Take a break and give a chance for the unregister to occur
+                // Shouldn't be in the map. We might have a race condition due to event ordering 
+                // where the previous entry just hasn't been removed yet. Take a short break 
+                // and give a chance for the unregister to occur.
                 try { Thread.sleep(1000); } catch (InterruptedException iEx) {}
                 attempts++;
             } 
             if (pUnitsByName.containsKey(pUnitName)) {
-                // Take matters into our own hands and force the unregister
-                debug("EclipseProvider forcing unregistering pUnit: ", info);
+                // It's still there. Take matters into our own hands and force the unregister
+                warning("EclipseProvider forcing unregister of pUnit: " + info.toString());
                 Collection<PUnitInfo> units = new ArrayList<PUnitInfo>();
                 units.add(info);
                 unregisterPersistenceUnits(units);
@@ -221,7 +218,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
      */
     public void unregisterPersistenceUnits(Collection<PUnitInfo> pUnits) {
 
-        debug("EclipseProvider unregisterPersistenceUnits: ", pUnits);
+        debug("EclipseLinkProvider unregisterPersistenceUnits: ", pUnits);
 
         EntityManagerFactory emf1 = null, 
                              emf2 = null;
@@ -245,10 +242,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
 
     public void unassignPersistenceUnitsInBundle(Bundle b, Collection<PUnitInfo> pUnits) {
         
-        debug("EclipseProvider unassignPersistenceUnitsInBundle: ", b.getSymbolicName());
-
-        // Make sure we don't have any artifacts associated with the bundle
-//        GeminiOSGiInitializer.getInstance().unregisterBundle(b,pUnits);
+        debug("EclipseLinkProvider unassignPersistenceUnitsInBundle: ", b.getSymbolicName());
     }
     
     /*=============================*/
@@ -260,16 +254,15 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
      * classloader, data source and descriptor properties that can be used by
      * EclipseLink to sort things out.
      */
-    
     public EntityManagerFactory createEntityManagerFactory(String emName, Map properties) {
         
-        debug("EclipseJPAProvider createEMF invoked for p-unit: ", emName);
+        debug("EclipseLinkProvider createEMF invoked for p-unit: ", emName);
         debug("Properties map: ", properties);
 
         PUnitInfo pUnitInfo = pUnitsByName.get(emName);
         if (pUnitInfo == null)
             fatalError("createEntityManagerFactory() called on provider, but provider has not registered the p-unit " + emName, null);
-        Map props = new HashMap();
+        Map<String,Object> props = new HashMap<String,Object>();
         props.putAll(properties);
         props.put(PersistenceUnitProperties.CLASSLOADER, compositeLoader(pUnitInfo));
         props.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, acquireDataSource(pUnitInfo, properties));
@@ -288,7 +281,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         PUnitInfo pUnitInfo = pUnitsByName.get(pUnitName);
         if (pUnitInfo == null)
             fatalError("createContainerEntityManagerFactory() called on provider, but provider has not registered the p-unit " + pUnitName, null);
-        Map props = new HashMap();
+        Map<String,Object> props = new HashMap<String,Object>();
         props.putAll(properties);
         props.put(PersistenceUnitProperties.CLASSLOADER, compositeLoader(pUnitInfo));
         props.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, acquireDataSource(pUnitInfo, properties));
@@ -298,7 +291,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     }
 
     public ProviderUtil getProviderUtil() { 
-        debug("EclipseJPAProvider getProviderUtil invoked");
+        debug("EclipseLinkProvider getProviderUtil invoked");
         return eclipseLinkProvider.getProviderUtil(); 
     }
 
@@ -336,7 +329,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         Properties props = getJdbcProperties(pUnitInfo, properties);
         
         String filterString = "(" + OSGI_JDBC_DRIVER_CLASS + "=" + driverName + ")";
-        debug("EclipseProvider acquireDataSource - pUnit = ", 
+        debug("EclipseLinkProvider acquireDataSource - pUnit = ", 
                 pUnitInfo.getUnitName(), " filter = ", filterString);
         try {
             dsfRefs = getBundleContext().getServiceReferences(
@@ -372,7 +365,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         Properties props = new Properties();
         
         // Get the 3 driver properties, if they exist (url, user, password)
-        debug("EclipseProvider - getJDBCProperties");
+        debug("EclipseLinkProvider - getJDBCProperties");
         debug("  fromMap: ", properties);
         debug("  fromDescriptor: ", pUnitInfo);
 
@@ -394,7 +387,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         if (pw != null) 
             props.put(JDBC_PASSWORD, pw);
 
-        debug("EclipseProvider - getJDBCProperties - returning: ", props);
+        debug("EclipseLinkProvider - getJDBCProperties - returning: ", props);
         return props;
     }
 }

@@ -59,7 +59,6 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
             return this.hashCode();
 
         // Must be a creatEntityManagerFactory(String, Map) call
-        EntityManagerFactory result = null;
         
         // If we have a factory and it has already been closed, discard it
         synchronized (this) {
