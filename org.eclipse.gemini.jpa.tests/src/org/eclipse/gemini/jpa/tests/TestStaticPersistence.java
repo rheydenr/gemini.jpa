@@ -46,11 +46,11 @@ public class TestStaticPersistence extends JpaTest {
 
     @AfterClass
     public static void classCleanUp() throws Exception {
-  /*      if (emf != null) {
+        if (emf != null) {
             emf.close();
             emf = null;
         }
-   */ }
+    }
 
     /* === Subclassed methods === */
 

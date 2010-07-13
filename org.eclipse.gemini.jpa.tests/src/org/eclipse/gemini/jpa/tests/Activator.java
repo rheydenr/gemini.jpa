@@ -86,8 +86,6 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
             // We have a JPA service. Is it an EMF or an EMFBuilder?
             boolean isEmfService = EntityManagerFactory.class.isInstance(service);
             
-            log("------------------ Added JPA Service for persistence unit " + unitName + ", EMF = " + isEmfService);
-
             // Now ask each test if it should run based on the punit name and whether 
             // the service is an EMF or an EMFBuilder.
             if (TestStaticPersistence.shouldRun(unitName, isEmfService))
@@ -106,9 +104,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
     public void modifiedService(ServiceReference ref, Object service) {}
 
-    public void removedService(ServiceReference ref, Object service) {
-        ctx.ungetService(ref);
-    }
+    public void removedService(ServiceReference ref, Object service) {}
 
     void logResultStats(Result r) {
         log("Result: " + 

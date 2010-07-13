@@ -55,11 +55,11 @@ public class TestEMFBuilderServiceProperties extends JpaTest {
 
     @AfterClass
     public static void classCleanUp() {
-/*        if (emf != null) {
+        if (emf != null) {
             emf.close();
             emf = null;
         }
-  */  }
+    }
 
     /* === Subclassed methods === */
 
