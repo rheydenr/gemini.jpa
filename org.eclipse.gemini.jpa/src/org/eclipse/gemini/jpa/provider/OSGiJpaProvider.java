@@ -11,6 +11,7 @@
  *
  * Contributors:
  *     mkeith - Gemini JPA work 
+ *     ssmith - EclipseLink integration
  ******************************************************************************/
 package org.eclipse.gemini.jpa.provider;
 

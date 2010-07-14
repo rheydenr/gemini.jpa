@@ -11,9 +11,20 @@
  *
  * Contributors:
  *     mkeith - Gemini JPA work 
+ *     ssmith - EclipseLink integration
  ******************************************************************************/
 package org.eclipse.gemini.jpa.provider;
 
+import static org.eclipse.gemini.jpa.GeminiUtil.debug;
+import static org.eclipse.gemini.jpa.GeminiUtil.fatalError;
+import static org.eclipse.gemini.jpa.GeminiUtil.warning;
+import static org.osgi.service.jdbc.DataSourceFactory.JDBC_PASSWORD;
+import static org.osgi.service.jdbc.DataSourceFactory.JDBC_URL;
+import static org.osgi.service.jdbc.DataSourceFactory.JDBC_USER;
+import static org.osgi.service.jdbc.DataSourceFactory.OSGI_JDBC_DRIVER_CLASS;
+
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,27 +41,24 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.ProviderUtil;
 import javax.sql.DataSource;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.jdbc.DataSourceFactory;
-
-import org.eclipse.persistence.config.PersistenceUnitProperties;
-import org.eclipse.persistence.internal.jpa.deployment.osgi.BundleProxyClassLoader;
-import org.eclipse.persistence.internal.jpa.deployment.osgi.CompositeClassLoader;
-
 import org.eclipse.gemini.jpa.GeminiUtil;
 import org.eclipse.gemini.jpa.PUnitInfo;
 import org.eclipse.gemini.jpa.PersistenceBundleExtender;
 import org.eclipse.gemini.jpa.PersistenceServicesUtil;
 import org.eclipse.gemini.jpa.PersistenceUnitBundleUtil;
 import org.eclipse.gemini.jpa.PlainDriverDataSource;
-
-import static org.osgi.service.jdbc.DataSourceFactory.*;
-
-import static org.eclipse.gemini.jpa.GeminiUtil.*;
+import org.eclipse.gemini.jpa.classloader.BundleProxyClassLoader;
+import org.eclipse.persistence.config.PersistenceUnitProperties;
+import org.eclipse.persistence.internal.jpa.deployment.osgi.CompositeClassLoader;
+import org.eclipse.persistence.logging.AbstractSessionLog;
+import org.eclipse.persistence.logging.DefaultSessionLog;
+import org.eclipse.persistence.logging.SessionLog;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.jdbc.DataSourceFactory;
 
 //TODO Add substitutability of provider
 
@@ -61,9 +69,6 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     /*==================*/
     /* Static constants */
     /*==================*/
-
-    public static final String ORG_ECLIPSE_GEMINI_BUNDLE = "org.eclipse.gemini.bundle";
-    
     public static final String PROVIDER_CLASS_NAME = "org.eclipse.persistence.jpa.PersistenceProvider";
     public static final String ANCHOR_CLASS_NAME   = "Jpa$Anchor";
     
@@ -90,6 +95,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     
     /** Map of p-units we have registered */
     Map<String, PUnitInfo> pUnitsByName;
+    private FileWriter eclipseLinkLog;
 
     /*=====================*/
     /* Activator functions */
@@ -105,7 +111,9 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         extender = new PersistenceBundleExtender(this);
         servicesUtil = new PersistenceServicesUtil(this);
         puBundleUtil = new PersistenceUnitBundleUtil();
-        eclipseLinkProvider = new org.eclipse.persistence.jpa.osgi.PersistenceProvider();
+        openEclipseLinkLoggingFile();
+        eclipseLinkProvider = new org.eclipse.gemini.jpa.provider.PersistenceProvider();
+        
         
         // Register as a provider 
         servicesUtil.registerProviderService();
@@ -134,10 +142,33 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         Map<Bundle,List<PUnitInfo>> pUnitInfos = extender.clearAllPUnitInfos();
         for (Map.Entry<Bundle,List<PUnitInfo>> entry : pUnitInfos.entrySet()) {
             unassignPersistenceUnitsInBundle(entry.getKey(), entry.getValue());
-        }        
+        }
+        closeEclipseLinkLoggingFile();
         debug("EclipseLinkProvider stopped");
     }
     
+    public void openEclipseLinkLoggingFile() {
+        String loggingFile = System.getProperty(PersistenceUnitProperties.LOGGING_FILE);
+        try {
+            if (loggingFile != null) {
+                eclipseLinkLog = new FileWriter(loggingFile);
+                AbstractSessionLog.getLog().setWriter(eclipseLinkLog);
+            }
+        } catch (IOException e) {
+            AbstractSessionLog.getLog().log(SessionLog.WARNING, "cmp_init_default_logging_file_is_invalid",loggingFile,e);
+        }
+    }
+    public void closeEclipseLinkLoggingFile() {
+        // Reset to default
+        AbstractSessionLog.setLog(new DefaultSessionLog());
+        try {
+            if (eclipseLinkLog != null) {
+                eclipseLinkLog.close();
+            }
+        } catch (IOException e) {
+        }
+    }
+
     /*==============================*/
     /* OSGiJpaProvider impl methods */
     /*==============================*/
@@ -165,8 +196,12 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
      * @param pUnits
      */
     public void assignPersistenceUnitsInBundle(Bundle b, Collection<PUnitInfo> pUnits) {
+        debug("EclipseProvider assignPersistenceUnitsInBundle: ", b.getSymbolicName());
 
-        debug("EclipseLinkProvider assignPersistenceUnitsInBundle: ", b.getSymbolicName());        
+        // Run Initializer to process PU and register transformers
+        BundleContext bundleContext = getBundleContext();
+        new GeminiOSGiInitializer().registerBundle(bundleContext, b, compositeLoader(bundleContext,b), pUnits);
+        
         //TODO Check state of bundle in assign call
 
         // TODO Problem installing fragments in PDE
@@ -300,10 +335,14 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     /*================*/
 
     protected ClassLoader compositeLoader(PUnitInfo pUnitInfo) {
+        return compositeLoader(getBundleContext(), pUnitInfo.getBundle());
+    }
 
-        ClassLoader pUnitLoader = new BundleProxyClassLoader(pUnitInfo.getBundle());
+    protected ClassLoader compositeLoader(BundleContext context,
+            Bundle bundle) {
+        ClassLoader pUnitLoader = new BundleProxyClassLoader(bundle);
         debug("PUnit bundle proxy loader created: ", pUnitLoader);
-        ClassLoader providerLoader = new BundleProxyClassLoader(ctx.getBundle());
+        ClassLoader providerLoader = new BundleProxyClassLoader(context.getBundle());
         debug("Provider bundle proxy loader created: ", providerLoader);
         List<ClassLoader> loaders = new ArrayList<ClassLoader>();
         loaders.add(pUnitLoader);
