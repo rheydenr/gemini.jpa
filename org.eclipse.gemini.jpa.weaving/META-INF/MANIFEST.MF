@@ -1,29 +1,11 @@
 Manifest-Version: 1.0
 Export-Package: org.eclipse.gemini.jpa.weaving,
- org.eclipse.gemini.jpa.weaving.equinox;x-internal:=true
-Private-Package: .
-Ignore-Package: org.eclipse.osgi.framework.debug,org.eclipse.osgi.fram
- ework.log,java.util,org.eclipse.osgi.baseadaptor.hooks,java.net,java.
- security,org.eclipse.osgi.baseadaptor.loader,java.io,org.eclipse.osgi
- .baseadaptor.bundlefile,org.osgi.util.tracker,org.osgi.framework,java
- .lang,org.eclipse.osgi.baseadaptor,org.eclipse.osgi.framework.adaptor
-Implementation-Version: 2.1.0.qualifier
-Specification-Vendor: Eclipse.org - EclipseLink Project
-Tool: Bnd-0.0.366
-DSTAMP: 20091021
-Bundle-Name: Dynamic Weaving Fragment
-TODAY: October 21 2009
-Created-By: 1.6.0_06 (Sun Microsystems Inc.)
-TSTAMP: 1019
+ org.eclipse.gemini.jpa.weaving.equinox
+Bundle-Name: Gemini Dynamic Weaving Fragment
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Implementation-Vendor: Eclipse.org - EclipseLink Project
 Bundle-Vendor: Eclipse.org - Gemini Project
 Fragment-Host: system.bundle;extension:=framework
-Bundle-Version: 2.1.0.qualifier
-Bnd-LastModified: 1256134790372
+Bundle-Version: 1.0.0
 Bundle-ManifestVersion: 2
-Include-Resource: ../../about.html,../../readme.html,../../license.htm
- l,./hookconfigurators.properties
-Specification-Version: 2.0.0
 Bundle-SymbolicName: org.eclipse.gemini.jpa.weaving
 
