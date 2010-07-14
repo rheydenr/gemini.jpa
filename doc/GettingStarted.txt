@@ -1,0 +1,59 @@
+Getting Started with Gemini JPA 
+--------------------------------
+
+Gemini JPA implements the OSGi JPA specification. It uses EclipseLink as the JPA provider.
+
+Required Bundles
+----------------
+
+To run Gemini JPA in OSGi you will need to have the following:
+
+1. OSGi Framework
+
+You may use Plugin Development Environment (PDE) in Eclipse, which will give you access to the Equinox 
+OSGi framework, or you may execute outside of PDE and use any OSGi framework you choose, such as Felix. 
+Weaving of entity classes is only supported on Equinox, but weaving is strictly an optimization and is 
+not needed for JPA operation. 
+
+2. Gemini DBAccess (Optional)
+
+While you don't strictly require Gemini DBAccess to run Gemini JPA it renders your application much more
+modular and easier to configure. The actual bundles you need depend upon the database you are using. 
+If DBAccess is not present you will need to make the JDBC driver accessible to the EclipseLink bundles.
+
+3. OSGi Enterprise API bundle
+
+Gemini JPA implements some of the OSGi Enterprise APIs so the osgi.enterprise bundle must be resident. 
+The bundle includes both the source and the class files so it can be used for both execution and debugging.
+
+4. EclipseLink bundles
+
+The following EclipseLink bundles are required:
+
+- org.eclipse.persistence.asm
+- org.eclipse.persistence.antlr
+- org.eclipse.persistence.core
+- org.eclipse.persistence.jpa
+
+These bundles must be version 2.1.1 or greater.
+
+5. Gemini JPA bundles
+
+There are two Gemini JPA bundles:
+
+- org.elipse.gemini.javax.persistence
+- org.elipse.gemini.jpa
+
+
+Installation
+------------
+
+If running in PDE then unzip the files into a directory and import the various projects into your workspace.
+If you are using the framework directly then unzip the distribution files and follow the documentation of
+the framework for installing the bundles.
+
+Configuration
+-------------
+
+Gemini JPA does not require any special environment configuration. See the User Guide for how to 
+create and install persistence archives.
