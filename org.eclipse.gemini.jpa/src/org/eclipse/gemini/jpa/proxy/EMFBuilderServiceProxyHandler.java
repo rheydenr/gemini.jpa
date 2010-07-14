@@ -16,6 +16,7 @@ package org.eclipse.gemini.jpa.proxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,8 +37,8 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
     // Keep this to let us know if a factory has already been created via the EMF service
     EMFServiceProxyHandler emfService;
     
-    // Keep around a copy of the props used to create an EMF through the EMF builder 
-    Map emfProps = new HashMap();
+    // Keep around a copy of the props used to create an EMF through the EMF builder
+    Map<String,Object> emfProps = new HashMap<String,Object>();
             
     public EMFBuilderServiceProxyHandler(PUnitInfo pUnitInfo,
                                          EMFServiceProxyHandler emfService) {
@@ -58,7 +59,7 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
         if (method.getName().equals("hashCode"))
             return this.hashCode();
 
-        // Must be a creatEntityManagerFactory(String, Map) call
+        // Must be a createEntityManagerFactory(String, Map) call
         
         // If we have a factory and it has already been closed, discard it
         synchronized (this) {
@@ -93,17 +94,20 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
                 }
                 // If it doesn't have one, then assign it one
                 // The first arg must be the props Map
-                Map<?,?> props = (Map<?,?>)args[0];
+                Map<String,Object> props = (Map<String,Object>)args[0];
                 if (emfService.getEMF() == null) {
-                    emfService.setEMF(createEMF(pUnitInfo.getUnitName(), props));
-                }                    
-                return emfService.getEMF();
+                    emfService.setEMF(createEMF(props));
+                }      
+                // Create a proxy to the EMF in the EMFService
+                return Proxy.newProxyInstance(this.getClass().getClassLoader(),
+                                              new Class[] { EntityManagerFactory.class },
+                                              emfService);
             }
         } else {
-            // No EMF service. Incomplete driver props, create our own EMF if we still don't have one
+            // No EMF service (data source was not active). Create our own EMF since we don't have one
             synchronized (this) {
                 if (emf == null)
-                    emf = createEMF(pUnitInfo.getUnitName(), (Map<?,?>)args[0]);
+                    emf = createEMF((Map<String,Object>)args[0]);
             }
             return emf;
         }
@@ -112,15 +116,10 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
     /*================*/
     /* Helper methods */
     /*================*/
-
-    // Local method to create and return an EMF
-    protected EntityManagerFactory createEMF(String unitName, Map<?,?> props) {
-        EntityManagerFactory result = pUnitInfo.getAssignedProvider().getProviderInstance()
-                .createEntityManagerFactory(unitName, props);
-        if (result == null)
-            fatalError("EMFBuilder Service could not create EMF " + unitName + " from provider", null);
-        emfProps.putAll(props);
-        return result;
+    
+    protected EntityManagerFactory createEMF(Map<String,Object> props) {
+        emfProps = props;
+        return super.createEMF(props);
     }
 
     // Local method to compare properties passed in Map to ones in persistence descriptor or in previously set props

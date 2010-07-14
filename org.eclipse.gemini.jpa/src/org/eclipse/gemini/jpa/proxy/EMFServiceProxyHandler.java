@@ -17,8 +17,10 @@ package org.eclipse.gemini.jpa.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.spi.PersistenceProvider;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceFactory;
@@ -56,15 +58,13 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
         else if (method.getName().equals("toString"))
             return this.toString();
         
-        // ***NOTE: What if the provider supports multiple EMFs?
-        // Should we ignore the cache and just call the provider each time?
-        synchronized(this) {
-            if (emf == null) {
-                emf = pUnitInfo.getAssignedProvider().getProviderInstance()
-                        .createEntityManagerFactory(pUnitInfo.getUnitName(), new HashMap<String,String>());
+        // ***NOTE: What if the provider supports multiple EMFs for the same punit?
+        // Should we ignore the cache and just call the provider each time? Don't think so.
+
+        if (emf == null) {
+            synchronized(this) {
                 if (emf == null) {
-                    fatalError("EMFService could not create EMF " + 
-                                            pUnitInfo.getUnitName() + " from provider", null);
+                    emf = createEMF(new HashMap<String,Object>());
                 }
             } 
         }
@@ -92,5 +92,21 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
         // EMF is shared, leave as is until the p-unit or the provider goes away
         // and the service is unregistered
     }
+    
+    /*================*/
+    /* Helper methods */
+    /*================*/
+
+    // Use info from the cached pUnitInfo and create a new EMF to store locally
+    protected EntityManagerFactory createEMF(Map<String,Object> props) {
+        
+        String unitName =  pUnitInfo.getUnitName();
+        PersistenceProvider provider = pUnitInfo.getAssignedProvider().getProviderInstance();
+        EntityManagerFactory result = provider.createEntityManagerFactory(unitName, props);
+        if (result == null)
+            fatalError("Proxy could not create EMF " + unitName + " from provider " + provider, null);
+        return result;
+    }
+
 }        
 
