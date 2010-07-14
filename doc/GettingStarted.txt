@@ -41,8 +41,8 @@ These bundles must be version 2.1.1 or greater.
 
 There are two Gemini JPA bundles:
 
-- org.elipse.gemini.javax.persistence
-- org.elipse.gemini.jpa
+- org.elipse.gemini.javax.persistence - the spec-defined java.persistence classes
+- org.elipse.gemini.jpa - the Gemini supporting classes
 
 
 Installation
