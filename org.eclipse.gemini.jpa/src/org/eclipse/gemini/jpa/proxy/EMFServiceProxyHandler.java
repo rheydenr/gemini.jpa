@@ -53,10 +53,16 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
 
         debug("EMFProxy invocation on method ", method.getName());
 
+        // If close() invoked then just ignore it
+//        if (method.getName().equals("close"))
+//            return null;
+
+        // Invoke these methods on the actual proxy (not the object it's proxying)
         if (method.getName().equals("hashCode"))
             return this.hashCode();
-        else if (method.getName().equals("toString"))
+        if (method.getName().equals("toString"))
             return this.toString();
+        
         
         // ***NOTE: What if the provider supports multiple EMFs for the same punit?
         // Should we ignore the cache and just call the provider each time? Don't think so.

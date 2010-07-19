@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gemini javax.persistence
-Bundle-SymbolicName: org.eclipse.gemini.javax.persistence
-Bundle-Version: 2.0.0.qualifier
+Bundle-SymbolicName: org.eclipse.gemini.javax.persistence-incubation
+Bundle-Version: 2.0.0.M1-incubation
 Bundle-ClassPath: .,lib/javax.persistence_2.0.0.v201005141517.jar
 Bundle-Activator: org.eclipse.gemini.jpa.spec.Activator
 Bundle-Vendor: Oracle
@@ -11,5 +11,5 @@ Export-Package: javax.persistence;uses="javax.persistence.spi,javax.persistence.
  javax.persistence.metamodel;uses="javax.persistence";version="1.1.0";jpa="2.0";spec="2.0",
  javax.persistence.spi;uses="javax.persistence";version="1.1.0";jpa="2.0";spec="2.0",
  org.osgi.service.jpa;version="1.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.osgi.framework;version="1.3.0"
