@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Gemini JPA
-Bundle-SymbolicName: org.eclipse.gemini.jpa-incubation
+Bundle-Name: Gemini JPA (Incubation)
+Bundle-SymbolicName: org.eclipse.gemini.jpa
 Bundle-Version: 1.0.0.M1-incubation
 Bundle-Activator: org.eclipse.gemini.jpa.provider.EclipseLinkOSGiProvider
 Bundle-Vendor: Oracle Corporation

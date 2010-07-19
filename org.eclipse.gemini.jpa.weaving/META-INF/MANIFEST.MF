@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Export-Package: org.eclipse.gemini.jpa.weaving,
  org.eclipse.gemini.jpa.weaving.equinox
-Bundle-Name: Gemini Dynamic Weaving Fragment
+Bundle-Name: Gemini JPA Dynamic Weaving Fragment (Incubation)
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Bundle-Vendor: Eclipse.org - Gemini Project
+Bundle-Vendor: Oracle Corp.
 Fragment-Host: system.bundle;extension:=framework
-Bundle-SymbolicName: org.eclipse.gemini.jpa.weaving-incubation
+Bundle-SymbolicName: org.eclipse.gemini.jpa.weaving
 Bundle-Version: 1.0.0.M1-incubation
 Bundle-ManifestVersion: 2
 

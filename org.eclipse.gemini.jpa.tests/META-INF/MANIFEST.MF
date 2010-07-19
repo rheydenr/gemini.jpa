@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: JPA Unit Tests Plug-in
-Bundle-SymbolicName: org.eclipse.gemini.jpa.tests-incubation
+Bundle-Name: Gemini JPA Unit Tests (Incubation)
+Bundle-SymbolicName: org.eclipse.gemini.jpa.tests
 Bundle-Version: 1.0.0.M1-incubation
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Activator: org.eclipse.gemini.jpa.tests.Activator
@@ -13,5 +13,5 @@ Import-Package: javax.persistence;jpa="2.0";version="1.1.0",
  org.osgi.framework;version="1.3.0",
  org.osgi.service.jpa;version="1.0.0",
  org.osgi.util.tracker;version="1.3.1"
-Require-Bundle: org.eclipse.gemini.jpa.test.punit-incubation;bundle-version="1.0.0",
- org.eclipse.gemini.jpa.test.embeddedpunit-incubation;bundle-version="1.0.0"
+Require-Bundle: org.eclipse.gemini.jpa.test.punit;bundle-version="1.0.0",
+ org.eclipse.gemini.jpa.test.embeddedpunit;bundle-version="1.0.0"
