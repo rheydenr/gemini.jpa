@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: JPA Unit Tests Plug-in
-Bundle-SymbolicName: org.eclipse.gemini.jpa.tests
-Bundle-Version: 1.0.0
+Bundle-SymbolicName: org.eclipse.gemini.jpa.tests-incubation
+Bundle-Version: 1.0.0.M1-incubation
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Activator: org.eclipse.gemini.jpa.tests.Activator
 Import-Package: javax.persistence;jpa="2.0";version="1.1.0",
