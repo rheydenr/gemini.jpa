@@ -126,6 +126,7 @@ public class PersistenceDescriptorHandler extends DefaultHandler {
     protected String contentFromChars(char[] chars, int start, int length) {
         StringBuilder s = new StringBuilder(length);
         for (int idx=start; idx<(start+length); idx++) s.append(chars[idx]);
-        return s.toString();
+        // Bug 327908 - Trim to remove whitespace
+        return s.toString().trim();
     }
 }
