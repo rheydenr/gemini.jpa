@@ -6,6 +6,6 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: Oracle Corp.
 Fragment-Host: system.bundle;extension:=framework
 Bundle-SymbolicName: org.eclipse.gemini.jpa.weaving
-Bundle-Version: 1.0.0.M1-incubation
+Bundle-Version: 1.0.0.M2-incubation
 Bundle-ManifestVersion: 2
 
