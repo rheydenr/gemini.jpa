@@ -46,19 +46,26 @@ public class BundleProxyClassLoader extends ClassLoader {
     // Classloader.getResources was marked final. If your target environment requires
     // at least Java 5 you can prevent the occurrence of duplicate boot classloader 
     // resources by overriding ClassLoader.getResources(...) instead of 
-    // ClassLoader.findResources(...).   
-    public Enumeration findResources(String name) throws IOException {
-        if ((bundle.getState() == Bundle.INSTALLED) ||
-            (bundle.getState() == Bundle.UNINSTALLED)){
-            List<URL> resourceURLs = new ArrayList(1);
-            URL entry = bundle.getEntry(name);
-            if ((entry == null) && (devmode  == true))  {
-            	entry = bundle.getEntry(DEV_BIN_PATH + name);
+    // ClassLoader.findResources(...).
+    @Override
+    public Enumeration<URL> findResources(String name) throws IOException {
+        try {
+            System.out.println("***************** findResources:" + name);
+            if ((bundle.getState() == Bundle.INSTALLED) ||
+                (bundle.getState() == Bundle.UNINSTALLED)){
+                List<URL> resourceURLs = new ArrayList<URL>(1);
+                URL entry = bundle.getEntry(name);
+                if ((entry == null) && (devmode  == true))  {
+                	entry = bundle.getEntry(DEV_BIN_PATH + name);
+                }
+            	resourceURLs.add(entry);
+                return new ListEnumeration(resourceURLs);
+            } else  {
+                return super.findResources(name);
             }
-			resourceURLs.add(entry);
-            return new ListEnumeration(resourceURLs);
-        } else  {
-            return super.findResources(name);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -71,15 +78,20 @@ public class BundleProxyClassLoader extends ClassLoader {
     }
     
     public URL getResource(String name) {
-        if ((bundle.getState() == Bundle.INSTALLED) ||
-            (bundle.getState() == Bundle.UNINSTALLED)){
-            URL entry = bundle.getEntry(name);
-            if ((entry == null) && (devmode  == true))  {
-            	entry = bundle.getEntry(DEV_BIN_PATH + name);
+        try {
+            if ((bundle.getState() == Bundle.INSTALLED) ||
+                (bundle.getState() == Bundle.UNINSTALLED)){
+                URL entry = bundle.getEntry(name);
+                if ((entry == null) && (devmode  == true))  {
+                	entry = bundle.getEntry(DEV_BIN_PATH + name);
+                }
+                return entry;
+            } else {
+                return (parent == null) ? findResource(name) : super.getResource(name);
             }
-            return entry;
-        } else {
-            return (parent == null) ? findResource(name) : super.getResource(name);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

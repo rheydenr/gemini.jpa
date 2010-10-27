@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.jar.Manifest;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.Constants;
 import org.osgi.framework.SynchronousBundleListener;
@@ -363,5 +364,9 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
             // then by definition the two are consistent w.r.t. that package
             return true;
         } 
+    }
+    public void stop(BundleContext context) throws Exception {
+    }
+    public void start(BundleContext context) throws Exception {
     }
 }

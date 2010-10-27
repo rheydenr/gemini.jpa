@@ -14,6 +14,11 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa;
 
+import static org.eclipse.gemini.jpa.GeminiUtil.bundleVersion;
+import static org.eclipse.gemini.jpa.GeminiUtil.debug;
+import static org.eclipse.gemini.jpa.GeminiUtil.fatalError;
+import static org.eclipse.gemini.jpa.GeminiUtil.warning;
+
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,22 +31,17 @@ import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.eclipse.gemini.jpa.classloader.BundleProxyClassLoader;
+import org.eclipse.gemini.jpa.provider.OSGiJpaProvider;
+import org.eclipse.gemini.jpa.proxy.EMFBuilderServiceProxyHandler;
+import org.eclipse.gemini.jpa.proxy.EMFServiceProxyHandler;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.util.tracker.ServiceTracker;
-
 import org.osgi.service.jdbc.DataSourceFactory;
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
-
-import org.eclipse.persistence.internal.jpa.deployment.osgi.BundleProxyClassLoader;
-
-import org.eclipse.gemini.jpa.provider.OSGiJpaProvider;
-import org.eclipse.gemini.jpa.proxy.EMFBuilderServiceProxyHandler;
-import org.eclipse.gemini.jpa.proxy.EMFServiceProxyHandler;
-
-import static org.eclipse.gemini.jpa.GeminiUtil.*;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * This class provides functionality to handle service registration of 
