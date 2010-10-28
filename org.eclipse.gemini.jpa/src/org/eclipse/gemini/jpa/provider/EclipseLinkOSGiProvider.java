@@ -44,7 +44,7 @@ import javax.sql.DataSource;
 import org.eclipse.gemini.jpa.GeminiUtil;
 import org.eclipse.gemini.jpa.PUnitInfo;
 import org.eclipse.gemini.jpa.PersistenceBundleExtender;
-import org.eclipse.gemini.jpa.PersistenceServicesUtil;
+import org.eclipse.gemini.jpa.GeminiServicesUtil;
 import org.eclipse.gemini.jpa.PersistenceUnitBundleUtil;
 import org.eclipse.gemini.jpa.PlainDriverDataSource;
 import org.eclipse.gemini.jpa.classloader.BundleProxyClassLoader;
@@ -85,7 +85,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     PersistenceBundleExtender extender;
 
     /** Services utility code */
-    PersistenceServicesUtil servicesUtil;
+    GeminiServicesUtil servicesUtil;
     
     /** Other Bundle-level utility code */
     PersistenceUnitBundleUtil puBundleUtil;
@@ -109,7 +109,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         ctx = context;
         pUnitsByName = Collections.synchronizedMap(new HashMap<String, PUnitInfo>());
         extender = new PersistenceBundleExtender(this);
-        servicesUtil = new PersistenceServicesUtil(this);
+        servicesUtil = new GeminiServicesUtil(this);
         puBundleUtil = new PersistenceUnitBundleUtil();
         openEclipseLinkLoggingFile();
         eclipseLinkProvider = new org.eclipse.gemini.jpa.provider.PersistenceProvider();
