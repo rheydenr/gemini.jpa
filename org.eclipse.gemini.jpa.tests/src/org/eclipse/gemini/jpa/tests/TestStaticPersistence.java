@@ -31,10 +31,6 @@ public class TestStaticPersistence extends JpaTest {
 
     public static EntityManagerFactory emf;
 
-    public static boolean shouldRun(String unitName, boolean isEMF) {
-        return PERSISTENCE_UNIT_UNDER_TEST.equals(unitName) && isEMF;
-    }
-    
     /* === Test Methods === */
 
     @BeforeClass
@@ -55,4 +51,6 @@ public class TestStaticPersistence extends JpaTest {
     /* === Subclassed methods === */
 
     public EntityManagerFactory getEmf() { return emf; }
+
+    public String getTestPersistenceUnitName() { return PERSISTENCE_UNIT_UNDER_TEST; }
 }

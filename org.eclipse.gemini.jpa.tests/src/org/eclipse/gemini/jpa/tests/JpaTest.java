@@ -14,7 +14,9 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa.tests;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.*;
@@ -35,14 +37,31 @@ import model.account.*;
  */
 public abstract class JpaTest {
     
-    public static BundleContext context;        
+    public static BundleContext context;
+
+    public static Map<String,Object> defaultProps() {
+        Map<String,Object> props = new HashMap<String,Object>();        
+        props.put("javax.persistence.jdbc.driver", "org.apache.derby.jdbc.ClientDriver");
+        props.put("javax.persistence.jdbc.url", "jdbc:derby://localhost:1527/accountDB;create=true");
+        props.put("javax.persistence.jdbc.user", "app");
+        props.put("javax.persistence.jdbc.password", "app");
+        return props;
+    }
 
     /* === Methods that *must* be subclassed === */
 
     public abstract EntityManagerFactory getEmf();
 
-    /* === Methods that *may* be subclassed === */
+    public abstract String getTestPersistenceUnitName();
     
+    /* === Methods that *may* be subclassed === */
+
+    public boolean needsEmfService() { return true; }
+
+    public String testName() {
+        return this.getClass().getSimpleName();
+    }
+
     public Object newObject() {
         Account a = new Account();
         a.setBalance(100.0);

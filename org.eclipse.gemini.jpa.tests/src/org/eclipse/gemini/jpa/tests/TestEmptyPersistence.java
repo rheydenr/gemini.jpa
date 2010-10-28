@@ -17,25 +17,31 @@ package org.eclipse.gemini.jpa.tests;
 import javax.persistence.EntityManagerFactory;
 
 import org.junit.*;
+import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
 /**
- * Test class to test looking up EMF Service from a client
+ * Test class to test empty persistence unit using OSGi JPA services
  * 
  * @author mkeith
  */
-public class TestEMFService extends JpaTest {
-        
-    public static final String TEST_NAME = "TestEMFService";
-    public static final String PERSISTENCE_UNIT_UNDER_TEST = "Accounts";
+public class TestEmptyPersistence extends JpaTest {
+    
+    public static final String TEST_NAME = "TestEmptyPersistenceUnit";
+    public static final String PERSISTENCE_UNIT_UNDER_TEST = "Empty1";
 
-    protected static EntityManagerFactory emf;
+    public static EntityManagerFactory emf;
 
+    public static boolean shouldRun(String unitName, boolean isEMF) {
+        return PERSISTENCE_UNIT_UNDER_TEST.equals(unitName) && !isEMF;
+    }
+    
     /* === Test Methods === */
 
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        emf = emfb.createEntityManagerFactory(JpaTest.defaultProps());
         slog(TEST_NAME, "Got EMF - " + emf);
     }
 
@@ -46,10 +52,20 @@ public class TestEMFService extends JpaTest {
             emf = null;
         }
     }
-    
+
+    public void testPersisting() {
+        log("overridden testPersisting");
+    }
+
     /* === Subclassed methods === */
 
     public EntityManagerFactory getEmf() { return emf; }
 
     public String getTestPersistenceUnitName() { return PERSISTENCE_UNIT_UNDER_TEST; }
+
+    public boolean needsEmfService() { return false; }
+
+    public Object newObject() { return null; }
+    public Object findObject() { return null; }
+    public Object queryObjects() { return null; }
 }

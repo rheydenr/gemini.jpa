@@ -14,22 +14,27 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa.tests;
 
+import java.util.List;
+
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityManager;
+
+import model.xmlmapped.SimpleEntity2;
 
 import org.junit.*;
 
 /**
- * Test class to test looking up EMF Service from a client
+ * Test class for an entity mapped in orm.xml
  * 
  * @author mkeith
  */
-public class TestEMFService extends JpaTest {
+public class TestMappingFileElement extends JpaTest {
         
-    public static final String TEST_NAME = "TestEMFService";
-    public static final String PERSISTENCE_UNIT_UNDER_TEST = "Accounts";
+    public static final String TEST_NAME = "TestMappingFileElement";
+    public static final String PERSISTENCE_UNIT_UNDER_TEST = "XmlMapped";
 
     protected static EntityManagerFactory emf;
-
+    
     /* === Test Methods === */
 
     @BeforeClass
@@ -46,10 +51,32 @@ public class TestEMFService extends JpaTest {
             emf = null;
         }
     }
-    
+
     /* === Subclassed methods === */
 
     public EntityManagerFactory getEmf() { return emf; }
 
     public String getTestPersistenceUnitName() { return PERSISTENCE_UNIT_UNDER_TEST; }
+
+    public Object newObject() {
+        SimpleEntity2 a = new SimpleEntity2();
+        a.setId(20);
+        a.setSimpleInt(21);
+        return a;
+    }
+    
+    public Object findObject() {
+        EntityManager em = emf.createEntityManager();
+        Object obj = em.find(SimpleEntity2.class, 1);
+        em.close();
+        return obj;
+    }
+
+    public Object queryObjects() {
+        EntityManager em = emf.createEntityManager();
+        List<?> result = em.createQuery("SELECT a FROM SimpleEntity2 a").getResultList();
+        assert(result.size() == 1);
+        em.close();
+        return result;
+    }
 }

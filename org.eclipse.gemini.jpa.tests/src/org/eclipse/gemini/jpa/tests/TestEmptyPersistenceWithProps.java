@@ -14,28 +14,34 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa.tests;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.persistence.EntityManagerFactory;
 
 import org.junit.*;
+import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
 /**
- * Test class to test looking up EMF Service from a client
+ * Test class to test empty persistence unit using OSGi JPA services
  * 
  * @author mkeith
  */
-public class TestEMFService extends JpaTest {
-        
-    public static final String TEST_NAME = "TestEMFService";
-    public static final String PERSISTENCE_UNIT_UNDER_TEST = "Accounts";
+public class TestEmptyPersistenceWithProps extends JpaTest {
+    
+    public static final String TEST_NAME = "TestEmptyPersistenceUnitWithProps";
+    public static final String PERSISTENCE_UNIT_UNDER_TEST = "Empty2";
 
-    protected static EntityManagerFactory emf;
-
+    public static EntityManagerFactory emf;
+    
     /* === Test Methods === */
 
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        Map<String,Object> props = new HashMap<String,Object>();        
+        emf = emfb.createEntityManagerFactory(props);
         slog(TEST_NAME, "Got EMF - " + emf);
     }
 
@@ -46,10 +52,20 @@ public class TestEMFService extends JpaTest {
             emf = null;
         }
     }
-    
+
+    public void testPersisting() {
+        log("overridden testPersisting");
+    }
+
     /* === Subclassed methods === */
 
     public EntityManagerFactory getEmf() { return emf; }
 
     public String getTestPersistenceUnitName() { return PERSISTENCE_UNIT_UNDER_TEST; }
+
+    public boolean needsEmfService() { return false; }
+
+    public Object newObject() { return null; }
+    public Object findObject() { return null; }
+    public Object queryObjects() { return null; }
 }

@@ -14,9 +14,6 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa.tests;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.persistence.EntityManagerFactory;
 
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
@@ -36,20 +33,11 @@ public class TestEMFBuilderServiceProperties extends JpaTest {
 
     public static EntityManagerFactory emf;
 
-    public static boolean shouldRun(String unitName, boolean isEMF) {
-        return PERSISTENCE_UNIT_UNDER_TEST.equals(unitName) && !isEMF;
-    }
-
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
         EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
-        Map<String,Object> props = new HashMap<String,Object>();        
-        props.put("javax.persistence.jdbc.driver", "org.apache.derby.jdbc.ClientDriver");
-        props.put("javax.persistence.jdbc.url", "jdbc:derby://localhost:1527/accountDB;create=true");
-        props.put("javax.persistence.jdbc.user", "app");
-        props.put("javax.persistence.jdbc.password", "app");
-        emf = emfb.createEntityManagerFactory(props);
+        emf = emfb.createEntityManagerFactory(JpaTest.defaultProps());
         slog(TEST_NAME, "Got EMF - " + emf);
     }
 
@@ -64,4 +52,8 @@ public class TestEMFBuilderServiceProperties extends JpaTest {
     /* === Subclassed methods === */
 
     public EntityManagerFactory getEmf() { return emf; }
+
+    public String getTestPersistenceUnitName() { return PERSISTENCE_UNIT_UNDER_TEST; }
+
+    public boolean needsEmfService() { return false; }
 }

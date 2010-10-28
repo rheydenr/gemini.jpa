@@ -14,9 +14,15 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa.tests;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
+
+import test.TestState;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
@@ -41,6 +47,8 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
     
     ServiceTracker emfTracker;
     ServiceTracker emfbTracker;
+    
+    
 
     public void start(BundleContext context) throws Exception {
         log("Tests active");
@@ -63,15 +71,41 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
         emfTracker.close();
     }
 
-    void runTest(String descr, Class<?> testClass) {
-        log("Running " + descr + ": ");
-        
+    boolean shouldRun(Class<? extends JpaTest> testClass, String unitName, boolean isEMFService) {
+        JpaTest test = null;
+        try { test = testClass.newInstance(); 
+        } catch (Exception ex) { throw new RuntimeException(ex); }
+        return !TestState.isTested(testClass.getSimpleName()) 
+                && test.getTestPersistenceUnitName().equals(unitName)
+                && (!(test.needsEmfService() ^ isEMFService));
+    }
+    
+    void runTest(Class<? extends JpaTest> testClass) {
+        String testName = testClass.getSimpleName();
+        TestState.startTest(testName);
+        log("Running " + testName + ": ");
         Result r = JUnitCore.runClasses(testClass);
 
-        log(descr + " results: ");
+        log(testName + " results: ");
         logResultStats(r);
+        TestState.completedTest(testName,r);
+            
+        log("Done " + testName);
 
-        log("Done " + descr);
+        Set<String> incompleteTests = TestState.getIncompletedTests();
+        if (!incompleteTests.isEmpty()) {
+            System.out.println("------------------- Tests not run yet: " + incompleteTests);
+        } else {
+            // If no more tests to run, print out a summary
+            System.out.println("-----------------------------------------------------"); 
+            System.out.println("------------------- Test Summary --------------------"); 
+            System.out.println("-----------------------------------------------------"); 
+            Set<Map.Entry<String,Result>> results = TestState.getAllTestResults().entrySet();
+            for (Map.Entry<String,Result> entry : results) {
+                System.out.println("Test: " + entry.getKey()); 
+                logResultStats(entry.getValue()); 
+            }
+        }
     }
 
     /* ServiceTracker methods */
@@ -86,18 +120,29 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
             // We have a JPA service. Is it an EMF or an EMFBuilder?
             boolean isEmfService = EntityManagerFactory.class.isInstance(service);
             
+            log("Service added **** name=" + unitName + " EMF=" + isEmfService);
+            
             // Now ask each test if it should run based on the punit name and whether 
             // the service is an EMF or an EMFBuilder.
-            if (TestStaticPersistence.shouldRun(unitName, isEmfService))
-                runTest("JPA Static Persistence tests", TestStaticPersistence.class);
-            if (TestEMFService.shouldRun(unitName, isEmfService))
-                runTest("JPA EMF Service tests", TestEMFService.class);
-            if (TestEMFBuilderService.shouldRun(unitName, isEmfService))
-                runTest("JPA EMF Builder Service tests", TestEMFBuilderService.class);
-            if (TestEMFBuilderServiceProperties.shouldRun(unitName, isEmfService))
-                runTest("JPA EMF Builder Service Properties tests", TestEMFBuilderServiceProperties.class);
-            if (TestEmbeddedPUnit.shouldRun(unitName, isEmfService))
-                runTest("JPA Embedded PUnit tests", TestEmbeddedPUnit.class);
+            
+            if (shouldRun(TestStaticPersistence.class, unitName, isEmfService))
+                runTest(TestStaticPersistence.class);
+            if (shouldRun(TestEMFService.class, unitName, isEmfService))
+                runTest(TestEMFService.class);
+            if (shouldRun(TestEMFBuilderService.class, unitName, isEmfService))
+                runTest(TestEMFBuilderService.class);
+            if (shouldRun(TestEMFBuilderServiceProperties.class, unitName, isEmfService))
+                runTest(TestEMFBuilderServiceProperties.class);
+            if (shouldRun(TestEmbeddedPUnit.class, unitName, isEmfService))
+                runTest(TestEmbeddedPUnit.class);
+            if (shouldRun(TestOrmMappingFile.class, unitName, isEmfService))
+                runTest(TestOrmMappingFile.class);
+            if (shouldRun(TestMappingFileElement.class, unitName, isEmfService))
+                runTest(TestMappingFileElement.class);
+            if (shouldRun(TestEmptyPersistence.class, unitName, isEmfService))
+                runTest(TestEmptyPersistence.class);
+            if (shouldRun(TestEmptyPersistenceWithProps.class, unitName, isEmfService))
+                runTest(TestEmptyPersistenceWithProps.class);
         }
         return service;
     }
