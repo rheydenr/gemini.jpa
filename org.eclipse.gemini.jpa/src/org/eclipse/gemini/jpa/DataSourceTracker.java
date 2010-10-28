@@ -27,10 +27,10 @@ public class DataSourceTracker implements ServiceTrackerCustomizer {
     private PUnitInfo pUnitInfo;
 
     // Tell this guy when the service disappears
-    PersistenceServicesUtil servicesUtil;
+    GeminiServicesUtil servicesUtil;
         
     public DataSourceTracker(PUnitInfo pUnitInfo,
-                             PersistenceServicesUtil servicesUtil) {
+                             GeminiServicesUtil servicesUtil) {
         this.pUnitInfo = pUnitInfo;
         this.servicesUtil = servicesUtil;
     }

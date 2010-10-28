@@ -60,21 +60,21 @@ public class PUnitInfo {
     
     /** 
      * EMF Service state - set by servicesUtil
-     * @see PersistenceServicesUtil
+     * @see GeminiServicesUtil
      */
     EMFServiceProxyHandler emfHandler;
     ServiceRegistration emfService;
 
     /** 
      * EMF Builder Service state - set by servicesUtil
-     * @see PersistenceServicesUtil
+     * @see GeminiServicesUtil
      */
     EMFBuilderServiceProxyHandler emfBuilderHandler;
     ServiceRegistration emfBuilderService;
 
     /** 
      * For tracking the data source factory - set by servicesUtil
-     * @see PersistenceServicesUtil 
+     * @see GeminiServicesUtil 
      */
     ServiceTracker tracker;
 
