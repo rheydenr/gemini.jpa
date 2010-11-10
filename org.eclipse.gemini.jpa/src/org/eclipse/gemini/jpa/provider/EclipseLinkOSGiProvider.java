@@ -50,6 +50,7 @@ import org.eclipse.gemini.jpa.PlainDriverDataSource;
 import org.eclipse.gemini.jpa.classloader.BundleProxyClassLoader;
 import org.eclipse.gemini.jpa.classloader.CompositeClassLoader;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
+import org.eclipse.persistence.internal.jpa.deployment.PersistenceUnitProcessor;
 import org.eclipse.persistence.logging.AbstractSessionLog;
 import org.eclipse.persistence.logging.DefaultSessionLog;
 import org.eclipse.persistence.logging.SessionLog;
@@ -113,7 +114,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         puBundleUtil = new PersistenceUnitBundleUtil();
         openEclipseLinkLoggingFile();
         eclipseLinkProvider = new org.eclipse.gemini.jpa.provider.PersistenceProvider();
-        
+        PersistenceUnitProcessor.setArchiveFactory(new OSGiArchiveFactoryImpl());
         
         // Register as a provider 
         servicesUtil.registerProviderService();
@@ -302,6 +303,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         props.put(PersistenceUnitProperties.CLASSLOADER, compositeLoader(pUnitInfo));
         props.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, acquireDataSource(pUnitInfo, properties));
         props.put(PersistenceUnitProperties.ECLIPSELINK_PERSISTENCE_XML, fullDescriptorPath(pUnitInfo));
+        props.put(GeminiOSGiInitializer.OSGI_BUNDLE, pUnitInfo.getBundle());
         
         EntityManagerFactory emf = eclipseLinkProvider.createEntityManagerFactory(emName, props);
         return emf;

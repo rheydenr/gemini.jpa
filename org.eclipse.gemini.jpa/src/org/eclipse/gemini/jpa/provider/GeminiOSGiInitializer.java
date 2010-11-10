@@ -40,7 +40,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 public class GeminiOSGiInitializer extends JavaSECMPInitializer {
-    private static final String OSGI_BUNDLE = "org.eclipse.gemini.jpa.bundle";
+    public static final String OSGI_BUNDLE = "org.eclipse.gemini.jpa.bundle";
     private static final String OSGI_CONTEXT = "org.eclipse.gemini.jpa.context";
 
     private boolean weavingSupported = true; // TODO: need to determine if Equinox 
@@ -64,6 +64,7 @@ public class GeminiOSGiInitializer extends JavaSECMPInitializer {
      * @param loader
      */
     GeminiOSGiInitializer(ClassLoader loader) {
+        super(loader);
         this.bundleLoader = loader;
     }
 
@@ -98,9 +99,12 @@ public class GeminiOSGiInitializer extends JavaSECMPInitializer {
         this.bundleLoader = bundleLoader;
         
         List<Archive> pars = new ArrayList<Archive>();
-        for (PUnitInfo pUnitInfo : pUnits) {        	
-			pars.addAll(PersistenceUnitProcessor.findPersistenceArchives(
-					bundleLoader, pUnitInfo.getDescriptorInfo().fullDescriptorPath()));
+        Map<String, String> storedArchives = new HashMap<String, String>();
+        for (PUnitInfo pUnitInfo : pUnits) {
+            if (!storedArchives.containsKey(pUnitInfo.getDescriptorInfo().fullDescriptorPath())){
+                pars.addAll(PersistenceUnitProcessor.findPersistenceArchives(bundleLoader, pUnitInfo.getDescriptorInfo().fullDescriptorPath()));
+                storedArchives.put(pUnitInfo.getDescriptorInfo().fullDescriptorPath(), null);
+            }
         }
         // Create a properties map with the bundle and context so they
         // are available when defining a transformer.

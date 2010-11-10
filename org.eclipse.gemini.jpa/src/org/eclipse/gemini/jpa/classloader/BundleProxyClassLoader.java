@@ -50,15 +50,16 @@ public class BundleProxyClassLoader extends ClassLoader {
     @Override
     public Enumeration<URL> findResources(String name) throws IOException {
         try {
-            System.out.println("***************** findResources:" + name);
             if ((bundle.getState() == Bundle.INSTALLED) ||
                 (bundle.getState() == Bundle.UNINSTALLED)){
                 List<URL> resourceURLs = new ArrayList<URL>(1);
                 URL entry = bundle.getEntry(name);
                 if ((entry == null) && (devmode  == true))  {
-                	entry = bundle.getEntry(DEV_BIN_PATH + name);
+                    entry = bundle.getEntry(DEV_BIN_PATH + name);
                 }
-            	resourceURLs.add(entry);
+                if (entry != null){
+                    resourceURLs.add(entry);
+                }
                 return new ListEnumeration(resourceURLs);
             } else  {
                 return super.findResources(name);
