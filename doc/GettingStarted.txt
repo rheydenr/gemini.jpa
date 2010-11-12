@@ -32,18 +32,21 @@ If DBAccess is not present you will need to make the JDBC driver accessible to t
 
 The following EclipseLink bundles are required:
 
+- javax.persistence
 - org.eclipse.persistence.asm
 - org.eclipse.persistence.antlr
 - org.eclipse.persistence.core
 - org.eclipse.persistence.jpa
 
-These bundles must be version 2.1.1 or greater.
+These bundles must be version 2.2 or greater. If nightly or milestone builds are used then they must be 
+dated Nov 12, 2010 or later.
+
+Note: You do *NOT* need the org.eclipse.persistence.jpa.osgi bundle shipped with EclipseLink.
 
 5. Gemini JPA bundles
 
-There are three bundles shipped with Gemini JPA:
+There are two bundles shipped with Gemini JPA:
 
-- org.elipse.gemini.javax.persistence - the spec-defined java.persistence classes
 - org.elipse.gemini.jpa - the Gemini supporting classes
 - org.elipse.gemini.jpa.weaving - weaving support for Gemini JPA
 

@@ -76,8 +76,8 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
         try { test = testClass.newInstance(); 
         } catch (Exception ex) { throw new RuntimeException(ex); }
         return !TestState.isTested(testClass.getSimpleName()) 
-                && test.getTestPersistenceUnitName().equals(unitName)
-                && (!(test.needsEmfService() ^ isEMFService));
+               && test.getTestPersistenceUnitName().equals(unitName)
+               && (!(test.needsEmfService() ^ isEMFService));
     }
     
     void runTest(Class<? extends JpaTest> testClass) {
@@ -123,7 +123,8 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
             log("Service added **** name=" + unitName + " EMF=" + isEmfService);
             
             // Now ask each test if it should run based on the punit name and whether 
-            // the service is an EMF or an EMFBuilder.
+            // the service is an EMF or an EMFBuilder. Note that more than one test 
+            // may run on the same EMF/B service.
             
             if (shouldRun(TestStaticPersistence.class, unitName, isEmfService))
                 runTest(TestStaticPersistence.class);

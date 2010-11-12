@@ -40,6 +40,8 @@ public class TestState implements BundleActivator {
         incompletedTests = new HashSet<String>();
         completedTests = new HashMap<String,Result>();
 
+        // Tests to run - Comment out tests to disable them.
+        
         incompletedTests.add("TestStaticPersistence");
         incompletedTests.add("TestEMFService");
         incompletedTests.add("TestEMFBuilderService");
