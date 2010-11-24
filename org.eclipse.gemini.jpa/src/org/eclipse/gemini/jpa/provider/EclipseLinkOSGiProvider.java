@@ -41,10 +41,10 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.ProviderUtil;
 import javax.sql.DataSource;
 
+import org.eclipse.gemini.jpa.GeminiServicesUtil;
 import org.eclipse.gemini.jpa.GeminiUtil;
 import org.eclipse.gemini.jpa.PUnitInfo;
 import org.eclipse.gemini.jpa.PersistenceBundleExtender;
-import org.eclipse.gemini.jpa.GeminiServicesUtil;
 import org.eclipse.gemini.jpa.PersistenceUnitBundleUtil;
 import org.eclipse.gemini.jpa.PlainDriverDataSource;
 import org.eclipse.gemini.jpa.classloader.BundleProxyClassLoader;

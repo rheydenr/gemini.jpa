@@ -14,6 +14,7 @@
  ******************************************************************************/  
 package org.eclipse.gemini.jpa.classloader;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -27,8 +28,7 @@ public class BundleProxyClassLoader extends ClassLoader {
 
     private Bundle bundle;
     private ClassLoader parent;
-    private String DEV_BIN_PATH = "bin/"; //TODO derive from environment
-	private boolean devmode = true; //TODO initialize based on environment
+    private EclipseDotClasspathHelper classpathHelper = new EclipseDotClasspathHelper();
         
     public BundleProxyClassLoader(Bundle bundle) {
         this.bundle = bundle;
@@ -53,10 +53,7 @@ public class BundleProxyClassLoader extends ClassLoader {
             if ((bundle.getState() == Bundle.INSTALLED) ||
                 (bundle.getState() == Bundle.UNINSTALLED)){
                 List<URL> resourceURLs = new ArrayList<URL>(1);
-                URL entry = bundle.getEntry(name);
-                if ((entry == null) && (devmode  == true))  {
-                    entry = bundle.getEntry(DEV_BIN_PATH + name);
-                }
+                URL entry = getEntry(name);
                 if (entry != null){
                     resourceURLs.add(entry);
                 }
@@ -82,18 +79,30 @@ public class BundleProxyClassLoader extends ClassLoader {
         try {
             if ((bundle.getState() == Bundle.INSTALLED) ||
                 (bundle.getState() == Bundle.UNINSTALLED)){
-                URL entry = bundle.getEntry(name);
-                if ((entry == null) && (devmode  == true))  {
-                	entry = bundle.getEntry(DEV_BIN_PATH + name);
-                }
+                URL entry = getEntry(name);
                 return entry;
             } else {
                 return (parent == null) ? findResource(name) : super.getResource(name);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+
+    protected URL getEntry(String name) {
+        URL entry = bundle.getEntry(name);
+        if (entry == null) {
+            entry = getEclipseProjectEntry(name, entry);
+        }
+        return entry;
+    }
+
+    protected URL getEclipseProjectEntry(String name, URL entry) {
+        String binPath = classpathHelper.getBinPath(bundle);
+        if (binPath != null) {
+            entry = bundle.getEntry(binPath + File.separator + name);
+        }
+        return entry;
     }
 
     protected Class loadClass(String name, boolean resolve) throws ClassNotFoundException {

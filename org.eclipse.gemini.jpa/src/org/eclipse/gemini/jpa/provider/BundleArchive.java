@@ -11,6 +11,7 @@
  *
  * Contributors:
  *     tware - initial implementation
+ *     ssmith - support for user specified Eclipse project bin path
  ******************************************************************************/
 package org.eclipse.gemini.jpa.provider;
 
@@ -27,8 +28,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.gemini.jpa.classloader.EclipseDotClasspathHelper;
 import org.eclipse.persistence.internal.jpa.deployment.ArchiveBase;
-import org.eclipse.persistence.internal.jpa.deployment.JPAInitializer;
 import org.eclipse.persistence.jpa.Archive;
 import org.osgi.framework.Bundle;
 
@@ -41,6 +42,7 @@ import org.osgi.framework.Bundle;
 public class BundleArchive extends ArchiveBase implements Archive {
 
     protected Bundle bundle = null;
+    protected EclipseDotClasspathHelper pdeClasspathHelper = new EclipseDotClasspathHelper();
     
     @SuppressWarnings("unused")
     private Logger logger;
@@ -73,21 +75,10 @@ public class BundleArchive extends ArchiveBase implements Archive {
     public Iterator<String> getEntries() {
         
         Enumeration<URL> entries = null;
-        if (System.getProperty("IN_PDE") != null){
-            entries = bundle.findEntries("./classes","*.class", true);
-            if (!entries.hasMoreElements()){
-                entries = bundle.findEntries("./bin","*.class", true);
-                pathPrefixSize =7;
-                JPAInitializer.BUNDLE_RESOURCE_PREFIX = "/./bin/";
-                if (!entries.hasMoreElements()){
-                    entries = bundle.findEntries(".","*.class", true);
-                    pathPrefixSize =3;
-                    JPAInitializer.BUNDLE_RESOURCE_PREFIX = "/./";
-                }
-            } else {
-                pathPrefixSize =11;
-                JPAInitializer.BUNDLE_RESOURCE_PREFIX = "/./classes/";
-            }
+        String binPath = pdeClasspathHelper.getBinPath(bundle);
+        if (binPath != null) { // In Eclipse PDE
+            entries = bundle.findEntries(binPath,"*.class", true);
+            pathPrefixSize = binPath.length() + 2; // leading and trailing separator chars
         } else {
             entries = bundle.findEntries(".","*.class", true);
             pathPrefixSize = 3;
@@ -123,7 +114,7 @@ public class BundleArchive extends ArchiveBase implements Archive {
     public URL getEntryAsURL(String entryPath) throws IOException {
         return bundle.getEntry(entryPath);
     }
-    
+
     public void close() {     
     }
 }
