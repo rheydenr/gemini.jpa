@@ -36,7 +36,12 @@ public class DataSourceTracker implements ServiceTrackerCustomizer {
     }
     
     public Object addingService(ServiceReference ref) {
-        return ref.getBundle().getBundleContext().getService(ref);
+        return pUnitInfo.getAssignedProvider()
+                        .getBundleContext()
+                        .getService(ref);
+        // TODO We would like to be calling 
+        //       servicesUtil.dataSourceFactoryAdded(pUnitInfo)
+        // but that would involve doing all kinds of EMF service registration
     }
 
     public void modifiedService(ServiceReference ref, Object service) {}
