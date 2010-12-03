@@ -81,11 +81,12 @@ public class PersistenceDescriptorHandler extends DefaultHandler {
             String propName = attributes.getValue("name");
             debugXml("prop name: ", propName);
             if (nullOrEmpty(propName))
-                GeminiUtil.fatalError("No property name found" , null);
+                GeminiUtil.fatalError("Invalid 'name' for persistence descriptor <property>" , null);
             String propValue = attributes.getValue("value");
             debugXml("prop value: ", propValue);
-            if (nullOrEmpty(propValue))
-                GeminiUtil.fatalError("No property name found" , null);
+            // If no value then set to empty string
+            if (propValue == null)
+                propValue = "";
 
             if (propName.equals(GeminiUtil.JPA_JDBC_DRIVER_PROPERTY))
                 currentPUnit.setDriverClassName(propValue);
