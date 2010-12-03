@@ -7,6 +7,7 @@
     <persistence-unit name="Empty1" transaction-type="RESOURCE_LOCAL">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <properties>
+            <property name="testEmptyProperty" value=""/>
 			<property name="eclipselink.logging.level" value="FINEST"/>
             <property name="eclipselink.logging.timestamp" value="false"/>
             <property name="eclipselink.logging.thread" value="false"/>
