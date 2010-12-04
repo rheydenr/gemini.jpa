@@ -10,9 +10,11 @@
  * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
- *     ssmith - Based on - http://wiki.eclipse.org/index.php/BundleProxyClassLoader_recipe
+ *     ssmith - inspired by http://wiki.eclipse.org/index.php/BundleProxyClassLoader_recipe
  ******************************************************************************/  
 package org.eclipse.gemini.jpa.classloader;
+
+import static org.eclipse.gemini.jpa.GeminiUtil.debugClassLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,68 +29,82 @@ import org.osgi.framework.Bundle;
 public class BundleProxyClassLoader extends ClassLoader {
 
     private Bundle bundle;
-    private ClassLoader parent;
     private EclipseDotClasspathHelper classpathHelper = new EclipseDotClasspathHelper();
         
     public BundleProxyClassLoader(Bundle bundle) {
         this.bundle = bundle;
     }
     
-    public BundleProxyClassLoader(Bundle bundle, ClassLoader parent) {
-        super(parent);
-        this.parent = parent;
-        this.bundle = bundle;
-    }
-
-    // Note: Both ClassLoader.getResources(...) and bundle.getResources(...) consult 
-    // the boot classloader. As a result, BundleProxyClassLoader.getResources(...) 
-    // might return duplicate results from the boot classloader. Prior to Java 5 
-    // Classloader.getResources was marked final. If your target environment requires
-    // at least Java 5 you can prevent the occurrence of duplicate boot classloader 
-    // resources by overriding ClassLoader.getResources(...) instead of 
-    // ClassLoader.findResources(...).
     @Override
     public Enumeration<URL> findResources(String name) throws IOException {
         try {
-            if ((bundle.getState() == Bundle.INSTALLED) ||
-                (bundle.getState() == Bundle.UNINSTALLED)){
-                List<URL> resourceURLs = new ArrayList<URL>(1);
-                URL entry = getEntry(name);
-                if (entry != null){
-                    resourceURLs.add(entry);
-                }
-                return new ListEnumeration(resourceURLs);
-            } else  {
-                return super.findResources(name);
+            List<URL> resourceURLs = new ArrayList<URL>(1);
+            URL entry = getEntry(name);
+            if (entry != null){
+                resourceURLs.add(entry);
             }
+            return new ListEnumeration(resourceURLs);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
 
+    @Override
     public URL findResource(String name) {
-        return bundle.getResource(name);
+         return getEntry(name);
     }
 
-    public Class findClass(String name) throws ClassNotFoundException {
-        return bundle.loadClass(name);
-    }
-    
+    @Override
     public URL getResource(String name) {
         try {
             if ((bundle.getState() == Bundle.INSTALLED) ||
                 (bundle.getState() == Bundle.UNINSTALLED)){
-                URL entry = getEntry(name);
-                return entry;
+                // bundle has no classloader yet so resort to getEntry
+                debugClassLoader("Bundle has no classloader so getResource(", name ,
+                    ") calling findResource");
+                return findResource(name);
             } else {
-                return (parent == null) ? findResource(name) : super.getResource(name);
+                // bundle has classloader so forward getResource
+                return bundle.getResource(name);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+    @Override
+    public Enumeration<URL> getResources(String name) throws IOException {
+        try {
+            if ((bundle.getState() == Bundle.INSTALLED) ||
+                (bundle.getState() == Bundle.UNINSTALLED)){
+               // bundle has no classloader
+                debugClassLoader("Bundle has no classloader so getResources(", name ,
+                    ") calling findResources");
+                return findResources(name);
+            } else {
+                return bundle.getResources(name);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public java.lang.Class<?> loadClass(String name) throws ClassNotFoundException {
+        if ((bundle.getState() == Bundle.INSTALLED) ||
+            (bundle.getState() == Bundle.UNINSTALLED)){
+            // Bundle has no classloader and bundle.loadClass
+            // may result in attempt to resolve bundle which we
+            // don't want as a side effect.
+            debugClassLoader("Bundle has no classloader so loadClass(", name,
+                ") is returning null");
+            return null;
+        } else {
+            return bundle.loadClass(name);
+        }
+    }
+    
     protected URL getEntry(String name) {
         URL entry = bundle.getEntry(name);
         if (entry == null) {
@@ -105,14 +121,6 @@ public class BundleProxyClassLoader extends ClassLoader {
         return entry;
     }
 
-    protected Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        Class clazz = (parent == null) ? findClass(name) : super.loadClass(name, false);
-        if (resolve)
-            super.resolveClass(clazz);
-        
-        return clazz;
-    }
-    
     private final class ListEnumeration implements Enumeration {
         private Iterator iterator;
 

@@ -14,6 +14,8 @@
  ******************************************************************************/  
 package org.eclipse.gemini.jpa.classloader;
 
+import static org.eclipse.gemini.jpa.GeminiUtil.debugClassLoader;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -77,6 +79,7 @@ public class CompositeClassLoader extends ClassLoader {
     @Override
     public URL getResource(String name) {
         for (ClassLoader classLoader : getClassLoaders()) {
+            debugClassLoader("Attempting getResource(", name,") on ", classLoader.toString());
             URL resource = classLoader.getResource(name);
             if (resource != null) {
                 return resource;
@@ -95,6 +98,7 @@ public class CompositeClassLoader extends ClassLoader {
     @Override
     public InputStream getResourceAsStream(String name) {
         for (ClassLoader classLoader : getClassLoaders()) {
+            debugClassLoader("Attempting getResourceAsStream(", name,") on ", classLoader.toString());
             InputStream stream = classLoader.getResourceAsStream(name);
             if (stream != null) {
                 return stream;
@@ -115,9 +119,13 @@ public class CompositeClassLoader extends ClassLoader {
      */
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
-        List<Enumeration<URL>> enumerations = new ArrayList(getClassLoaders().size());
-        for (int i = 0; i < getClassLoaders().size(); i++) {
-            enumerations.add(i, getClassLoaders().get(i).getResources(name));
+        List<Enumeration<URL>> enumerations = new ArrayList<Enumeration<URL>>(getClassLoaders().size());
+        for (ClassLoader classLoader : getClassLoaders()) {
+            debugClassLoader("Attempting getResources(", name,") on ", classLoader.toString());
+            Enumeration<URL> resources = classLoader.getResources(name);
+            if (resources != null) {
+                enumerations.add(resources);
+            }
         }
         return new CompositeEnumeration<URL>(enumerations); 
     }
@@ -135,10 +143,12 @@ public class CompositeClassLoader extends ClassLoader {
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
         for (ClassLoader classLoader : getClassLoaders()) {
+            debugClassLoader("Attempting loadClass(", name,") on ", classLoader.toString());
             try {
                 Class<?> aClass = classLoader.loadClass(name);
                 return aClass;
             } catch (ClassNotFoundException e) {
+                debugClassLoader("ClassNotFound '", name,"' in ", classLoader.toString());                
             }            
         }
         throw new ClassNotFoundException(name);

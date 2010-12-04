@@ -116,6 +116,13 @@ public class GeminiUtil {
         }
     }
     
+    // Function to print out debug strings for classloading purposes
+    public static void debugClassLoader(String... msgs) { 
+        if (System.getProperty("GEMINI_DEBUG_CLASSLOADER") != null) {
+            debug(msgs);
+        }
+    }
+    
     // Function to print out series of debug strings
     public static void debug(String... msgs) { 
         if (System.getProperty("GEMINI_DEBUG") != null) {
