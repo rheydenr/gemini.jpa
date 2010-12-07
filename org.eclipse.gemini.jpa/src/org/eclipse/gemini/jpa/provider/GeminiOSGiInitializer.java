@@ -26,13 +26,10 @@ import javax.persistence.spi.PersistenceUnitInfo;
 
 import org.eclipse.gemini.jpa.PUnitInfo;
 import org.eclipse.gemini.jpa.weaving.IWeaver;
-import org.eclipse.persistence.internal.jpa.EntityManagerFactoryProvider;
-import org.eclipse.persistence.internal.jpa.EntityManagerSetupImpl;
 import org.eclipse.persistence.internal.jpa.deployment.JPAInitializer;
 import org.eclipse.persistence.internal.jpa.deployment.JavaSECMPInitializer;
 import org.eclipse.persistence.internal.jpa.deployment.PersistenceInitializationHelper;
 import org.eclipse.persistence.internal.jpa.deployment.PersistenceUnitProcessor;
-import org.eclipse.persistence.internal.jpa.deployment.SEPersistenceUnitInfo;
 import org.eclipse.persistence.jpa.Archive;
 import org.eclipse.persistence.logging.AbstractSessionLog;
 import org.eclipse.persistence.logging.SessionLog;
@@ -46,13 +43,6 @@ public class GeminiOSGiInitializer extends JavaSECMPInitializer {
     private boolean weavingSupported = true; // TODO: need to determine if Equinox 
     protected ClassLoader bundleLoader;
    
-    // TODO Fix initialization EntityManagerFactoryProvider's public statics
-    // Tracked in https://bugs.eclipse.org/bugs/show_bug.cgi?id=319765
-    static {
-        EntityManagerFactoryProvider.initialEmSetupImpls = new HashMap<String, EntityManagerSetupImpl>();
-        EntityManagerFactoryProvider.initialPuInfos = new HashMap<String, SEPersistenceUnitInfo>();
-    }
-    
     /**
      * Constructor used when registering bundles.
      */
