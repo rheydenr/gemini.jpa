@@ -17,19 +17,23 @@ package org.eclipse.gemini.jpa.provider;
 import java.util.Map;
 
 import org.eclipse.persistence.internal.jpa.deployment.JPAInitializer;
-import org.eclipse.persistence.internal.jpa.deployment.PersistenceInitializationHelper;
 
 public class PersistenceProvider extends org.eclipse.persistence.jpa.PersistenceProvider {
-
-    public PersistenceProvider(){
-    	initializationHelper = new PersistenceInitializationHelper() {
-        
-            @Override
-            public JPAInitializer getInitializer(final ClassLoader classLoader, Map m) {
-               return new GeminiOSGiInitializer(classLoader);
-            }
-
-    	};
+    
+    @SuppressWarnings("rawtypes")
+    public JPAInitializer createInitializer(final ClassLoader classLoader, Map m) {
+        return new GeminiOSGiInitializer(classLoader);
+     }
+    
+    /**
+     * Return JPAInitializer corresponding to the passed classLoader.
+     * @param classLoader
+     * @param m
+     * @return
+     */
+    public JPAInitializer getInitializer(String emName, Map m){
+        ClassLoader classLoader = getClassLoader(emName, m);
+        return createInitializer(classLoader, m);
     }
-	   
 }
+

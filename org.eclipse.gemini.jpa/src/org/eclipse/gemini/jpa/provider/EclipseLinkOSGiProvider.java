@@ -201,7 +201,10 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
 
         // Run Initializer to process PU and register transformers
         BundleContext bundleContext = getBundleContext();
-        new GeminiOSGiInitializer().registerBundle(bundleContext, b, compositeLoader(bundleContext,b), pUnits);
+        ClassLoader compositeLoader = compositeLoader(bundleContext,b);
+        GeminiOSGiInitializer initializer = new GeminiOSGiInitializer(compositeLoader);
+        
+        initializer.registerBundle(bundleContext, b, compositeLoader, pUnits);
         
         //TODO Check state of bundle in assign call
 
@@ -272,12 +275,12 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
                 emf2.close();
             }
             // Remove from our local pUnit copy 
-            pUnitsByName.remove(info.getUnitName()); 
+            pUnitsByName.remove(info.getUnitName());
+            
         }
     }
 
     public void unassignPersistenceUnitsInBundle(Bundle b, Collection<PUnitInfo> pUnits) {
-        
         debug("EclipseLinkProvider unassignPersistenceUnitsInBundle: ", b.getSymbolicName());
     }
     
@@ -323,6 +326,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         props.put(PersistenceUnitProperties.CLASSLOADER, compositeLoader(pUnitInfo));
         props.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, acquireDataSource(pUnitInfo, properties));
         props.put(PersistenceUnitProperties.ECLIPSELINK_PERSISTENCE_XML, fullDescriptorPath(pUnitInfo));
+        props.put(GeminiOSGiInitializer.OSGI_BUNDLE, pUnitInfo.getBundle());
 
         return eclipseLinkProvider.createContainerEntityManagerFactory(info, props);
     }

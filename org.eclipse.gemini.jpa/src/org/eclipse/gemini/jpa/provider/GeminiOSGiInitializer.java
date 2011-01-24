@@ -27,8 +27,6 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import org.eclipse.gemini.jpa.PUnitInfo;
 import org.eclipse.gemini.jpa.weaving.IWeaver;
 import org.eclipse.persistence.internal.jpa.deployment.JPAInitializer;
-import org.eclipse.persistence.internal.jpa.deployment.JavaSECMPInitializer;
-import org.eclipse.persistence.internal.jpa.deployment.PersistenceInitializationHelper;
 import org.eclipse.persistence.internal.jpa.deployment.PersistenceUnitProcessor;
 import org.eclipse.persistence.jpa.Archive;
 import org.eclipse.persistence.logging.AbstractSessionLog;
@@ -36,12 +34,11 @@ import org.eclipse.persistence.logging.SessionLog;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
-public class GeminiOSGiInitializer extends JavaSECMPInitializer {
+public class GeminiOSGiInitializer extends JPAInitializer {
     public static final String OSGI_BUNDLE = "org.eclipse.gemini.jpa.bundle";
     private static final String OSGI_CONTEXT = "org.eclipse.gemini.jpa.context";
 
     private boolean weavingSupported = true; // TODO: need to determine if Equinox 
-    protected ClassLoader bundleLoader;
    
     /**
      * Constructor used when registering bundles.
@@ -54,8 +51,7 @@ public class GeminiOSGiInitializer extends JavaSECMPInitializer {
      * @param loader
      */
     GeminiOSGiInitializer(ClassLoader loader) {
-        super(loader);
-        this.bundleLoader = loader;
+        this.initializationClassloader = loader;
     }
 
     /**
@@ -85,8 +81,7 @@ public class GeminiOSGiInitializer extends JavaSECMPInitializer {
      * @param pUnits
      */
     public void registerBundle(final BundleContext context, final Bundle bundle, ClassLoader bundleLoader, Collection<PUnitInfo> pUnits) {
-        usesAgent = true; // implies weaving=true
-        this.bundleLoader = bundleLoader;
+        this.initializationClassloader = bundleLoader;
         
         List<Archive> pars = new ArrayList<Archive>();
         Map<String, String> storedArchives = new HashMap<String, String>();
@@ -103,26 +98,25 @@ public class GeminiOSGiInitializer extends JavaSECMPInitializer {
         properties.put(OSGI_CONTEXT, context);
         for (Archive archive: pars) {
             AbstractSessionLog.getLog().log(SessionLog.FINER, "cmp_init_initialize", archive);
-            initPersistenceUnits(archive, properties, createHelper(this.bundleLoader));
+            initPersistenceUnits(archive, properties);
         }
     }
 
-    protected PersistenceInitializationHelper createHelper(final ClassLoader loader) {
-        return new PersistenceInitializationHelper() {
-            @SuppressWarnings("rawtypes")
-            @Override
-            public ClassLoader getClassLoader(String emName, Map properties) {
-                return loader;
-            }
-            
-            @SuppressWarnings("rawtypes")
-            @Override
-            public JPAInitializer getInitializer(ClassLoader classLoader, Map m) {
-                return GeminiOSGiInitializer.this;
-            }
-        };
+    protected ClassLoader createTempLoader(Collection col, boolean shouldOverrideLoadClassForCollectionMembers) {
+        return Thread.currentThread().getContextClassLoader();
     }
 
+    public ClassLoader getBundleClassLoader(){
+        return initializationClassloader;
+    }
+    
+    /**
+     * Check whether weaving is possible and update the properties and variable as appropriate
+     * @param properties The list of properties to check for weaving and update if weaving is not needed
+     */
+    @Override
+    public void checkWeaving(Map properties){
+    }
     
     /***
 	 * In OSGi we don't need a temp loader so use the loader built
@@ -131,22 +125,12 @@ public class GeminiOSGiInitializer extends JavaSECMPInitializer {
 	@SuppressWarnings("rawtypes")
     @Override
 	protected ClassLoader createTempLoader(Collection col) {
-	    return this.bundleLoader;
+	    return this.initializationClassloader;
 	}
-	
-	/***
-     * This version of getClassLoader is called after the classloader has been
-     * built for a bundle.
-     * 
-     * @param persistenceUnitName
-     * @param properties
-     * @return
-     */
-    @SuppressWarnings("rawtypes")
-    public ClassLoader getClassLoader(String persistenceUnitName, Map properties) {
-        return this.bundleLoader;
-    }
      
+    public void initialize(Map m) {
+    }
+    
     @SuppressWarnings("rawtypes")
     @Override
     public void registerTransformer(ClassTransformer transformer, PersistenceUnitInfo persistenceUnitInfo, Map properties) {
