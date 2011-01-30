@@ -103,10 +103,10 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
         // Check if any are p-unit bundles
         for (Bundle b : activeBundles) {
             if (isPersistenceUnitBundle(b)) {
-                // We found a persistence unit bundle that has already been installed.
+                // We found a persistence unit bundle.
                 // Refresh it so it will go through the resolving state again and client 
-                // bundles that are waiting for the EMF service will not be hosed
-                if (b.getState() != Bundle.INSTALLED) {
+                // bundles that are waiting for the EMF service will get one
+                if ((b.getState() != Bundle.INSTALLED) && (b.getState() != Bundle.UNINSTALLED)) {
                     addToRefreshingBundles(b);
                     PackageAdmin admin = getPackageAdmin(osgiJpaProvider.getBundleContext());
                     debug("GeminiExtender refreshing packages of bundle ", b);

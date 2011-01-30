@@ -53,6 +53,9 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
 
         debug("EMFProxy invocation on method ", method.getName());
 
+        /* Allow close() to pass through in order for users to close and reopen the EMF. */
+        /* NOTE: This means that any user that closes an EMF will cause it to be closed  */
+        /* for all other service references of the EMF service. */
         // If close() invoked then just ignore it
 //        if (method.getName().equals("close"))
 //            return null;
