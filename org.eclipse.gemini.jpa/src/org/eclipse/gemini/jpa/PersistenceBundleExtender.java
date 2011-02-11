@@ -318,7 +318,7 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
         return lazyBundles.add(b.getBundleId());
     }
     protected boolean removeFromLazyBundles(Bundle b) {
-        return lazyBundles.add(b.getBundleId());
+        return lazyBundles.remove(b.getBundleId());
     }
 
     protected boolean isRefreshing(Bundle b) {
