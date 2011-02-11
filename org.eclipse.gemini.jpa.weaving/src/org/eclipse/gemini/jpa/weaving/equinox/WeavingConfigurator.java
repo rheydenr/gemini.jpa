@@ -17,15 +17,21 @@ package org.eclipse.gemini.jpa.weaving.equinox;
 import org.eclipse.osgi.baseadaptor.HookConfigurator;
 import org.eclipse.osgi.baseadaptor.HookRegistry;
 import org.eclipse.osgi.framework.debug.Debug;
+import org.eclipse.osgi.framework.debug.FrameworkDebugOptions;
 
 public class WeavingConfigurator implements HookConfigurator {
+
+    private static final String OPTION_DEBUG = "org.eclipse.gemini.jpa.weaving/debug";
+
     public WeavingConfigurator() {
         super();
     }
 
     public void addHooks(HookRegistry hookRegistry) {
-        if (Debug.DEBUG && Debug.DEBUG_GENERAL){
-            Debug.println("EclipseLink: Adding WeaverRegistry Class Loading Hook"); //$NON-NLS-1$
+        FrameworkDebugOptions dbgOptions = FrameworkDebugOptions.getDefault();
+        boolean debug = dbgOptions.getBooleanOption(OPTION_DEBUG, false);
+        if (debug) {
+            Debug.println("Gemini JPA: Adding WeaverRegistry Class Loading Hook"); //$NON-NLS-1$
         }
         hookRegistry.addClassLoadingHook(WeaverRegistry.getInstance());
         hookRegistry.addAdaptorHook(new WeavingAdaptor());
