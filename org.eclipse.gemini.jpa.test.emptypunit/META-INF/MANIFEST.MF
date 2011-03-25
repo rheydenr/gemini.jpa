@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Meta-Persistence: META-INF/emptyJpa.xml
-Bundle-Name: Gemini JPA Test Persistence Unit (Incubation)
+Bundle-Name: Gemini JPA Test Empty Persistence Unit
 Bundle-SymbolicName: org.eclipse.gemini.jpa.test.emptypunit
-Bundle-Version: 0.0.9.incubation
+Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.osgi.framework;version="1.4.0"
 Bundle-Activator: punit.Activator

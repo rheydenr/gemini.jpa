@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Meta-Persistence: META-INF/persistence.xml
-Bundle-Name: Gemini JPA Sample Persistence Unit (Incubation)
+Bundle-Name: Gemini JPA Sample Persistence Unit
 Bundle-SymbolicName: org.eclipse.gemini.jpa.samples
-Bundle-Version: 1.0.0.M4-incubation
+Bundle-Version: 1.0.0.RC1
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: javax.persistence;version="1.1.0";jpa="2.0",
  javax.persistence.criteria;version="1.1.0";jpa="2.0",
