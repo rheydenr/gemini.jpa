@@ -38,8 +38,7 @@ The following EclipseLink bundles are required:
 - org.eclipse.persistence.core
 - org.eclipse.persistence.jpa
 
-These bundles must be version 2.2 or greater. If nightly or milestone builds are used then they must be 
-dated Nov 12, 2010 or later.
+These bundles must be version 2.2 or greater. 
 
 Note: You do *NOT* need the org.eclipse.persistence.jpa.osgi bundle shipped with EclipseLink.
 
