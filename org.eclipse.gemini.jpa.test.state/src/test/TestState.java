@@ -46,6 +46,7 @@ public class TestState implements BundleActivator {
         incompletedTests.add("TestEMFService");
         incompletedTests.add("TestEMFBuilderService");
         incompletedTests.add("TestEMFBuilderServiceProperties");
+        incompletedTests.add("TestEMFBuilderExternalDataSource");
         incompletedTests.add("TestEmbeddedPUnit");
         incompletedTests.add("TestOrmMappingFile");
         incompletedTests.add("TestMappingFileElement");
