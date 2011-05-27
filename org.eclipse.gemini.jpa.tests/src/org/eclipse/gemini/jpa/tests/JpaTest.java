@@ -39,12 +39,19 @@ public abstract class JpaTest {
     
     public static BundleContext context;
 
+    // Define the JDBC access details. At some point we should probably externalize this...
+    public static final String JDBC_TEST_DRIVER = "org.apache.derby.jdbc.ClientDriver";
+    public static final String JDBC_TEST_URL = "jdbc:derby://localhost:1527/accountDB;create=true";
+    public static final String JDBC_TEST_USER = "app";
+    public static final String JDBC_TEST_PASSWORD = "app";
+
+    // Put the JDBC access config in the default props
     public static Map<String,Object> defaultProps() {
         Map<String,Object> props = new HashMap<String,Object>();        
-        props.put("javax.persistence.jdbc.driver", "org.apache.derby.jdbc.ClientDriver");
-        props.put("javax.persistence.jdbc.url", "jdbc:derby://localhost:1527/accountDB;create=true");
-        props.put("javax.persistence.jdbc.user", "app");
-        props.put("javax.persistence.jdbc.password", "app");
+        props.put("javax.persistence.jdbc.driver", JDBC_TEST_DRIVER);
+        props.put("javax.persistence.jdbc.url", JDBC_TEST_URL);
+        props.put("javax.persistence.jdbc.user", JDBC_TEST_USER);
+        props.put("javax.persistence.jdbc.password", JDBC_TEST_URL);
         return props;
     }
 
@@ -150,7 +157,7 @@ public abstract class JpaTest {
             : (EntityManagerFactory) context.getService(refs[0]);
     }
     
-    static EntityManagerFactoryBuilder lookupEntityManagerFactoryBuilder(String testName, String puName) {
+    public static EntityManagerFactoryBuilder lookupEntityManagerFactoryBuilder(String testName, String puName) {
         String filter = "(osgi.unit.name="+puName+")";
         ServiceReference[] refs = null;
         try {
@@ -164,10 +171,10 @@ public abstract class JpaTest {
             : (EntityManagerFactoryBuilder) context.getService(refs[0]);
     }
 
-    static void slog(String testName, String msg) {
+    public static void slog(String testName, String msg) {
         System.out.println("***** " + testName + " - " + msg);
     }    
-    void log(String msg) {
+    public void log(String msg) {
         System.out.println("***** " + this.getClass().getSimpleName() + " - " + msg);
     }    
 }

@@ -134,6 +134,8 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
                 runTest(TestEMFBuilderService.class);
             if (shouldRun(TestEMFBuilderServiceProperties.class, unitName, isEmfService))
                 runTest(TestEMFBuilderServiceProperties.class);
+            if (shouldRun(TestEMFBuilderExternalDataSource.class, unitName, isEmfService))
+                runTest(TestEMFBuilderExternalDataSource.class);
             if (shouldRun(TestEmbeddedPUnit.class, unitName, isEmfService))
                 runTest(TestEmbeddedPUnit.class);
             if (shouldRun(TestOrmMappingFile.class, unitName, isEmfService))
