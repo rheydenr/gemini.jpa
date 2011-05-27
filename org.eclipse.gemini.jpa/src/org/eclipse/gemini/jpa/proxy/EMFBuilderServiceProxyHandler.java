@@ -34,7 +34,10 @@ import static org.eclipse.gemini.jpa.GeminiUtil.*;
 public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
                                            implements InvocationHandler {
             
-    // Keep this to let us know if a factory has already been created via the EMF service
+    // We inherit an emf field and use that in the case when there is no EMF Service.
+    // When there is an EMF Service then we use the emf field in the EMF service proxy stored below.
+    
+    // Hold onto the EMF service if it exists
     EMFServiceProxyHandler emfService;
     
     // Keep around a copy of the props used to create an EMF through the EMF builder
@@ -60,8 +63,8 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
             return this.hashCode();
 
         // Must be a createEntityManagerFactory(String, Map) call
-        
-        // If we have a factory and it has already been closed, discard it
+
+        // If we have an EMF and it has already been closed, discard it
         synchronized (this) {
             if ((emf != null) && (!emf.isOpen()))
                 emf = null;
@@ -70,6 +73,8 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
             if (emf != null) 
                 return emf;
         }
+        // The first arg must be the properties Map
+        Map<String,Object> props = (Map<String,Object>)args[0];
 
         // If an EMF service is registered the EMF must be stored there
         if (emfService != null) {
@@ -77,12 +82,12 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
             // Verify the JDBC properties match the ones in the descriptor.
             verifyJDBCProperties(pUnitInfo.getDriverClassName(), 
                                  pUnitInfo.getDriverUrl(), 
-                                 (Map<?,?>)args[0]);
+                                 props);
             
             // Verify the JDBC properties match the ones previously passed in.
             verifyJDBCProperties((String) emfProps.get(JPA_JDBC_DRIVER_PROPERTY), 
                                  (String) emfProps.get(JPA_JDBC_URL_PROPERTY), 
-                                 (Map<?,?>)args[0]);
+                                 props);
 
             // Synchronize to ensure we share the same factory
             synchronized(emfService) {
@@ -93,8 +98,6 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
                     emfProps.clear();
                 }
                 // If it doesn't have one, then assign it one
-                // The first arg must be the props Map
-                Map<String,Object> props = (Map<String,Object>)args[0];
                 if (emfService.getEMF() == null) {
                     emfService.setEMF(createEMF(props));
                 }      
@@ -107,7 +110,7 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
             // No EMF service (data source was not active). Create our own EMF since we don't have one
             synchronized (this) {
                 if (emf == null)
-                    emf = createEMF((Map<String,Object>)args[0]);
+                    emf = createEMF(props);
             }
             return emf;
         }
@@ -123,7 +126,7 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
     }
 
     // Local method to compare properties passed in Map to ones in persistence descriptor or in previously set props
-    protected void verifyJDBCProperties(String driver, String driverUrl, Map<?,?> props) {
+    protected void verifyJDBCProperties(String driver, String driverUrl, Map<String,Object> props) {
 
         if (driver != null) {
             String propDriver = (String) props.get(JPA_JDBC_DRIVER_PROPERTY);

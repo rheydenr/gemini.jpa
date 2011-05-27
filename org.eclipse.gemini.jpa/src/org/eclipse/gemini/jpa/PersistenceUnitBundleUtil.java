@@ -270,11 +270,11 @@ public class PersistenceUnitBundleUtil {
         attrs.putValue("Import-Package", packageImport);
 
         // Adopt the version of the persistence unit bundle so it is unique
-        String fragmentVersion = bundleVersion(pUnitBundle);
-        attrs.putValue("Bundle-Version", bundleVersion(pUnitBundle));
+        String hostVersion = bundleVersion(pUnitBundle);
+        attrs.putValue("Bundle-Version", hostVersion);
 
         // Lock this fragment to the symbolic name and version of the persistence unit bundle
-        String fragmentHost = pUnitBundle.getSymbolicName() + ";bundle-version=[" + fragmentVersion + "]"; 
+        String fragmentHost = pUnitBundle.getSymbolicName() + ";bundle-version=" + hostVersion; 
         attrs.putValue("Fragment-Host", fragmentHost);
 
         debug("Created manifest for ", fragmentName); 
@@ -313,7 +313,8 @@ public class PersistenceUnitBundleUtil {
                 jos.putNextEntry(entry);
                 jos.write(generatedClasses.remove(0));
             }
-            debug("Successfully created fragment "); 
+            debug("Successfully created fragment ");
+            jos.close();
             return baos.toByteArray();
         } catch (Exception ex) { 
             fatalError("Error creating fragment: ", ex); 

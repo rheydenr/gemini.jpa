@@ -57,9 +57,10 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
         /* NOTE: This means that any user that closes an EMF will cause it to be closed  */
         /* for all other service references of the EMF service. */
         // If close() invoked then just ignore it
-//        if (method.getName().equals("close"))
-//            return null;
-
+        /* if (method.getName().equals("close"))
+            return null;
+         */
+        
         // Invoke these methods on the actual proxy (not the object it's proxying)
         if (method.getName().equals("hashCode"))
             return this.hashCode();
@@ -67,8 +68,11 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
             return this.toString();
         
         
-        // ***NOTE: What if the provider supports multiple EMFs for the same punit?
-        // Should we ignore the cache and just call the provider each time? Don't think so.
+        /*===========================================================================*/
+        /* ** NOTE: What if the provider supports multiple EMFs for the same punit?  */
+        /*          Should we ignore the cache and just call the provider each time? */
+        /*          Not right now.                                                   */
+        /*===========================================================================*/
 
         if (emf == null) {
             synchronized(this) {

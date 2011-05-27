@@ -208,9 +208,8 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         
         //TODO Check state of bundle in assign call
 
-        // TODO Problem installing fragments in PDE
         // Generate a fragment for the p-units
-        // Bundle result = extender.generateAndInstallFragment(b, pUnits);
+        Bundle result = extender.generateAndInstallFragment(b, pUnits);
     }
 
     /**
@@ -360,6 +359,15 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
 
     protected DataSource acquireDataSource(PUnitInfo pUnitInfo, Map<?,?> properties) {
 
+        // If an actual data source object was passed in then just return it and 
+        // let it be re-added to the properties map by the caller  
+        // ### Enhancement for bug 335983 - Contributed by Eduard Bartsch ###
+        Object ds = properties.get(PersistenceUnitProperties.NON_JTA_DATASOURCE);
+        if (ds instanceof DataSource) {
+            return (DataSource) ds;
+        }
+        
+        // Otherwise we create a data source based on the properties
         ServiceReference[] dsfRefs = null;
         
         // Get the driver name from either the pUnitInfo or the runtime properties
