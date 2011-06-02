@@ -20,6 +20,7 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import javax.sql.DataSource;
 
 import static org.osgi.service.jdbc.DataSourceFactory.*;
 
@@ -27,7 +28,7 @@ import static org.osgi.service.jdbc.DataSourceFactory.*;
  * An abbreviated/simplified DataSource impl that takes a URL from the client
  * and just returns a thin data source wrapper around the basic JDBC driver.
  */
-public class PlainDriverDataSource implements javax.sql.DataSource {
+public class PlainDriverDataSource implements DataSource {
 
     Driver driver = null;
     Properties properties = null;
@@ -52,14 +53,29 @@ public class PlainDriverDataSource implements javax.sql.DataSource {
         return driver.connect(url, localProps);
     }
  
-    public boolean isWrapperFor(Class<?> cls) { 
-        return (cls != driver.getClass()); 
+    public boolean isWrapperFor(Class<?> cls) throws SQLException { 
+        // Fix for bug #342942
+        try {
+            // If driver class or subclass passed in then true
+            if (driver.getClass().isAssignableFrom(cls)) 
+                return true;
+            // If driver implements interface passed in then true
+            Class<?>[] interfaces = driver.getClass().getInterfaces();
+            for (Class<?> i : interfaces)
+                if (i == cls) return true;
+            // Otherwise we don't
+            return false;
+        } catch (Exception ex) {
+            throw new SQLException(ex);
+        }
     }
     
-    public <T> T unwrap(Class<T> cls) { 
-        return (this.isWrapperFor(cls)) 
-            ? (T) driver
-            : null;
+    public <T> T unwrap(Class<T> cls) throws SQLException {
+        try {
+            return cls.cast(driver);
+        } catch (ClassCastException ex) {
+            throw new SQLException(ex);
+        }
     }
 
     public PrintWriter getLogWriter() throws SQLException { return DriverManager.getLogWriter(); }
