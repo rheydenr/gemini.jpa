@@ -281,6 +281,10 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
             }
         } else if (eventType == BundleEvent.STOPPING) {
             if (isAssigned(b)) {
+                // Fix for bug #342996
+                if (isLazy(b)) {
+                    removeFromLazyBundles(b);
+                }
                 unregisterPersistenceUnitsInBundle(b);
             }
         } else if (eventType == BundleEvent.UNINSTALLED) {
