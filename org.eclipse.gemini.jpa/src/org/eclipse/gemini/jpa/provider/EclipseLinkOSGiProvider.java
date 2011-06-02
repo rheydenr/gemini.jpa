@@ -122,7 +122,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         // Kick the extender to go looking for persistence bundles
         extender.startListening();
         extender.lookForExistingBundles();
-        debug("EclipseLink Provider started");
+        debug("EclipseLinkProvider started");
     }
     
     public void stop(BundleContext context) throws Exception {
@@ -197,7 +197,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
      * @param pUnits
      */
     public void assignPersistenceUnitsInBundle(Bundle b, Collection<PUnitInfo> pUnits) {
-        debug("EclipseProvider assignPersistenceUnitsInBundle: ", b.getSymbolicName());
+        debug("EclipseLinkProvider assignPersistenceUnitsInBundle: ", b.getSymbolicName());
 
         // Run Initializer to process PU and register transformers
         BundleContext bundleContext = getBundleContext();
@@ -236,7 +236,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
             } 
             if (pUnitsByName.containsKey(pUnitName)) {
                 // It's still there. Take matters into our own hands and force the unregister
-                warning("EclipseProvider forcing unregister of pUnit: " + info.toString());
+                warning("EclipseLinkProvider forcing unregister of persistence unit: " + info.getUnitName());
                 Collection<PUnitInfo> units = new ArrayList<PUnitInfo>();
                 units.add(info);
                 unregisterPersistenceUnits(units);
