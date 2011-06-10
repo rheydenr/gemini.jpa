@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gemini JPA Dynamic Weaving Fragment
 Bundle-SymbolicName: org.eclipse.gemini.jpa.weaving
-Bundle-Version: 1.0.0.RC1
+Bundle-Version: 1.0.0.RC2
 Bundle-Vendor: Oracle Corp.
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.eclipse.gemini.jpa.weaving,
