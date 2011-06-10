@@ -15,15 +15,12 @@
 package org.eclipse.gemini.jpa;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.Manifest;
-
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -35,10 +32,9 @@ import org.eclipse.gemini.jpa.provider.OSGiJpaProvider;
 
 import static org.eclipse.gemini.jpa.GeminiUtil.*;
 
-
 /**
- * This extender can be used by a provider to listen for persistence unit 
- * bundles and assign them to this provider if the unit is able to be assigned.
+ * This extender is used by the provider to listen for persistence unit 
+ * bundles and assign them to the provider if the unit is able to be assigned.
  */
 public class PersistenceBundleExtender implements SynchronousBundleListener  {
 
@@ -49,8 +45,8 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     // The provider associated with this extender
     OSGiJpaProvider osgiJpaProvider;
     
-    // Utility class
-    PersistenceUnitBundleUtil util;
+    // Utility classes
+    PersistenceUnitBundleUtil bundleUtil;
     
     // Persistence units by bundle 
     Map<Bundle, List<PUnitInfo>> unitsByBundle = 
@@ -67,7 +63,8 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     public PersistenceBundleExtender() {}
     public PersistenceBundleExtender(OSGiJpaProvider provider) { 
         this.osgiJpaProvider = provider;
-        this.util = new PersistenceUnitBundleUtil();
+        this.bundleUtil = new PersistenceUnitBundleUtil();
+        
     }
 
     /*================================*/
@@ -97,48 +94,34 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     public void lookForExistingBundles() {
         
         // Look at the bundles that are already installed
-        Bundle[] activeBundles = osgiJpaProvider.getBundleContext().getBundles();
-        debug("GeminiExtender looking at existing bundles: ", activeBundles);
+        Bundle[] installedBundles = osgiJpaProvider.getBundleContext().getBundles();
+        debug("GeminiExtender looking at existing bundles: ", installedBundles);
         
         // Check if any are p-unit bundles
-        for (Bundle b : activeBundles) {
+        for (Bundle b : installedBundles) {
             if (isPersistenceUnitBundle(b)) {
                 // We found a persistence unit bundle.
-                // Refresh it so it will go through the resolving state again and client 
-                // bundles that are waiting for the EMF service will get one
-                if ((b.getState() != Bundle.INSTALLED) && (b.getState() != Bundle.UNINSTALLED)) {
-                    addToRefreshingBundles(b);
-                    PackageAdmin admin = getPackageAdmin(osgiJpaProvider.getBundleContext());
-                    debug("GeminiExtender refreshing packages of bundle ", b);
-                    admin.refreshPackages(new Bundle[] { b }); 
+                if (GeminiProperties.refreshPersistenceBundles()) {
+                    // Refresh it so it will go through resolving again and we can assign it a provider, etc.
+                    if ((b.getState() != Bundle.INSTALLED) && (b.getState() != Bundle.UNINSTALLED)) {
+                        refreshBundle(b);
+                    }
+                } else {
+                    // Refreshing is disabled - go through assigning and registering process w/o events
+                    if (b.getState() != Bundle.UNINSTALLED) {
+                        // Assign the p-unit
+                        // NOTE: With no refresh, assigning may be happening after the bundle has been resolved
+                        tryAssigningPersistenceUnitsInBundle(b);
+                        // Now if bundle is starting or active then register the p-units in it
+                        if ((b.getState() == Bundle.STARTING) || (b.getState() == Bundle.ACTIVE)) {
+                            registerPersistenceUnitsInBundle(b);
+                        } // Otherwise just let future events take their course 
+                    }
                 }
             }
         }
     }
 
-    /**
-     * Generate a set of anchor interfaces for the packages in the p-units. 
-     * Create a fragment for them and install the fragment, attaching it to the 
-     * persistence unit bundle.
-     * 
-     * @param b the persistence unit bundle
-     * @param infos the collection of metadata for all of the persistence units
-     * 
-     * @return The bundle object of the installed fragment
-     */
-    public Bundle generateAndInstallFragment(Bundle b, Collection<PUnitInfo> infos) {
-
-        debug("GeminiExtender generating fragment");
-        List<String> packageNames = util.uniquePackages(infos);
-        List<byte[]> generatedClasses = util.generateAnchorInterfaces(packageNames, osgiJpaProvider.getAnchorClassName());
-        Manifest manifest = util.generateFragmentManifest(b);
-        byte[] fragment = util.createFragment(manifest, packageNames, osgiJpaProvider.getAnchorClassName(), generatedClasses);
-        debug("GeminiExtender finished generating fragment");
-        Bundle installedFragment = util.installFragment(b, osgiJpaProvider.getBundle(), fragment);
-        debug("GeminiExtender installed fragment bundle: ", installedFragment);
-        return installedFragment;
-    }
-    
     public Map<Bundle, List<PUnitInfo>> clearAllPUnitInfos() {
         Map<Bundle, List<PUnitInfo>> pUnitInfos = unitsByBundle;
         unitsByBundle = null;
@@ -167,10 +150,10 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
         }
 
         // Look for all of the persistence descriptor files in the bundle
-        List<PersistenceDescriptorInfo> descriptorInfos = util.persistenceDescriptorInfos(b);
+        List<PersistenceDescriptorInfo> descriptorInfos = bundleUtil.persistenceDescriptorInfos(b);
 
         // Do a partial parse of the descriptors
-        Set<PUnitInfo> pUnitInfos = util.persistenceUnitInfoFromXmlFiles(descriptorInfos);
+        Set<PUnitInfo> pUnitInfos = bundleUtil.persistenceUnitInfoFromXmlFiles(descriptorInfos);
 
         // Cycle through each p-unit info and see if a provider was specified
         for (PUnitInfo info : pUnitInfos) {
@@ -231,8 +214,8 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
                     "bundles so that both the persistence unit bundle and the provider resolve " +
                     "to the same javax.persistence package.");
             unassignPersistenceUnitsInBundle(b);
-            // No point in updating/refreshing. 
-            // (It would likely just re-resolve to the same JPA interface package.)
+            // No point in updating or refreshing. 
+            // It would likely just re-resolve to the same JPA interface package.
         }
     }
     
@@ -250,6 +233,21 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
         }
         osgiJpaProvider.unregisterPersistenceUnits(unitsByBundle.get(b));
     }    
+    
+    /**
+     * Refresh the persistence bundle.
+     * 
+     * @param b the bundle the p-units are in
+     */    
+    public void refreshBundle(Bundle b) {
+        // Add the list of currently refreshing bundles. 
+        // (It will be removed when the UNRESOLVED event is fired on it)
+        addToRefreshingBundles(b);
+        // Call refresh on all of the packages
+        PackageAdmin admin = getPackageAdmin(osgiJpaProvider.getBundleContext());
+        debug("GeminiExtender refreshing packages of bundle ", b);
+        admin.refreshPackages(new Bundle[] { b }); 
+    }
     
     /*========================*/
     /* BundleListener methods */
@@ -338,9 +336,13 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     protected void addToBundleUnits(Map<Bundle,List<PUnitInfo>> map, 
                                     Bundle b, 
                                     PUnitInfo info) {
-        if (!map.containsKey(b))
-            map.put(b, new ArrayList<PUnitInfo>());
-        map.get(b).add(info);
+        synchronized (map) {
+            if (!map.containsKey(b))
+                map.put(b, new ArrayList<PUnitInfo>());
+            List<PUnitInfo> infos = map.get(b);
+            if (!infos.contains(info)) 
+                infos.add(info);
+        }
     }
 
     public boolean isPersistenceUnitBundle(Bundle b) {

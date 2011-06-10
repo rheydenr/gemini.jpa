@@ -41,6 +41,9 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.ProviderUtil;
 import javax.sql.DataSource;
 
+import org.eclipse.gemini.jpa.AnchorClassUtil;
+import org.eclipse.gemini.jpa.FragmentUtil;
+import org.eclipse.gemini.jpa.GeminiProperties;
 import org.eclipse.gemini.jpa.GeminiServicesUtil;
 import org.eclipse.gemini.jpa.GeminiUtil;
 import org.eclipse.gemini.jpa.PUnitInfo;
@@ -71,7 +74,6 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     /* Static constants */
     /*==================*/
     public static final String PROVIDER_CLASS_NAME = "org.eclipse.persistence.jpa.PersistenceProvider";
-    public static final String ANCHOR_CLASS_NAME   = "Jpa$Anchor";
     
     public static final int MAX_EVENT_COLLISION_TRIES = 3;
     
@@ -88,14 +90,15 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     /** Services utility code */
     GeminiServicesUtil servicesUtil;
     
-    /** Other Bundle-level utility code */
-    PersistenceUnitBundleUtil puBundleUtil;
-
+    /** Anchor class gen utility */
+    AnchorClassUtil anchorUtil;    
+    
     /** An SPI instance of this provider */
     PersistenceProvider eclipseLinkProvider;
     
     /** Map of p-units we have registered */
     Map<String, PUnitInfo> pUnitsByName;
+    
     private FileWriter eclipseLinkLog;
 
     /*=====================*/
@@ -110,8 +113,8 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         ctx = context;
         pUnitsByName = Collections.synchronizedMap(new HashMap<String, PUnitInfo>());
         extender = new PersistenceBundleExtender(this);
-        servicesUtil = new GeminiServicesUtil(this);
-        puBundleUtil = new PersistenceUnitBundleUtil();
+        anchorUtil = new AnchorClassUtil(GeminiProperties.generateAnchorClasses());
+        servicesUtil = new GeminiServicesUtil(this, anchorUtil);
         openEclipseLinkLoggingFile();
         eclipseLinkProvider = new org.eclipse.gemini.jpa.provider.PersistenceProvider();
         PersistenceUnitProcessor.setArchiveFactory(new OSGiArchiveFactoryImpl());
@@ -148,28 +151,6 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         debug("EclipseLinkProvider stopped");
     }
     
-    public void openEclipseLinkLoggingFile() {
-        String loggingFile = System.getProperty(PersistenceUnitProperties.LOGGING_FILE);
-        try {
-            if (loggingFile != null) {
-                eclipseLinkLog = new FileWriter(loggingFile);
-                AbstractSessionLog.getLog().setWriter(eclipseLinkLog);
-            }
-        } catch (IOException e) {
-            AbstractSessionLog.getLog().log(SessionLog.WARNING, "cmp_init_default_logging_file_is_invalid",loggingFile,e);
-        }
-    }
-    public void closeEclipseLinkLoggingFile() {
-        // Reset to default
-        AbstractSessionLog.setLog(new DefaultSessionLog());
-        try {
-            if (eclipseLinkLog != null) {
-                eclipseLinkLog.close();
-            }
-        } catch (IOException e) {
-        }
-    }
-
     /*==============================*/
     /* OSGiJpaProvider impl methods */
     /*==============================*/
@@ -181,9 +162,6 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     public javax.persistence.spi.PersistenceProvider getProviderInstance() { 
         return this;
     }
-
-    // Used when generating the anchor interfaces
-    public String getAnchorClassName() { return ANCHOR_CLASS_NAME; }
 
     public Bundle getBundle() { return ctx.getBundle(); }
     
@@ -201,15 +179,20 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
 
         // Run Initializer to process PU and register transformers
         BundleContext bundleContext = getBundleContext();
+
+        //TODO Check state of bundle in assign call
+
+        // Generate a fragment for the p-units
+        if (GeminiProperties.generateFragments()) {
+            new FragmentUtil(ctx.getBundle())
+                    .generateAndInstallFragment(b, pUnits, anchorUtil);
+        }
+
         ClassLoader compositeLoader = compositeLoader(bundleContext,b);
         GeminiOSGiInitializer initializer = new GeminiOSGiInitializer(compositeLoader);
         
         initializer.registerBundle(bundleContext, b, compositeLoader, pUnits);
         
-        //TODO Check state of bundle in assign call
-
-        // Generate a fragment for the p-units
-        Bundle result = extender.generateAndInstallFragment(b, pUnits);
     }
 
     /**
@@ -275,7 +258,6 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
             }
             // Remove from our local pUnit copy 
             pUnitsByName.remove(info.getUnitName());
-            
         }
     }
 
@@ -443,4 +425,29 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         debug("EclipseLinkProvider - getJDBCProperties - returning: ", props);
         return props;
     }
+
+    public void openEclipseLinkLoggingFile() {
+        String loggingFile = System.getProperty(PersistenceUnitProperties.LOGGING_FILE);
+        try {
+            if (loggingFile != null) {
+                eclipseLinkLog = new FileWriter(loggingFile);
+                AbstractSessionLog.getLog().setWriter(eclipseLinkLog);
+            }
+        } catch (IOException e) {
+            AbstractSessionLog.getLog().log(SessionLog.WARNING, "cmp_init_default_logging_file_is_invalid",loggingFile,e);
+        }
+    }
+    public void closeEclipseLinkLoggingFile() {
+        // Reset to default
+        AbstractSessionLog.setLog(new DefaultSessionLog());
+        try {
+            if (eclipseLinkLog != null) {
+                eclipseLinkLog.close();
+            }
+        } catch (IOException e) {
+        }
+    }
+
+
+
 }

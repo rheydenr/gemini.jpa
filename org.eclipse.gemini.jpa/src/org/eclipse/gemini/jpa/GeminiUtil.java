@@ -111,21 +111,21 @@ public class GeminiUtil {
 
     // Function to print out debug strings for XML parsing purposes
     public static void debugXml(String... msgs) { 
-        if (System.getProperty("GEMINI_DEBUG_XML") != null) {
+        if (GeminiProperties.debugXml()) {
             debug(msgs);
         }
     }
     
     // Function to print out debug strings for classloading purposes
     public static void debugClassLoader(String... msgs) { 
-        if (System.getProperty("GEMINI_DEBUG_CLASSLOADER") != null) {
+        if (GeminiProperties.debugClassloader()) {
             debug(msgs);
         }
     }
     
     // Function to print out series of debug strings
     public static void debug(String... msgs) { 
-        if (System.getProperty("GEMINI_DEBUG") != null) {
+        if (GeminiProperties.debug()) {
             StringBuilder sb = new StringBuilder();
             for (String msg : msgs) sb.append(msg);
             System.out.println(sb.toString()); 
@@ -135,7 +135,7 @@ public class GeminiUtil {
     // Function to print out a string and an object.
     // Handles some objects specially and prints out more info
     public static void debug(String msg, Object obj) { 
-        if (System.getProperty("GEMINI_DEBUG") != null) {
+        if (GeminiProperties.debug()) {
             if (obj == null) {
                 System.out.println(msg + String.valueOf(obj));
             } else if (ClassLoader.class.isAssignableFrom(obj.getClass())) {

@@ -17,14 +17,12 @@ package org.eclipse.gemini.jpa;
 import static org.eclipse.gemini.jpa.GeminiUtil.bundleVersion;
 import static org.eclipse.gemini.jpa.GeminiUtil.debug;
 import static org.eclipse.gemini.jpa.GeminiUtil.fatalError;
-import static org.eclipse.gemini.jpa.GeminiUtil.formattedPackageString;
 import static org.eclipse.gemini.jpa.GeminiUtil.warning;
 
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -54,13 +52,17 @@ public class GeminiServicesUtil {
     // Keep this for logging convenience
     String providerClassName;
    
+    // The anchor util to use to get anchor class info from
+    AnchorClassUtil anchorUtil;
+    
     // PersistenceProvider service
     ServiceRegistration providerService;
     
     
-    public GeminiServicesUtil(OSGiJpaProvider provider) {
+    public GeminiServicesUtil(OSGiJpaProvider provider, AnchorClassUtil anchorUtil) {
         this.osgiJpaProvider = provider;
         this.providerClassName = provider.getProviderClassName();
+        this.anchorUtil= anchorUtil;
     }
     
     /*==================*/
@@ -108,14 +110,13 @@ public class GeminiServicesUtil {
      */
     public void registerEMFServices(PUnitInfo pUnitInfo) {
 
+        debug("GeminiServicesUtil registerEMFServices for ", pUnitInfo.getUnitName());
+
         // Map of generated anchor classes keyed by class name
         Map<String, Class<?>> anchorClasses; 
         
-        debug("GeminiServicesUtil registerEMFServices for ", pUnitInfo.getUnitName());
-        Bundle pUnitBundle = pUnitInfo.getBundle();
-
         // Will be empty if anchor classes not generated
-        anchorClasses = loadAnchorClasses(pUnitInfo);
+        anchorClasses = anchorUtil.loadAnchorClasses(pUnitInfo);
 
         // Create the properties used for both services
         Dictionary<String,String> props = buildServiceProperties(pUnitInfo);
@@ -205,43 +206,7 @@ public class GeminiServicesUtil {
     /*================*/
     /* Helper methods */
     /*================*/
-    
-    /*
-     * Some environments (PDE!) do not support dynamically installing bundles, hence
-     * anchor classes cannot be generated. 
-     * Return whether anchor classes are currently being generated. 
-     */
-    boolean canGenerateAnchorClasses() { 
-        // TODO Make this properly configurable
-        return false; 
-    }
-    
-    /*
-     * Load and return the anchor classes that were generated.
-     * Return an empty collection if anchor classes were not generated.
-     */
-    Map<String, Class<?>> loadAnchorClasses(PUnitInfo pUnitInfo) {
-
-        Map<String, Class<?>> result = new HashMap<String, Class<?>>();
-
-        if (!canGenerateAnchorClasses()) 
-            return result;
-
-        for (String packageName : pUnitInfo.getUniquePackageNames()) {
-            String className = formattedPackageString(packageName, '/', '.') + 
-                                    osgiJpaProvider.getAnchorClassName();
-            try { 
-                debug("GeminiServicesUtil loading anchor class ", className);
-                Class<?> cls = pUnitInfo.getBundle().loadClass(className);
-                debug("GeminiServicesUtil loaded anchor class ", cls);
-                result.put(className, cls);
-            } catch (ClassNotFoundException cnfEx) {
-                fatalError("Could not load anchor class ", cnfEx);
-            }
-        }
-        return result;
-    }
-    
+        
     /**
      * Get or create a loader to load classes from the punit.
      * A sequence of conditions provides a pattern for obtaining it.
@@ -464,8 +429,8 @@ public class GeminiServicesUtil {
         // Add EMF class and anchor classes to the proxied class collection for EMF proxy
         proxiedClasses.addAll(anchorClasses.values());
         proxiedClasses.add(emfBuilderClass);
+        debug("GeminiServicesUtil EMFBuilder proxied classes: ", proxiedClasses);
         Class<?>[] classArray = proxiedClasses.toArray(new Class[0]);
-        debug("GeminiServicesUtil EMFBuilder proxy class array: ", classArray);
         
         // Get a loader to load the proxy classes
         ClassLoader loader = proxyLoader(pUnitInfo, anchorClasses, emfBuilderClass);
@@ -482,6 +447,7 @@ public class GeminiServicesUtil {
         ServiceRegistration emfBuilderService = null;
         try {
             // TODO Should be registered by p-unit context, not provider context
+            // emfBuilderService = pUnitInfo.getBundle().getBundleContext()
             emfBuilderService = osgiJpaProvider.getBundleContext()
                     .registerService(classNameArray, emfBuilderServiceProxy, props);
         } catch (Exception e) {
@@ -519,7 +485,7 @@ public class GeminiServicesUtil {
         if (dsfRefs == null)
             return false;
         
-        // We found at least one -- track the first ranked one (assuming it will be used)
+        // We found at least one -- track the first one (assuming it will be used)
         // TODO Race condition where service could disappear before being tracked
         debug("GeminiServicesUtil starting tracker for DataSourceFactory ", 
                 pUnitInfo.getDriverClassName());

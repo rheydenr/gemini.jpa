@@ -14,7 +14,6 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa;
 
-import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
