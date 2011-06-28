@@ -102,8 +102,11 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
             if (isPersistenceUnitBundle(b)) {
                 // We found a persistence unit bundle.
                 if (GeminiProperties.refreshPersistenceBundles()) {
-                    // Refresh it so it will go through resolving again and we can assign it a provider, etc.
-                    if ((b.getState() != Bundle.INSTALLED) && (b.getState() != Bundle.UNINSTALLED)) {
+                    // If bundle is active then refresh it and push it through the life cycle again
+                    // so it will go through resolving and we can assign it a provider, etc.
+                    // Bug 
+                    //  if ((b.getState() != Bundle.INSTALLED) && (b.getState() != Bundle.UNINSTALLED)) {
+                    if (b.getState() == Bundle.ACTIVE) {
                         refreshBundle(b);
                     }
                 } else {
@@ -276,6 +279,11 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
                 if (!isLazy(b)) {
                     registerPersistenceUnitsInBundle(b);
                 }
+            }
+        } else if (eventType == BundleEvent.STARTED) {
+            // If not assigned then it must have been here already and we need to refresh it
+            if (!isAssigned(b)) {
+                refreshBundle(b);
             }
         } else if (eventType == BundleEvent.STOPPING) {
             if (isAssigned(b)) {

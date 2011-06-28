@@ -120,12 +120,11 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
             // We have a JPA service. Is it an EMF or an EMFBuilder?
             boolean isEmfService = EntityManagerFactory.class.isInstance(service);
             
-            log("Service added **** name=" + unitName + " EMF=" + isEmfService);
+            log("Service added **** name=" + unitName + " EMF" + (isEmfService ? "" : "Builder"));
             
             // Now ask each test if it should run based on the punit name and whether 
             // the service is an EMF or an EMFBuilder. Note that more than one test 
-            // may run on the same EMF/B service.
-            
+            // may run on the same EMF/B service.           
             if (shouldRun(TestStaticPersistence.class, unitName, isEmfService))
                 runTest(TestStaticPersistence.class);
             if (shouldRun(TestEMFService.class, unitName, isEmfService))
