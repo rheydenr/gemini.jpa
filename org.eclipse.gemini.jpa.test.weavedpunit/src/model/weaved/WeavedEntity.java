@@ -14,20 +14,29 @@
  ******************************************************************************/
 package model.weaved;
 
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+
 /**
  * Test JPA model class
  * 
  * @author mkeith
  */
+@Entity
 public class WeavedEntity {
 
+    @Id
     int id;
-    String simpleString;
+    
+    // Lazy fetching of a basic attribute will cause the entity to be woven
+    @Basic(fetch=FetchType.LAZY) 
+    String lazyString;
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
- 
-    public String getSimpleString() { return simpleString; }
-    public void setSimpleString(String simpleString) { this.simpleString = simpleString; }
 
+    public String getLazyString() { return lazyString; }
+    public void setLazyString(String lazyString) { this.lazyString = lazyString; }
 }
