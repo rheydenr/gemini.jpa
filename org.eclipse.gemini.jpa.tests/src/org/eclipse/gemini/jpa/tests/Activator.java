@@ -14,6 +14,7 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa.tests;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -48,6 +49,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
     ServiceTracker emfTracker;
     ServiceTracker emfbTracker;
     
+    Set<Class<? extends JpaTest>> testClasses = new HashSet<Class<? extends JpaTest>>();
     
 
     public void start(BundleContext context) throws Exception {
@@ -59,10 +61,18 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
         emfTracker = new ServiceTracker(ctx, EntityManagerFactory.class.getName(), this);
         emfbTracker = new ServiceTracker(ctx, EntityManagerFactoryBuilder.class.getName(), this);
 
-        emfTracker.open();
-        emfbTracker.open();
-        
+        // Get the set of tests to run from TestState
+        try {
+            for (String clsString : TestState.getIncompletedTests()) {
+                testClasses.add(ctx.getBundle().loadClass("org.eclipse.gemini.jpa.tests."+clsString));
+            }
+            log("TestClasses: " + testClasses);
+        } catch (ClassNotFoundException cnfEx) {
+            log("***************** Failed trying to load test class: " + cnfEx);
+        }
         // Run tests from tracker when service is online
+        emfTracker.open();
+        emfbTracker.open();        
     }
 
     public void stop(BundleContext context) throws Exception {
@@ -124,7 +134,12 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
             
             // Now ask each test if it should run based on the punit name and whether 
             // the service is an EMF or an EMFBuilder. Note that more than one test 
-            // may run on the same EMF/B service.           
+            // may run on the same EMF/B service.
+            for (Class<? extends JpaTest> cls : testClasses) {
+                if (shouldRun(cls, unitName, isEmfService))
+                    runTest(cls);                
+            }
+/*
             if (shouldRun(TestStaticPersistence.class, unitName, isEmfService))
                 runTest(TestStaticPersistence.class);
             if (shouldRun(TestEMFService.class, unitName, isEmfService))
@@ -145,6 +160,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
                 runTest(TestEmptyPersistence.class);
             if (shouldRun(TestEmptyPersistenceWithProps.class, unitName, isEmfService))
                 runTest(TestEmptyPersistenceWithProps.class);
+*/
         }
         return service;
     }

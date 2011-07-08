@@ -17,5 +17,6 @@ Import-Package: javax.persistence;jpa="2.0";version="1.1.0",
 Require-Bundle: org.eclipse.gemini.jpa.test.punit,
  org.eclipse.gemini.jpa.test.embeddedpunit,
  org.eclipse.gemini.jpa.test.xmlmappedpunit,
- org.eclipse.gemini.jpa.test.emptypunit
+ org.eclipse.gemini.jpa.test.emptypunit,
+ org.eclipse.gemini.jpa.test.weavedpunit
 Bundle-Activator: org.eclipse.gemini.jpa.tests.Activator
