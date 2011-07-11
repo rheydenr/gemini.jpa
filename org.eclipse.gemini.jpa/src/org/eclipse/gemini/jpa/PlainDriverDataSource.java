@@ -66,15 +66,15 @@ public class PlainDriverDataSource implements DataSource {
             // Otherwise we don't
             return false;
         } catch (Exception ex) {
-            throw new SQLException(ex);
+            throw new SQLException("Error checking for wrapper", ex);
         }
     }
     
     public <T> T unwrap(Class<T> cls) throws SQLException {
         try {
             return cls.cast(driver);
-        } catch (ClassCastException ex) {
-            throw new SQLException(ex);
+        } catch (ClassCastException ccEx) {
+            throw new SQLException("Error casting driver class", ccEx);
         }
     }
 
