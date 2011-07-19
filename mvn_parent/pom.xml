@@ -72,6 +72,8 @@
 				</configuration>
 			</plugin>
 			<!-- Specify that sources bundles are built -->
+
+			<!-- Bundle the source in the binary bundles
 			<plugin>
 				<groupId>org.sonatype.tycho</groupId>
 				<artifactId>maven-osgi-source-plugin</artifactId>
@@ -85,6 +87,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			-->
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -118,6 +121,11 @@
 			</plugins>
 		</pluginManagement>
 		<sourceDirectory>src</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>src</directory>
+			</resource>
+		</resources>
 	</build>
 </project>
 
