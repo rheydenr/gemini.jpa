@@ -39,7 +39,9 @@
 		<module>../org.eclipse.gemini.jpa.test.embeddedpunit</module>
 		<module>../org.eclipse.gemini.jpa.test.xmlmappedpunit</module>
 		<module>../org.eclipse.gemini.jpa.feature</module>
+		<!-- Don't use the source feature. 
 		<module>../org.eclipse.gemini.jpa.source.feature</module>
+		-->
 		<module>../org.eclipse.gemini.jpa.updatesite</module>
 <!-- -->
 	</modules>
