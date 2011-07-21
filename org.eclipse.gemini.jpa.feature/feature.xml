@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.gemini.jpa.feature"
       label="%featureName"
-      version="1.0.0.RC2"
+      version="1.0.0.qualifier"
       provider-name="%providerName"
       plugin="org.eclipse.gemini.jpa">
 
@@ -24,17 +24,17 @@
 
    <plugin
          id="org.eclipse.gemini.jpa"
-         version="1.0.0"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.gemini.jpa.weaving"
-         version="1.0.0"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.gemini.jpa.samples"
-         version="1.0.0"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>
