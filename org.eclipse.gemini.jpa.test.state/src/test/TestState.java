@@ -27,7 +27,10 @@ import org.osgi.framework.BundleContext;
 
 /**
  * Test state class used to keep a memory of the tests that get executed
- * in the face of the test cases continually being refreshed
+ * in the face of the test cases continually being refreshed.
+ * 
+ * NOTE: This bundle must not require any other test packages or bundles
+ *       so it doesn't get refreshed when test punits get refreshed.
  * 
  * @author mkeith
  */
@@ -41,7 +44,7 @@ public class TestState implements BundleActivator {
         completedTests = new HashMap<String,Result>();
 
         // Tests to run - Comment out tests to disable them.
-        
+/*        
         incompletedTests.add("TestStaticPersistence");
         incompletedTests.add("TestEMFService");
         incompletedTests.add("TestEMFBuilderService");
@@ -52,6 +55,10 @@ public class TestState implements BundleActivator {
         incompletedTests.add("TestMappingFileElement");
         incompletedTests.add("TestEmptyPersistence");
         incompletedTests.add("TestEmptyPersistenceWithProps");
+        incompletedTests.add("TestWeaving");
+*/
+        incompletedTests.add("TestEmbeddedJdbc");
+        
     }
     
     public static void resetTests() { 
