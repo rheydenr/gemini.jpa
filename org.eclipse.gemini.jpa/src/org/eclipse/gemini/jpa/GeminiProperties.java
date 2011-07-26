@@ -46,6 +46,9 @@ public class GeminiProperties {
     // Set to debug XML parsing
     public static String DEBUG_XML = "GEMINI_DEBUG_XML";
 
+    // Set to debug weaving
+    public static String DEBUG_WEAVING = "GEMINI_DEBUG_WEAVING";
+    
     // Set to debug classloading 
     public static String DEBUG_CLASSLOADER = "GEMINI_DEBUG_CLASSLOADER";
         
@@ -61,13 +64,16 @@ public class GeminiProperties {
     protected static Boolean refreshPersistenceBundles;
     protected static Boolean debugXml;
     protected static Boolean debugClassloader;
+    protected static Boolean debugWeaving;
     protected static Boolean debug;
     
     /*==================*/
     /* Property methods */
     /*==================*/
 
-    // Return whether anchor classes are to be generated
+    /* 
+     * Return whether anchor classes are to be generated
+     */
     public static boolean generateAnchorClasses() { 
         // ### Feature not supported yet. ###
         generateAnchorClasses = false;
@@ -82,13 +88,18 @@ public class GeminiProperties {
         return generateAnchorClasses && generateFragments();
     }
 
-    // Set whether anchor classes are to be generated
+    /* 
+     * Set whether anchor classes are to be generated
+     */
     public static void setGenerateAnchorClasses(boolean value) { 
+        // ### Feature not supported yet. ###
         throw new UnsupportedOperationException("Not supported at this time");
         // generateAnchorClasses = value; 
     }
     
-    // Return whether fragments are to be generated
+    /*
+     * Return whether fragments are to be generated
+     */
     public static boolean generateFragments() { 
         // ### Feature not supported yet. ###
         generateFragments = false;
@@ -100,15 +111,20 @@ public class GeminiProperties {
         return generateFragments;
     }
 
-    // Set whether fragments are to be generated
+    /*
+     * Set whether fragments are to be generated
+     */
     public static void setGenerateFragments(boolean value) { 
+        // ### Feature not supported yet. ###
         throw new UnsupportedOperationException("Not supported at this time");
         // generateFragments = value; 
     }
 
-    // Return whether persistence unit bundles that were found to be already installed 
-    // should be refreshed. This should only be enabled when the provider does not need 
-    // to do anything pre-resolve time (such as weaving).
+    /*
+     * Return whether persistence unit bundles that were found to be already installed 
+     * should be refreshed. This should only be enabled when the provider does not need 
+     * to do anything pre-resolve time (such as weaving).
+     */
     public static boolean refreshPersistenceBundles() { 
         if (refreshPersistenceBundles == null) {
             String value = System.getProperty(REFRESH_BUNDLES, REFRESH_BUNDLES_DEFAULT);
@@ -117,10 +133,14 @@ public class GeminiProperties {
         return refreshPersistenceBundles;
     }
 
-    // Set whether bundles are to be refreshed when already installed
+    /* 
+     * Set whether bundles are to be refreshed when already installed
+     */
     public static void setRefreshPersistenceBundles(boolean value) { refreshPersistenceBundles = value; }
 
-    // Return whether debugging is enabled for XML parsing 
+    /* 
+     * Return whether debugging is enabled for XML parsing 
+     */
     public static boolean debugXml() { 
         if (debugXml == null) {
             String value = System.getProperty(DEBUG_XML);
@@ -130,10 +150,14 @@ public class GeminiProperties {
         return debugXml;
     }
 
-    // Set whether bundles are to be refreshed when already installed
+    /* 
+     * Set whether debugging is enabled for XML parsing
+     */
     public static void setDebugXml(boolean value) { debugXml = value; }
 
-    // Return whether debugging is enabled for classloading
+    /* 
+     * Return whether debugging is enabled for classloading
+     */
     public static boolean debugClassloader() { 
         if (debugClassloader == null) {
             String value = System.getProperty(DEBUG_CLASSLOADER);
@@ -143,10 +167,31 @@ public class GeminiProperties {
         return debugClassloader;
     }
 
-    // Set whether debugging is enabled for classloading
-    public static void setdebugClassloader(boolean value) { debugClassloader = value; }
+    /* 
+     * Set whether debugging is enabled for classloading
+     */
+    public static void setDebugClassloader(boolean value) { debugClassloader = value; }
 
-    // Return whether general debugging is enabled
+    /* 
+     * Return whether debugging is enabled for weaving
+     */
+    public static boolean debugWeaving() { 
+        if (debugWeaving == null) {
+            String value = System.getProperty(DEBUG_WEAVING);
+            // Any value will cause debugging to be enabled
+            debugWeaving = (value != null);
+        }
+        return debugWeaving;
+    }
+
+    /* 
+     * Set whether debugging is enabled for weaving
+     */
+    public static void setDebugWeaving(boolean value) { debugClassloader = value; }
+
+    /* 
+     * Return whether general debugging is enabled
+     */
     public static boolean debug() { 
         if (debug == null) {
             String value = System.getProperty(DEBUG);
@@ -156,7 +201,9 @@ public class GeminiProperties {
         return debug;
     }
 
-    // Set whether general debugging is enabled
-    public static void setdebug(boolean value) { debug = value; }
+    /* 
+     * Set whether general debugging is enabled
+     */
+    public static void setDebug(boolean value) { debug = value; }
 
 }

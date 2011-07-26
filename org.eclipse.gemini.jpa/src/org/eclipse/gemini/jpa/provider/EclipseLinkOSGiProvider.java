@@ -48,7 +48,6 @@ import org.eclipse.gemini.jpa.GeminiServicesUtil;
 import org.eclipse.gemini.jpa.GeminiUtil;
 import org.eclipse.gemini.jpa.PUnitInfo;
 import org.eclipse.gemini.jpa.PersistenceBundleExtender;
-import org.eclipse.gemini.jpa.PersistenceUnitBundleUtil;
 import org.eclipse.gemini.jpa.PlainDriverDataSource;
 import org.eclipse.gemini.jpa.classloader.BundleProxyClassLoader;
 import org.eclipse.gemini.jpa.classloader.CompositeClassLoader;
@@ -69,7 +68,6 @@ import org.osgi.service.jdbc.DataSourceFactory;
 public class EclipseLinkOSGiProvider implements BundleActivator, 
                                                 OSGiJpaProvider,
                                                 PersistenceProvider {
-
     /*==================*/
     /* Static constants */
     /*==================*/
@@ -93,7 +91,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     /** Anchor class gen utility */
     AnchorClassUtil anchorUtil;    
     
-    /** An SPI instance of this provider */
+    /** A native SPI instance of this provider */
     PersistenceProvider eclipseLinkProvider;
     
     /** Map of p-units we have registered */
@@ -177,22 +175,21 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     public void assignPersistenceUnitsInBundle(Bundle b, Collection<PUnitInfo> pUnits) {
         debug("EclipseLinkProvider assignPersistenceUnitsInBundle: ", b.getSymbolicName());
 
-        // Run Initializer to process PU and register transformers
-        BundleContext bundleContext = getBundleContext();
-
         //TODO Check state of bundle in assign call
-
-        // Generate a fragment for the p-units
+        debug("Bundle state: ", GeminiUtil.stringBundleStateFromInt(b.getState()));
+        
         if (GeminiProperties.generateFragments()) {
+            // Generate a fragment for the p-units
             new FragmentUtil(ctx.getBundle())
                     .generateAndInstallFragment(b, pUnits, anchorUtil);
         }
 
-        ClassLoader compositeLoader = compositeLoader(bundleContext,b);
-        GeminiOSGiInitializer initializer = new GeminiOSGiInitializer(compositeLoader);
+        // Create a loader that can load from the persistence bundle as well as from the provider bundle
+        ClassLoader compositeLoader = compositeLoader(getBundleContext(), b);
         
-        initializer.registerBundle(bundleContext, b, compositeLoader, pUnits);
-        
+        // Create and run initializer to process PU and register transformers
+        GeminiOSGiInitializer initializer = new GeminiOSGiInitializer();        
+        initializer.initializeFromBundle(getBundleContext(), b, compositeLoader, pUnits);
     }
 
     /**

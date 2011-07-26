@@ -122,6 +122,13 @@ public class GeminiUtil {
             debug(msgs);
         }
     }
+
+    // Function to print out debug strings for weaving purposes
+    public static void debugWeaving(String... msgs) { 
+        if (GeminiProperties.debugWeaving()) {
+            debug(msgs);
+        }
+    }
     
     // Function to print out series of debug strings
     public static void debug(String... msgs) { 

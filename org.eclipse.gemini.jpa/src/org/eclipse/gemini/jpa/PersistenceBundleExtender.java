@@ -250,6 +250,13 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
         PackageAdmin admin = getPackageAdmin(osgiJpaProvider.getBundleContext());
         debug("GeminiExtender refreshing packages of bundle ", b);
         admin.refreshPackages(new Bundle[] { b }); 
+
+        /* New 4.3 code to use to refresh bundle */
+        /*
+        Bundle systemBundle = osgiJpaProvider.getBundleContext().getBundle(0);
+        FrameworkWiring fw = systemBundle.adapt(FrameworkWiring.class);
+        fw.refreshBundles(Arrays.asList(b));
+        */
     }
     
     /*========================*/
