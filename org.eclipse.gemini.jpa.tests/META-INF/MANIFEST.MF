@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Gemini JPA Unit Tests
 Bundle-SymbolicName: org.eclipse.gemini.jpa.tests
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: javax.persistence;jpa="2.0";version="1.1.0",
  javax.persistence.metamodel;jpa="2.0";version="1.1.0",
  org.junit;version="4.8.1",
@@ -16,7 +16,9 @@ Import-Package: javax.persistence;jpa="2.0";version="1.1.0",
  test;version="1.0.0"
 Require-Bundle: org.eclipse.gemini.jpa.test.punit,
  org.eclipse.gemini.jpa.test.embeddedpunit,
+ org.eclipse.gemini.jpa.test.embeddedjdbc,
  org.eclipse.gemini.jpa.test.xmlmappedpunit,
  org.eclipse.gemini.jpa.test.emptypunit,
- org.eclipse.gemini.jpa.test.weavedpunit
+ org.eclipse.gemini.jpa.test.weavedpunit,
+ org.eclipse.persistence.core
 Bundle-Activator: org.eclipse.gemini.jpa.tests.Activator
