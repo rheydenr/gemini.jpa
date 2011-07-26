@@ -8,6 +8,8 @@
    
     Contributors:
         ktsvetkov - initial implementation
+		mkeith - removed source bundle
+		mkeith - removed org.eclipse.gemini.jpa.weaving bundle, added weavedpunit and embeddedjdbc test bundles
  -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -32,13 +34,13 @@
 	<modules>
 		<module>../org.eclipse.gemini.jpa.targetdef</module>
 		<module>../org.eclipse.gemini.jpa</module>
-		<module>../org.eclipse.gemini.jpa.weaving</module>
 		<module>../org.eclipse.gemini.jpa.samples</module>
 		<module>../org.eclipse.gemini.jpa.test.punit</module>
 		<module>../org.eclipse.gemini.jpa.test.emptypunit</module>
+		<module>../org.eclipse.gemini.jpa.test.weavedpunit</module>
 		<module>../org.eclipse.gemini.jpa.test.embeddedpunit</module>
-		<module>../org.eclipse.gemini.jpa.test.xmlmappedpunit</module>
 		<module>../org.eclipse.gemini.jpa.test.embeddedjdbc</module>
+		<module>../org.eclipse.gemini.jpa.test.xmlmappedpunit</module>
 		<module>../org.eclipse.gemini.jpa.feature</module>
 		<!-- Don't use the source feature. 
 		<module>../org.eclipse.gemini.jpa.source.feature</module>
