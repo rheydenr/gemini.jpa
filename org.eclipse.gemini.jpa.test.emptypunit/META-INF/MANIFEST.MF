@@ -4,6 +4,6 @@ Meta-Persistence: META-INF/emptyJpa.xml
 Bundle-Name: Gemini JPA Test Empty Persistence Unit
 Bundle-SymbolicName: org.eclipse.gemini.jpa.test.emptypunit
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.osgi.framework;version="1.4.0"
 Bundle-Activator: punit.Activator
