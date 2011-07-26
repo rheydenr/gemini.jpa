@@ -64,7 +64,8 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
         // Get the set of tests to run from TestState
         try {
             for (String clsString : TestState.getIncompletedTests()) {
-                testClasses.add(ctx.getBundle().loadClass("org.eclipse.gemini.jpa.tests."+clsString));
+                testClasses.add((Class<? extends JpaTest>)
+                        ctx.getBundle().loadClass("org.eclipse.gemini.jpa.tests." + clsString));
             }
             log("TestClasses: " + testClasses);
         } catch (ClassNotFoundException cnfEx) {
@@ -139,28 +140,6 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
                 if (shouldRun(cls, unitName, isEmfService))
                     runTest(cls);                
             }
-/*
-            if (shouldRun(TestStaticPersistence.class, unitName, isEmfService))
-                runTest(TestStaticPersistence.class);
-            if (shouldRun(TestEMFService.class, unitName, isEmfService))
-                runTest(TestEMFService.class);
-            if (shouldRun(TestEMFBuilderService.class, unitName, isEmfService))
-                runTest(TestEMFBuilderService.class);
-            if (shouldRun(TestEMFBuilderServiceProperties.class, unitName, isEmfService))
-                runTest(TestEMFBuilderServiceProperties.class);
-            if (shouldRun(TestEMFBuilderExternalDataSource.class, unitName, isEmfService))
-                runTest(TestEMFBuilderExternalDataSource.class);
-            if (shouldRun(TestEmbeddedPUnit.class, unitName, isEmfService))
-                runTest(TestEmbeddedPUnit.class);
-            if (shouldRun(TestOrmMappingFile.class, unitName, isEmfService))
-                runTest(TestOrmMappingFile.class);
-            if (shouldRun(TestMappingFileElement.class, unitName, isEmfService))
-                runTest(TestMappingFileElement.class);
-            if (shouldRun(TestEmptyPersistence.class, unitName, isEmfService))
-                runTest(TestEmptyPersistence.class);
-            if (shouldRun(TestEmptyPersistenceWithProps.class, unitName, isEmfService))
-                runTest(TestEmptyPersistenceWithProps.class);
-*/
         }
         return service;
     }
