@@ -38,6 +38,7 @@
 		<module>../org.eclipse.gemini.jpa.test.emptypunit</module>
 		<module>../org.eclipse.gemini.jpa.test.embeddedpunit</module>
 		<module>../org.eclipse.gemini.jpa.test.xmlmappedpunit</module>
+		<module>../org.eclipse.gemini.jpa.test.embeddedjdbc</module>
 		<module>../org.eclipse.gemini.jpa.feature</module>
 		<!-- Don't use the source feature. 
 		<module>../org.eclipse.gemini.jpa.source.feature</module>
@@ -52,6 +53,12 @@
 			<plugin>
 				<groupId>org.sonatype.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>tycho-versions-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
@@ -122,7 +129,9 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
+		<!-- Specify where to get the sources -->
 		<sourceDirectory>src</sourceDirectory>
+		<!-- Add the source dir as a resource so it gets included in the bundle -->
 		<resources>
 			<resource>
 				<directory>src</directory>
