@@ -36,13 +36,8 @@ import static org.eclipse.gemini.jpa.GeminiUtil.*;
 public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory {
     
     PUnitInfo pUnitInfo;
-    EntityManagerFactory emf;
     
     public EMFServiceProxyHandler(PUnitInfo pUnitInfo) { this.pUnitInfo = pUnitInfo; }
-
-    // May be called by the EMFBuilder service
-    public EntityManagerFactory getEMF() { return emf; }
-    public void setEMF(EntityManagerFactory factory) { emf = factory; }
     
     /*=========================*/
     /* InvocationProxy methods */
@@ -53,13 +48,9 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
 
         debug("EMFProxy invocation on method ", method.getName());
 
-        /* Allow close() to pass through in order for users to close and reopen the EMF. */
-        /* NOTE: This means that any user that closes an EMF will cause it to be closed  */
-        /* for all other service references of the EMF service. */
-        // If close() invoked then just ignore it
-        /* if (method.getName().equals("close"))
-            return null;
-         */
+        /* NOTE: Allow close() to pass through in order for users to close the EMF. */
+        /* This means that any user that closes an EMF will cause it to be closed   */
+        /* for all other service references of the EMF service.                     */
         
         // Invoke these methods on the actual proxy (not the object it's proxying)
         if (method.getName().equals("hashCode"))
@@ -74,20 +65,15 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
         /*          Not right now.                                                   */
         /*===========================================================================*/
 
-        if (emf == null) {
-            synchronized(this) {
-                if (emf == null) {
-                    emf = createEMF(new HashMap<String,Object>());
-                }
-            } 
-        }
+        // Get the EMF (setting a new one if one does not already exist)
+        EntityManagerFactory emf = syncGetEMFAndSetIfAbsent(false, 
+                                                            new HashMap<String,Object>());
         // Invoke the EMF method that was called
-        Object result = method.invoke(emf,args);
+        Object result = method.invoke(emf, args);
         
-        // If the operation was to close the EMF then remove our ref to it
-        synchronized(this) {
-            if (!emf.isOpen()) 
-                emf = null;
+        // If the operation was to close the EMF then chuck our reference away
+        if (!emf.isOpen()) {
+            syncUnsetEMF();
         }
         return result;
     }
@@ -110,8 +96,32 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
     /* Helper methods */
     /*================*/
 
-    // Use info from the cached pUnitInfo and create a new EMF to store locally
-    protected EntityManagerFactory createEMF(Map<String,Object> props) {
+    // Return the EMF from the shared PUnitInfo, or null if none exists there
+    public EntityManagerFactory syncGetEMFAndSetIfAbsent(boolean setByBuilderService,
+                                                         Map<String,Object> props) {
+        if (pUnitInfo.getEmf() == null) {
+            synchronized(pUnitInfo) {
+                // Check again while holding the mutex
+                if (pUnitInfo.getEmf() == null) {
+                    pUnitInfo.setEmf( this.createEMF(props) );
+                    pUnitInfo.setEmfSetByBuilderService(setByBuilderService);
+                }
+            }
+        }
+        return pUnitInfo.getEmf();
+    }
+
+    // Set the EMF to null if one exists. Return the one that was there.
+    public EntityManagerFactory syncUnsetEMF() {
+        synchronized(pUnitInfo) {
+            EntityManagerFactory emf = pUnitInfo.getEmf(); 
+            pUnitInfo.setEmf(null);
+            return emf;
+        }
+    }
+
+    // Use info from the cached pUnitInfo and create a new EMF
+    public EntityManagerFactory createEMF(Map<String,Object> props) {
         
         String unitName =  pUnitInfo.getUnitName();
         PersistenceProvider provider = pUnitInfo.getAssignedProvider().getProviderInstance();
@@ -120,6 +130,4 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
             fatalError("Proxy could not create EMF " + unitName + " from provider " + provider, null);
         return result;
     }
-
 }        
-
