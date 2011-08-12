@@ -46,32 +46,28 @@ public class TestEMFBuilderExternalDataSource extends JpaTest {
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
         EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
-
         DataSource ds = null;
         try {
             ServiceReference[] refs = context.getServiceReferences(
                     DataSourceFactory.class.getName(), "(osgi.jdbc.driver.class=" + JDBC_TEST_DRIVER + ")");
-
-            if (refs != null) {
-            	DataSourceFactory dsf = (DataSourceFactory)context.getService(refs[0]);
-            	
-            	if ( dsf != null ) {
-	                Properties props = new Properties();        
-
-	                props.put(DataSourceFactory.JDBC_URL, JDBC_TEST_URL);
-	                props.put(DataSourceFactory.JDBC_USER, JDBC_TEST_USER);
-	                props.put(DataSourceFactory.JDBC_PASSWORD, JDBC_TEST_PASSWORD);
-	                
-	                ds = dsf.createDataSource(props);
-	                
-	                context.ungetService(refs[0]);
-            	}
+            if (refs == null) {
+                throw new RuntimeException("Failed looking up driver in registry");
             }
+
+            DataSourceFactory dsf = (DataSourceFactory)context.getService(refs[0]);        	
+        	if (dsf == null) {
+        	    throw new RuntimeException("Failed getting svc from DSF svc ref");
+        	}
+            Properties props = new Properties();        
+            props.put(DataSourceFactory.JDBC_URL, JDBC_TEST_URL);
+            props.put(DataSourceFactory.JDBC_USER, JDBC_TEST_USER);
+            props.put(DataSourceFactory.JDBC_PASSWORD, JDBC_TEST_PASSWORD);
+            
+            ds = dsf.createDataSource(props);
+
         } catch (InvalidSyntaxException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

@@ -65,6 +65,8 @@ public abstract class JpaTest {
 
     public boolean needsEmfService() { return true; }
 
+    public boolean needsDsfService() { return true; }
+
     public String testName() {
         return this.getClass().getSimpleName();
     }

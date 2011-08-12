@@ -53,6 +53,8 @@ public class TestEmbeddedJdbc extends JpaTest {
     }
 
     /* === Subclassed methods === */
+    
+    public boolean needsDsfService() { return false; }
 
     public EntityManagerFactory getEmf() { return emf; }
 
