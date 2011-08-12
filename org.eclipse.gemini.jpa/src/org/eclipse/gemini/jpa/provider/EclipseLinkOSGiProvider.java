@@ -16,6 +16,7 @@
 package org.eclipse.gemini.jpa.provider;
 
 import static org.eclipse.gemini.jpa.GeminiUtil.debug;
+import static org.eclipse.gemini.jpa.GeminiUtil.debugClassLoader;
 import static org.eclipse.gemini.jpa.GeminiUtil.fatalError;
 import static org.eclipse.gemini.jpa.GeminiUtil.warning;
 import static org.osgi.service.jdbc.DataSourceFactory.JDBC_PASSWORD;
@@ -173,10 +174,8 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
      * @param pUnits
      */
     public void assignPersistenceUnitsInBundle(Bundle b, Collection<PUnitInfo> pUnits) {
-        debug("EclipseLinkProvider assignPersistenceUnitsInBundle: ", b.getSymbolicName());
-
         //TODO Check state of bundle in assign call
-        debug("Bundle state: ", GeminiUtil.stringBundleStateFromInt(b.getState()));
+        debug("EclipseLinkProvider assignPersistenceUnitsInBundle: ", b);
         
         if (GeminiProperties.generateFragments()) {
             // Generate a fragment for the p-units
@@ -238,21 +237,11 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
 
         debug("EclipseLinkProvider unregisterPersistenceUnits: ", pUnits);
 
-        EntityManagerFactory emf1 = null, 
-                             emf2 = null;
-
         if (pUnits == null) return;
         
         for (PUnitInfo info : pUnits) {
-            // TODO re-org tracker to be from provider
-            servicesUtil.stopTrackingDataSourceFactory(info);
-            emf1 = servicesUtil.unregisterEMFService(info);
-            emf2 = servicesUtil.unregisterEMFBuilderService(info);
-            if (emf1 != null) {
-                emf1.close();
-            } else if (emf2 != null) {
-                emf2.close();
-            }
+            servicesUtil.unregisterEMFServices(info);
+
             // Remove from our local pUnit copy 
             pUnitsByName.remove(info.getUnitName());
         }
@@ -322,17 +311,16 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         return compositeLoader(getBundleContext(), pUnitInfo.getBundle());
     }
 
-    protected ClassLoader compositeLoader(BundleContext context,
-            Bundle bundle) {
-        ClassLoader pUnitLoader = new BundleProxyClassLoader(bundle);
-        debug("PUnit bundle proxy loader created: ", pUnitLoader);
-        ClassLoader providerLoader = new BundleProxyClassLoader(context.getBundle());
-        debug("Provider bundle proxy loader created: ", providerLoader);
+    protected ClassLoader compositeLoader(BundleContext providerCtx, Bundle pUnitBundle) {
+        ClassLoader pUnitLoader = new BundleProxyClassLoader(pUnitBundle);
+        debugClassLoader("PUnit bundle proxy loader created: ", pUnitLoader);
+        ClassLoader providerLoader = new BundleProxyClassLoader(providerCtx.getBundle());
+        debugClassLoader("Provider bundle proxy loader created: ", providerLoader);
         List<ClassLoader> loaders = new ArrayList<ClassLoader>();
         loaders.add(pUnitLoader);
         loaders.add(providerLoader);
         ClassLoader compositeLoader = new CompositeClassLoader(loaders);
-        debug("Composite loader created: ", compositeLoader);
+        debugClassLoader("Composite loader created: ", compositeLoader);
         return compositeLoader;
     }
 
@@ -345,40 +333,64 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         if (ds instanceof DataSource) {
             return (DataSource) ds;
         }
-        
-        // Otherwise we create a data source based on the properties
-        ServiceReference[] dsfRefs = null;
-        
-        // Get the driver name from either the pUnitInfo or the runtime properties
+        Driver driver = null;
+
+        // Sort out which named driver we are dealing with
         String driverName = (String)properties.get(GeminiUtil.JPA_JDBC_DRIVER_PROPERTY);
-        if (driverName == null)
+        if (driverName == null) {
             driverName = pUnitInfo.getDriverClassName();
+            if (driverName == null)
+                // We at least need a driver name
+                fatalError("No driver was specified", null);
+        }
 
-        // We at least need a driver name. If we don't have one we are basically hosed
-        if (driverName == null)
-            fatalError("No driver was specified", null);
-
+        // Try using a DSF service if we have one stored away and the one asked for is the same
+        ServiceReference dsfRef = pUnitInfo.getDsfService();
+        if ((dsfRef != null) && (driverName.equals(pUnitInfo.getDriverClassName()))) {
+            debug("Using existing DSF service ref from punit ", pUnitInfo.getUnitName());
+            DataSourceFactory dsf = (DataSourceFactory) getBundleContext().getService(dsfRef);
+            try {
+                // There is no standard way of getting JDBC properties from JPA props
+                // (apart from the url/user/pw that are converted using getJdbcProperties)
+                driver = dsf.createDriver(null);
+            } catch (SQLException sqlEx) {
+                // Service was registered but seems to be busted
+                fatalError("Could not create data source for " + driverName, sqlEx);
+            }
+        }
+        // If we still have no driver then try doing a dynamic lookup
+        if (driver == null) {
+            debug("Trying dynamic lookup of DSF for ", driverName, " for p-unit ", pUnitInfo.getUnitName());
+            String filter = "(" + DataSourceFactory.OSGI_JDBC_DRIVER_CLASS + "=" + driverName + ")";
+            ServiceReference[] dsfRefs = null;
+            try {
+                dsfRefs = pUnitInfo.getBundle().getBundleContext().getServiceReferences(
+                            DataSourceFactory.class.getName(), filter);
+            } catch (InvalidSyntaxException isEx) {
+                fatalError("Bad filter syntax (likely because of missing driver class name)", isEx);
+            }         
+            if (dsfRefs != null) {
+                DataSourceFactory dsf = (DataSourceFactory) getBundleContext().getService(dsfRefs[0]);
+                try {
+                    driver = dsf.createDriver(null);
+                } catch (SQLException sqlEx) {
+                    fatalError("Could not create data source for " + driverName, sqlEx);
+                }
+            }
+        }
+        // Finally, try loading it locally
+        if (driver == null) {
+            debug("Trying to load driver ", driverName, " locally from p-unit bundle ", pUnitInfo.getUnitName());
+            try {
+                Class<?> driverClass = pUnitInfo.getBundle().loadClass(driverName);
+                driver = (Driver) driverClass.newInstance();
+                debug("JDBC driver ", driverName, " loaded locally from p-unit bundle ", pUnitInfo.getUnitName());
+            } catch (Exception ex) {
+                fatalError("Could not create data source for " + driverName, ex);
+            }
+        }
         Properties props = getJdbcProperties(pUnitInfo, properties);
         
-        String filterString = "(" + OSGI_JDBC_DRIVER_CLASS + "=" + driverName + ")";
-        debug("EclipseLinkProvider acquireDataSource - pUnit = ", 
-                pUnitInfo.getUnitName(), " filter = ", filterString);
-        try {
-            dsfRefs = getBundleContext().getServiceReferences(
-                                DataSourceFactory.class.getName(), filterString);
-        } catch (InvalidSyntaxException isEx) {} // dev time error
-        if (dsfRefs == null)
-            fatalError("Could not find data source factory in registry: " + driverName, null);
-
-        DataSourceFactory dsf = (DataSourceFactory) getBundleContext().getService(dsfRefs[0]);
-        Driver driver = null;
-        try {
-            // There is no standard way of getting JDBC properties from JPA
-            // (apart from the url/user/pw that are passed into the data source below)
-            driver = dsf.createDriver(null);
-        } catch (SQLException sqlEx) {
-            fatalError("Could not create data source for " + driverName, sqlEx);
-        }
         return new PlainDriverDataSource(driver, props);
     }
     
@@ -444,7 +456,4 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         } catch (IOException e) {
         }
     }
-
-
-
 }
