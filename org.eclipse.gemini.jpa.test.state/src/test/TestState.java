@@ -14,6 +14,7 @@
  ******************************************************************************/
 package test;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,29 +37,43 @@ import org.osgi.framework.BundleContext;
  */
 public class TestState implements BundleActivator {
 
+    public static String GEMINI_TEST_CLASSES = "GEMINI_TESTS";
+
+    public static boolean isDsfOnline = false;
+    public static Set<Class<?>> dsfQueuedTests = new HashSet<Class<?>>();
+
     static Set<String> incompletedTests = new HashSet<String>();
     static Map<String,Result> completedTests = new HashMap<String,Result>();
+    static boolean initialized = initTests();
     
-    static void initTests() {
+    static boolean initTests() {
         incompletedTests = new HashSet<String>();
         completedTests = new HashMap<String,Result>();
 
-        // Tests to run - Comment out tests to disable them.
-/*        
-        incompletedTests.add("TestStaticPersistence");
-        incompletedTests.add("TestEMFService");
-        incompletedTests.add("TestEMFBuilderService");
-        incompletedTests.add("TestEMFBuilderServiceProperties");
-        incompletedTests.add("TestEMFBuilderExternalDataSource");
-        incompletedTests.add("TestEmbeddedPUnit");
-        incompletedTests.add("TestOrmMappingFile");
-        incompletedTests.add("TestMappingFileElement");
-        incompletedTests.add("TestEmptyPersistence");
-        incompletedTests.add("TestEmptyPersistenceWithProps");
-        incompletedTests.add("TestWeaving");
-*/
-        incompletedTests.add("TestEmbeddedJdbc");
-        
+        // If test property provided then just run comma-separated list 
+        // of unqualified JpaTest subclasses in org.eclipse.gemini.jpa.tests
+        String tests = System.getProperty(GEMINI_TEST_CLASSES, null);
+        if (tests != null) {
+            incompletedTests.addAll(Arrays.asList(tests.split(",")));
+        } else {
+            // Enumerate the tests to run - Comment out tests to disable them.
+            // Each test is the name of a JpaTest subclass in the 
+            // org.eclipse.gemini.jpa.tests package
+            /*   */
+            incompletedTests.add("TestStaticPersistence");
+            incompletedTests.add("TestEMFService");
+            incompletedTests.add("TestEMFBuilderService");
+            incompletedTests.add("TestEMFBuilderServiceProperties");
+            incompletedTests.add("TestEMFBuilderExternalDataSource");
+            incompletedTests.add("TestEmbeddedPUnit");
+            incompletedTests.add("TestOrmMappingFile");
+            incompletedTests.add("TestMappingFileElement");
+            incompletedTests.add("TestEmptyPersistence");
+            incompletedTests.add("TestEmptyPersistenceWithProps");
+            incompletedTests.add("TestWeaving");
+            incompletedTests.add("TestEmbeddedJdbc");
+        }
+        return true;
     }
     
     public static void resetTests() { 
@@ -86,10 +101,9 @@ public class TestState implements BundleActivator {
     }
 
     public void start(BundleContext context) throws Exception {
-        initTests();
         System.out.println("TestState active");
         System.out.println("Tests in run list: ");
-        System.out.println(""+incompletedTests);
+        System.out.println("" + incompletedTests);
     }
 
     public void stop(BundleContext context) throws Exception {}
