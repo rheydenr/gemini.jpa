@@ -11,6 +11,7 @@
  *
  * Contributors: 
  *    ssmith - A ClassLoader that aggregates multiple ClassLoaders
+ *    mkeith - Some changes to debugging code
  ******************************************************************************/  
 package org.eclipse.gemini.jpa.classloader;
 
@@ -82,6 +83,7 @@ public class CompositeClassLoader extends ClassLoader {
             debugClassLoader("Attempting getResource(", name,") on ", classLoader.toString());
             URL resource = classLoader.getResource(name);
             if (resource != null) {
+                debugClassLoader("Found resource(", name,") from ", classLoader.toString());
                 return resource;
             }
         }
@@ -101,6 +103,7 @@ public class CompositeClassLoader extends ClassLoader {
             debugClassLoader("Attempting getResourceAsStream(", name,") on ", classLoader.toString());
             InputStream stream = classLoader.getResourceAsStream(name);
             if (stream != null) {
+                debugClassLoader("Found resource(", name,") from ", classLoader.toString());
                 return stream;
             }
         }
@@ -124,6 +127,7 @@ public class CompositeClassLoader extends ClassLoader {
             debugClassLoader("Attempting getResources(", name,") on ", classLoader.toString());
             Enumeration<URL> resources = classLoader.getResources(name);
             if (resources != null) {
+                debugClassLoader("Found resources(", name,") from ", classLoader.toString());
                 enumerations.add(resources);
             }
         }
@@ -148,7 +152,7 @@ public class CompositeClassLoader extends ClassLoader {
                 Class<?> aClass = classLoader.loadClass(name);
                 return aClass;
             } catch (ClassNotFoundException e) {
-                debugClassLoader("ClassNotFound '", name,"' in ", classLoader.toString());                
+                debugClassLoader("ClassNotFound '", name,"' by ", classLoader.toString());                
             }            
         }
         throw new ClassNotFoundException(name);
