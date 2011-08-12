@@ -104,7 +104,6 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
                 if (GeminiProperties.refreshPersistenceBundles()) {
                     // If bundle is active then refresh it and push it through the life cycle again
                     // so it will go through resolving and we can assign it a provider, etc.
-                    // Bug 
                     //  if ((b.getState() != Bundle.INSTALLED) && (b.getState() != Bundle.UNINSTALLED)) {
                     if (b.getState() == Bundle.ACTIVE) {
                         refreshBundle(b);

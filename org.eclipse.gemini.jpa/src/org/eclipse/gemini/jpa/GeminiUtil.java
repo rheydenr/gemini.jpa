@@ -14,8 +14,12 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa;
 
+import static org.eclipse.gemini.jpa.GeminiUtil.debug;
+import static org.eclipse.gemini.jpa.GeminiUtil.fatalError;
+
 import java.io.Closeable;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -80,9 +84,22 @@ public class GeminiUtil {
             ? "" 
             : s.substring(1, s.length());
     }
-    /*================================*/
-    /* Status and debugging functions */
-    /*================================*/
+    
+    // Load a class using the specified bundle; fatal exception if not found
+    public static Class<?> loadClassFromBundle(String clsName, Bundle b) {
+
+        debug("Loading class ", clsName, " from bundle ", b);
+        try {
+            return b.loadClass(clsName);
+        } catch (ClassNotFoundException cnfEx) {
+            fatalError("Could not load class " + clsName + " from bundle " + b, cnfEx);
+        }
+        return null;
+    }
+    
+    /*==================*/
+    /* Status functions */
+    /*==================*/
     
     // Function to throw a runtime exception (throws exception)
     public static void fatalError(String s, Throwable t) { 
@@ -109,33 +126,54 @@ public class GeminiUtil {
         System.out.println(outputMsg);
     }
 
+    /*=====================*/
+    /* Debugging functions */
+    /*=====================*/
+    
     // Function to print out debug strings for XML parsing purposes
     public static void debugXml(String... msgs) { 
         if (GeminiProperties.debugXml()) {
-            debug(msgs);
+            privateDebug(msgs);
         }
     }
     
     // Function to print out debug strings for classloading purposes
     public static void debugClassLoader(String... msgs) { 
         if (GeminiProperties.debugClassloader()) {
-            debug(msgs);
+            privateDebug(msgs);
+        }
+    }
+
+    // Function to print out debug string and classloader info for classloading debugging
+    public static void debugClassLoader(String s, ClassLoader cl) { 
+        if (GeminiProperties.debugClassloader()) {
+            System.out.println(s + String.valueOf(cl));
+            ClassLoader p = cl;
+            while (p.getParent() != null) {
+                System.out.println("  Parent loader: " + p.getParent());
+                p = p.getParent();
+            }
         }
     }
 
     // Function to print out debug strings for weaving purposes
     public static void debugWeaving(String... msgs) { 
         if (GeminiProperties.debugWeaving()) {
-            debug(msgs);
+            privateDebug(msgs);
         }
     }
     
     // Function to print out series of debug strings
     public static void debug(String... msgs) { 
         if (GeminiProperties.debug()) {
-            StringBuilder sb = new StringBuilder();
-            for (String msg : msgs) sb.append(msg);
-            System.out.println(sb.toString()); 
+            privateDebug(msgs);
+        }
+    }
+
+    // Function to print out series of objects
+    public static void debug(Object... args) {
+        if (GeminiProperties.debug()) {
+            privateDebug(args);
         }
     }
 
@@ -145,22 +183,18 @@ public class GeminiUtil {
         if (GeminiProperties.debug()) {
             if (obj == null) {
                 System.out.println(msg + String.valueOf(obj));
-            } else if (ClassLoader.class.isAssignableFrom(obj.getClass())) {
-                System.out.println(msg + obj);
-                ClassLoader p = (ClassLoader)obj;
-                while (p.getParent() != null) {
-                    System.out.println("  Parent loader: " + p.getParent());
-                    p = p.getParent();
-                }
+            } else if ((ClassLoader.class.isAssignableFrom(obj.getClass())) &&
+                       (GeminiProperties.debugXml())) {
+                debugClassLoader(msg, (ClassLoader)obj);
             } else if (Bundle.class.isAssignableFrom(obj.getClass())) {
-                    Bundle b = (Bundle) obj;
-                    System.out.println(msg + " bundle=" + b.getSymbolicName() + 
-                                             " id=" + b.getBundleId()+ 
-                                             " state=" + stringBundleStateFromInt(b.getState()));
+                Bundle b = (Bundle) obj;
+                System.out.println(msg + " bundle=" + b.getSymbolicName() + 
+                                         " id=" + b.getBundleId()+ 
+                                         " state=" + stringBundleStateFromInt(b.getState()));
             } else if (BundleEvent.class.isAssignableFrom(obj.getClass())) {
-                    BundleEvent event = (BundleEvent) obj;
-                    System.out.println(msg + " bundle=" + event.getBundle().getSymbolicName() + 
-                            ", event=" + stringBundleEventFromInt(event.getType())); 
+                BundleEvent event = (BundleEvent) obj;
+                System.out.println(msg + " bundle=" + event.getBundle().getSymbolicName() + 
+                        ", event=" + stringBundleEventFromInt(event.getType())); 
             } else if (obj.getClass().isArray()) {
                 System.out.println(msg);
                 int len = ((Object[])obj).length;
@@ -200,5 +234,24 @@ public class GeminiUtil {
             case 512: return "LAZY_ACTIVATION";
             default: return "UNDEFINED_EVENT";
         }
+    }
+
+    /*===================*/
+    /* Private functions */
+    /*===================*/
+    
+    // Private function to print out series of debug strings
+    public static void privateDebug(String... msgs) { 
+        StringBuilder sb = new StringBuilder();
+        for (String msg : msgs) sb.append(msg);
+        System.out.println(sb.toString()); 
+    }
+
+    // Private function to print out series of debug objects
+    public static void privateDebug(Object... args) { 
+        String[] msgs = new String[args.length];
+        for (int i=0; i<args.length; i++)
+            msgs[i] = String.valueOf(args[i]);
+        privateDebug(msgs);
     }
 }

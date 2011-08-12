@@ -72,13 +72,14 @@ public class PersistenceDescriptorInfo {
     }
     
     /**
-     * Return a stream over the descriptor. THe caller should close the stream when done.
+     * Return a stream over the descriptor. The caller should close the stream when done.
      * 
      * @return An input stream to the descriptor file. Return null if
      * the descriptor could not be found.
      */
     public InputStream getDescriptorStream() {
-        debug("getDescStream - Looking for descriptor in : ", jarPath);
+        debug("getDescriptorStream - url=", url, 
+              " descPath=", descriptorPath, " jarPath=", jarPath);
         InputStream inStream = null;
         try { inStream = url.openStream(); }
         catch (IOException ioEx) {} // inStream will be null
@@ -94,18 +95,18 @@ public class PersistenceDescriptorInfo {
         JarEntry jarEntry = null;
         try {
             jarStream = new JarInputStream(new BufferedInputStream(inStream));
-            debug("getDescStream - Looking in jar for embedded descriptor: ", descriptorPath);
+            debug("getDescriptorStream - Looking in jar for embedded descriptor: ", descriptorPath);
             do {
                 jarEntry = jarStream.getNextJarEntry();
                 if (jarEntry != null) {
                     if (jarEntry.getName().equalsIgnoreCase(descriptorPath)) {
-                        debug("getDescStream - Found jar entry: ", jarEntry.getName());
+                        debug("getDescriptorStream - Found jar entry: ", jarEntry.getName());
                         break;
                     } 
                 }
             } while (jarEntry != null);
         } catch (IOException ioEx) {
-            warning("getDescStream - Received exception looking for embedded descriptor ", ioEx);
+            warning("getDescriptorStream - Received exception looking for embedded descriptor ", ioEx);
             try { jarStream.close(); } catch (Throwable t) {}
             return null;
         }

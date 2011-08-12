@@ -14,39 +14,38 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa;
 
+import static org.eclipse.gemini.jpa.GeminiUtil.debug;
+
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
- *  Service Tracker that tracks the DataSourceFactory service
- *  for a given EMF service.
+ *  Detect when an existing DataSourceFactory service goes offline.
+ *  Created and started when a registered DSF service was discovered 
+ *  at EMF service registration time.
  */
-public class DataSourceTracker implements ServiceTrackerCustomizer {
+public class DSFOfflineTracker implements ServiceTrackerCustomizer {
 
-    // Look for data source factory for this persistence unit
+    // The unit this tracker belongs to
     private PUnitInfo pUnitInfo;
+    
+    // The util to notify when the service goes away
+    private GeminiServicesUtil servicesUtil;
 
-    // Tell this guy when the service disappears
-    GeminiServicesUtil servicesUtil;
-        
-    public DataSourceTracker(PUnitInfo pUnitInfo,
-                             GeminiServicesUtil servicesUtil) {
+    public DSFOfflineTracker(PUnitInfo pUnitInfo, GeminiServicesUtil servicesUtil) {
         this.pUnitInfo = pUnitInfo;
         this.servicesUtil = servicesUtil;
     }
     
     public Object addingService(ServiceReference ref) {
-        return pUnitInfo.getAssignedProvider()
-                        .getBundleContext()
-                        .getService(ref);
-        // TODO We would like to be calling 
-        //       servicesUtil.dataSourceFactoryAdded(pUnitInfo)
-        // but that would involve doing all kinds of EMF service registration
+        GeminiUtil.debug("OfflineTracker.addingService - ignoring service ", ref);
+        return null;
     }
 
     public void modifiedService(ServiceReference ref, Object service) {}
 
     public void removedService(ServiceReference ref, Object service) {
-        servicesUtil.dataSourceFactoryRemoved(pUnitInfo);
+        GeminiUtil.debug("OfflineTracker.removingService ", ref);
+        servicesUtil.dataSourceFactoryOffline(pUnitInfo, ref);
     }
 }

@@ -14,14 +14,20 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import java.sql.Driver;
+
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+
 import org.osgi.framework.Bundle;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
-
 
 import org.eclipse.gemini.jpa.provider.OSGiJpaProvider;
 import org.eclipse.gemini.jpa.proxy.EMFBuilderServiceProxyHandler;
@@ -70,6 +76,30 @@ public class PUnitInfo {
      */
     EMFBuilderServiceProxyHandler emfBuilderHandler;
     ServiceRegistration emfBuilderService;
+
+    /** 
+     * Shared EMF - set by EMF[Builder]ServiceProxyHandler
+     *              unset by servicesUtil
+     * @see EMFServiceProxyHandler
+     * @see EMFBuilderServiceProxyHandler
+     * @see GeminiServicesUtil
+     */
+    EntityManagerFactory emf;
+
+    /** 
+     * DataSourceFactory service used to indicate that a data source factory service was found and can be used
+     *          - set by services util
+     * @see GeminiServicesUtil
+     */
+    ServiceReference dsfService;
+
+    /** 
+     * Flag to indicate whether the EMF was set by the Builder or not
+     *      - set by EMFServiceProxyHandler or EMFBuilderServiceProxyHandler
+     * @see EMFServiceProxyHandler
+     * @see EMFBuilderServiceProxyHandler
+     */
+    boolean emfSetByBuilderService;
 
     /** 
      * For tracking the data source factory - set by servicesUtil
@@ -121,9 +151,18 @@ public class PUnitInfo {
     public ServiceRegistration getEmfBuilderService() { return emfBuilderService; }
     public void setEmfBuilderService(ServiceRegistration emfBuilderService) { this.emfBuilderService = emfBuilderService; }
 
+    public EntityManagerFactory getEmf() { return emf; }
+    public void setEmf(EntityManagerFactory emf) { this.emf = emf; }
+    
+    public ServiceReference getDsfService() { return dsfService; }
+    public void setDsfService(ServiceReference dsfService) { this.dsfService = dsfService; }
+
+    public boolean isEmfSetByBuilderService() { return emfSetByBuilderService; }
+    public void setEmfSetByBuilderService(boolean flag) { emfSetByBuilderService = flag; }
+    
     public ServiceTracker getTracker() { return tracker; }
     public void setTracker(ServiceTracker tracker) { this.tracker = tracker; }
-    
+
     /*============================================*/
     /* Accessors for Persistence descriptor state */
     /*============================================*/
@@ -152,7 +191,7 @@ public class PUnitInfo {
     /*=========*/
     /* Methods */
     /*=========*/
-
+    
     @Override
     public int hashCode() { return getUnitName().hashCode(); }
         
