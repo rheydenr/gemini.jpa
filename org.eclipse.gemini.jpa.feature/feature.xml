@@ -28,11 +28,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.gemini.jpa.weaving"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.gemini.jpa.samples"
          version="0.0.0"
          unpack="false"/>
