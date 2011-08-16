@@ -58,12 +58,15 @@
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
+			<!-- Comment this out for now since it breaks -->
+			<!--
 			<plugin>
 				<groupId>org.sonatype.tycho</groupId>
 				<artifactId>tycho-versions-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
+			-->
 			<!-- Configure the target platform -->
 			<plugin>
 				<groupId>org.sonatype.tycho</groupId>
