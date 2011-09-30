@@ -10,23 +10,22 @@ To run Gemini JPA in OSGi you will need to have the following:
 
 1. OSGi Framework
 
-You may use Plugin Development Environment (PDE) in Eclipse, which will give you access to the Equinox 
-OSGi framework, or you may execute outside of PDE and use any OSGi framework you choose, such as Felix. 
-Weaving of entity classes is only supported on Equinox, but weaving is strictly an optimization and is 
-not needed for JPA operation. 
+You may use any OSGi r4.3 compliant framework. Equinox 3.7 may be used within Eclipse through PDE,
+or on its own in standalone mode. Felix 4.0 has also been tested.
 
 2. OSGi Enterprise API bundle
 
-Gemini JPA implements some of the OSGi Enterprise APIs so the osgi.enterprise bundle must be resident. 
-The bundle includes both the source and the class files so it can be used for both execution and debugging.
+Gemini JPA implements some of the OSGi Enterprise APIs so the osgi.enterprise bundle must be resident.
+This bundle includes both the source and the class files so it can be used for both execution and debugging.
 The Gemini DBAccess download includes this bundle as part of its download, or it can be downloaded from
 the OSGi web site: http://www.osgi.org/Download/Release4V42
 
 3. Gemini DBAccess (Optional)
 
-While you don't strictly require Gemini DBAccess to run Gemini JPA it renders your application much more
-modular and easier to configure. The actual bundles you need depend upon the database you are using. 
-If DBAccess is not present you will need to make the JDBC driver accessible to the EclipseLink bundles.
+While you don't strictly require Gemini DBAccess to run Gemini JPA it is highly recommended. It renders 
+your application much more modular. The actual bundles you need depend upon the database you are using. 
+If DBAccess is not present you will need to package the JDBC driver JAR in the persistence unit bundle and 
+set the bundle classpath of the bundle to include the JAR.
 
 4. EclipseLink bundles
 
@@ -38,25 +37,29 @@ The following EclipseLink bundles are required:
 - org.eclipse.persistence.core
 - org.eclipse.persistence.jpa
 
-These bundles must be version 2.2 or greater. 
+These bundles must be from EclipseLink 2.3.0 GA or later. 
 
-Note: You do *NOT* need the org.eclipse.persistence.jpa.osgi bundle shipped with EclipseLink.
+Note: Do *NOT* use the org.eclipse.persistence.jpa.osgi or any of the weaving bundles shipped with EclipseLink.
 
 5. Gemini JPA bundles
 
-There are two bundles shipped with Gemini JPA:
+Gemini JPA is composed of a single bundle: org.elipse.gemini.jpa. 
+This bundle contains all of the Gemini JPA supporting classes.
 
-- org.elipse.gemini.jpa - the Gemini supporting classes
-- org.elipse.gemini.jpa.weaving - weaving support for Gemini JPA
+An additional samples bundle is also part of the distribution. 
 
 Installation
 ------------
 
-If running in PDE then unzip the files into a directory and import the various projects into your workspace.
+If running in PDE then unzip the files into a directory and import the various projects into your workspace, 
+or even better, create a target platform with all of the bundles in it.
 If you are using the framework directly then unzip the distribution files and follow the documentation of
-the framework for installing the bundles in the order specified above.
+the framework for installing the bundles described above. Note that the osgi.enterprise bundle has an
+optional dependency on the javax.persistence package (exported by the EclipseLink bundle of that name), which 
+is not optional when using the JPA classes.
 
 Configuration
 -------------
 
-Gemini JPA does not require any special environment configuration.
+Gemini JPA does not require any special environment configuration, however, ensure that the javax.persistence 
+and DBAccess bundles have been started before any applications.
