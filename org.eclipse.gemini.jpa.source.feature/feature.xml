@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.gemini.jpa.source.feature"
       label="%featureName"
-      version="1.0.0.RC2"
+      version="1.0.0.qualifier"
       provider-name="%providerName">
 
    <description>
@@ -18,22 +18,11 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://download.eclipse.org/gemini/jpa/update-site/"/>
+      <update label="%updateSiteName" url="http://download.eclipse.org/gemini/updates/jpa"/>
    </url>
 
    <plugin
          id="org.eclipse.gemini.jpa.source"
-         version="1.0.0"
+         version="0.0.0"
          unpack="false"/>
-
-   <plugin
-         id="org.eclipse.gemini.jpa.weaving.source"
-         version="1.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.gemini.jpa.samples.source"
-         version="1.0.0"
-         unpack="false"/>
-
 </feature>
