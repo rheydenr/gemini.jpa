@@ -6,7 +6,7 @@
 
 		<echo message="Downloading Gemini DBAccess..." />
 		<get
-			src="http://download.eclipse.org/gemini/dbaccess/r1.0/milestones/gemini-dbaccess-1.0.0.RC1.zip"
+			src="http://download.eclipse.org/gemini/dbaccess/r1.0/milestones/gemini-dbaccess-1.0.0.RELEASE.zip"
 			dest="${project.build.outputDirectory}/dbaccess.zip" usetimestamp="true" />
 		<unzip src="${project.build.outputDirectory}/dbaccess.zip" dest="${basedir}/target/source/plugins" />
 	</target>
