@@ -19,7 +19,7 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://download.eclipse.org/gemini/jpa/updates/"/>
+      <update label="%updateSiteName" url="http://download.eclipse.org/gemini/updates/jpa"/>
    </url>
 
    <plugin
