@@ -14,12 +14,8 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa;
 
-import static org.eclipse.gemini.jpa.GeminiUtil.debug;
-import static org.eclipse.gemini.jpa.GeminiUtil.fatalError;
-
 import java.io.Closeable;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -31,6 +27,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * Utility class containing functions that are generally useful during 
  * development and at runtime.
  */
+@SuppressWarnings({"rawtypes","unchecked", "deprecation"})
 public class GeminiUtil {
     
     /*==================*/

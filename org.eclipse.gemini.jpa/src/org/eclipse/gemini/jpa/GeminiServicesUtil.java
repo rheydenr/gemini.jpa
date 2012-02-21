@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
-import java.sql.Driver;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -36,7 +35,6 @@ import org.eclipse.gemini.jpa.provider.OSGiJpaProvider;
 import org.eclipse.gemini.jpa.proxy.EMFBuilderServiceProxyHandler;
 import org.eclipse.gemini.jpa.proxy.EMFServiceProxyHandler;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -47,6 +45,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * This class provides functionality to handle service registration of 
  * persistence units and providers, etc. One instance per provider.
  */
+@SuppressWarnings({"rawtypes","unchecked"})
 public class GeminiServicesUtil {
 
     // The provider using this instance

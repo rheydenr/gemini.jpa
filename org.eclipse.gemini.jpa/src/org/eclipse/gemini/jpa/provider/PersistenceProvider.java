@@ -18,9 +18,9 @@ import java.util.Map;
 
 import org.eclipse.persistence.internal.jpa.deployment.JPAInitializer;
 
+@SuppressWarnings({"rawtypes"})
 public class PersistenceProvider extends org.eclipse.persistence.jpa.PersistenceProvider {
     
-    @SuppressWarnings("rawtypes")
     public JPAInitializer createInitializer(final ClassLoader classLoader, Map m) {
         return new GeminiOSGiInitializer(classLoader);
      }

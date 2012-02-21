@@ -22,7 +22,6 @@ import static org.eclipse.gemini.jpa.GeminiUtil.warning;
 import static org.osgi.service.jdbc.DataSourceFactory.JDBC_PASSWORD;
 import static org.osgi.service.jdbc.DataSourceFactory.JDBC_URL;
 import static org.osgi.service.jdbc.DataSourceFactory.JDBC_USER;
-import static org.osgi.service.jdbc.DataSourceFactory.OSGI_JDBC_DRIVER_CLASS;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -66,6 +65,7 @@ import org.osgi.service.jdbc.DataSourceFactory;
 
 //TODO Add substitutability of provider
 
+@SuppressWarnings({"rawtypes","unchecked"})
 public class EclipseLinkOSGiProvider implements BundleActivator, 
                                                 OSGiJpaProvider,
                                                 PersistenceProvider {

@@ -33,6 +33,7 @@ import static org.eclipse.gemini.jpa.GeminiUtil.*;
 /**
  * Dynamic proxy class to proxy the EMF service
  */
+@SuppressWarnings({"rawtypes"})
 public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory {
     
     PUnitInfo pUnitInfo;

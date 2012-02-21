@@ -14,6 +14,10 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa;
 
+import static org.eclipse.gemini.jpa.GeminiUtil.debug;
+import static org.eclipse.gemini.jpa.GeminiUtil.getPackageAdmin;
+import static org.eclipse.gemini.jpa.GeminiUtil.warning;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.eclipse.gemini.jpa.provider.OSGiJpaProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -28,14 +34,11 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.SynchronousBundleListener;
 import org.osgi.service.packageadmin.PackageAdmin;
 
-import org.eclipse.gemini.jpa.provider.OSGiJpaProvider;
-
-import static org.eclipse.gemini.jpa.GeminiUtil.*;
-
 /**
  * This extender is used by the provider to listen for persistence unit 
  * bundles and assign them to the provider if the unit is able to be assigned.
  */
+@SuppressWarnings({"deprecation"})
 public class PersistenceBundleExtender implements SynchronousBundleListener  {
 
     /*================*/

@@ -22,6 +22,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  *  Created and started when no DSF service was found to be registered
  *  at EMF service registration time.
  */
+@SuppressWarnings("rawtypes")
 public class DSFOnlineTracker implements ServiceTrackerCustomizer {
 
     // The unit this tracker belongs to
