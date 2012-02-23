@@ -52,9 +52,11 @@
 				<module>org.eclipse.gemini.jpa.test.embeddedpunit</module>
 				<module>org.eclipse.gemini.jpa.test.embeddedjdbc</module>
 				<module>org.eclipse.gemini.jpa.test.xmlmappedpunit</module>
+				<module>org.eclipse.gemini.jpa.test.state</module>
 				<module>org.eclipse.gemini.jpa.feature</module>
 				<module>org.eclipse.gemini.jpa.source.feature</module>
 				<module>org.eclipse.gemini.jpa.updatesite</module>
+				<module>org.eclipse.gemini.jpa.tests</module>
 			</modules>
 		</profile>
 		<profile>
