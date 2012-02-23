@@ -35,6 +35,7 @@ import model.account.*;
  * 
  * @author mkeith
  */
+@SuppressWarnings({"unchecked","rawtypes"})
 public abstract class JpaTest {
     
     public static BundleContext context;
