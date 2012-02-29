@@ -19,7 +19,10 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
+import java.util.logging.Logger;
+
 import javax.sql.DataSource;
 
 import static org.osgi.service.jdbc.DataSourceFactory.*;
@@ -90,6 +93,11 @@ public class PlainDriverDataSource implements DataSource {
     
     public void setLoginTimeout(int timeout) throws SQLException {
         throw new SQLException("Can't set Login Timeout on URL data source");
+    }
+    
+    public Logger getParentLogger()
+            throws SQLFeatureNotSupportedException {
+        throw new SQLFeatureNotSupportedException();
     }
 
     // Helper method

@@ -17,7 +17,7 @@
 -->
 
 <location includeAllPlatforms="false" includeMode="planner" includeSource="false" type="InstallableUnit">
-<repository location="%DBACCESS_URL%"/>
+<repository location="http://download.eclipse.org/gemini/dbaccess/updates/1.0/"/>
 <unit id="osgi.enterprise" version="0.0.0"/>
 <unit id="org.eclipse.gemini.dbaccess.derby" version="0.0.0"/>
 <unit id="org.apache.derby" version="0.0.0"/>
@@ -27,7 +27,7 @@
 <unit id="org.eclipse.core.runtime" version="0.0.0"/>
 <unit id="org.eclipse.core.runtime.source" version="0.0.0"/>
 <unit id="org.eclipse.osgi.source" version="0.0.0"/>
-<unit id="org.junit" version="0.0.0"/>
+<unit id="org.junit4" version="0.0.0"/>
 <repository location="http://download.eclipse.org/eclipse/updates/3.7/"/>
 </location>
 

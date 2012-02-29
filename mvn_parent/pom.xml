@@ -22,7 +22,7 @@
 
 	<groupId>org.eclipse</groupId>
 	<artifactId>gemini.jpa.parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Gemini JPA Parent</name>
@@ -35,6 +35,7 @@
 		<module>../org.eclipse.gemini.jpa.targetdef</module>
 		<module>../org.eclipse.gemini.jpa</module>
 		<module>../org.eclipse.gemini.jpa.samples</module>
+		<module>../org.eclipse.gemini.jpa.test.state</module>
 		<module>../org.eclipse.gemini.jpa.test.punit</module>
 		<module>../org.eclipse.gemini.jpa.test.emptypunit</module>
 		<module>../org.eclipse.gemini.jpa.test.weavedpunit</module>
@@ -42,10 +43,10 @@
 		<module>../org.eclipse.gemini.jpa.test.embeddedjdbc</module>
 		<module>../org.eclipse.gemini.jpa.test.xmlmappedpunit</module>
 		<module>../org.eclipse.gemini.jpa.feature</module>
+		<module>../org.eclipse.gemini.jpa.updatesite</module>
 		<!-- Don't use the source feature. 
 		<module>../org.eclipse.gemini.jpa.source.feature</module>
 		-->
-		<module>../org.eclipse.gemini.jpa.updatesite</module>
 <!-- -->
 	</modules>
 
@@ -78,7 +79,7 @@
 						<artifact>
 							<groupId>org.eclipse</groupId>
 							<artifactId>org.eclipse.gemini.jpa.targetdef</artifactId>
-							<version>1.0.0-SNAPSHOT</version>
+							<version>1.1.0-SNAPSHOT</version>
 							<classifier>org.eclipse.gemini.jpa</classifier>
 						</artifact>
 					</target>

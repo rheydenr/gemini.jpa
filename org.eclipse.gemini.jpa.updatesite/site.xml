@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<site pack200="true">
-   <feature url="org.eclipse.gemini.jpa.feature_1.0.0.jar" id="org.eclipse.gemini.jpa.feature" version="1.0.0">
+<site>
+   <feature url="features/org.eclipse.gemini.jpa.feature_1.1.0.qualifier.jar" id="org.eclipse.gemini.jpa.feature" version="1.1.0.qualifier">
       <category name="Gemini"/>
    </feature>
-   <!-- Do not ship any special source feature -->
-   <!-- <feature url="org.eclipse.gemini.jpa.source.feature_1.0.0.jar" id="org.eclipse.gemini.jpa.source.feature" version="1.0.0">
-          <category name="Gemini"/>
-        </feature>
-   -->
    <category-def name="Gemini" label="Gemini"/>
 </site>
