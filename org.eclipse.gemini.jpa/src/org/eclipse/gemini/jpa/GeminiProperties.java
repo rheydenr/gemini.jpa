@@ -187,7 +187,7 @@ public class GeminiProperties {
     /* 
      * Set whether debugging is enabled for weaving
      */
-    public static void setDebugWeaving(boolean value) { debugClassloader = value; }
+    public static void setDebugWeaving(boolean value) { debugWeaving = value; }
 
     /* 
      * Return whether general debugging is enabled
