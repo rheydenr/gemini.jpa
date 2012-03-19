@@ -8,6 +8,7 @@
    
     Contributors:
         ktsvetkov - initial implementation
+        cvgaviao - updated to eclipse-repository
  -->
 
 <project
@@ -18,11 +19,80 @@
 		<groupId>org.eclipse</groupId>
 		<artifactId>gemini.jpa.parent</artifactId>
 		<version>1.1.0-SNAPSHOT</version>
-		<relativePath>../mvn_parent</relativePath>
 	</parent>
 
 	<artifactId>org.eclipse.gemini.jpa.updatesite</artifactId>
-	<version>1.1.0-SNAPSHOT</version>
-	<packaging>eclipse-update-site</packaging>
+	<packaging>eclipse-repository</packaging>
 
+	<build>
+		<plugins>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-publisher-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<publishArtifacts>true</publishArtifacts>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-repository-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<includeAllDependencies>false</includeAllDependencies>
+					<createArtifactRepository>true</createArtifactRepository>
+					<!-- <compress>true</compress> -->
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/repository</outputDirectory>
+							<resources>
+								<resource>
+									<directory>.</directory>
+									<includes>
+										<include>index.html</include>
+										<!-- <include>web/*</include> -->
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse</groupId>
+			<artifactId>org.eclipse.gemini.jpa.feature</artifactId>
+			<version>${project.version}</version>
+			<type>eclipse-feature</type>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse</groupId>
+			<artifactId>
+				org.eclipse.gemini.jpa.source.feature
+			</artifactId>
+			<version>${project.version}</version>
+			<type>eclipse-feature</type>
+		</dependency>
+		
+		<!-- this dep is needed to ensure that p2 will be created only if tests are ok ! -->
+		<dependency>
+			<groupId>org.eclipse</groupId>
+			<artifactId>org.eclipse.gemini.jpa.tests</artifactId>
+			<version>${project.version}</version>
+			<type>eclipse-test-plugin</type>
+		</dependency>
+	</dependencies>
 </project>

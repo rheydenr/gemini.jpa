@@ -10,6 +10,7 @@
         ktsvetkov - initial implementation
 		mkeith - removed source bundle
 		mkeith - removed org.eclipse.gemini.jpa.weaving bundle, added weavedpunit and embeddedjdbc test bundles
+		cvgaviao - update building artifacts to work with Tycho 0.14.0
  -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -28,49 +29,78 @@
 	<name>Gemini JPA Parent</name>
 
 	<properties>
-		<tycho-version>0.11.0</tycho-version>
+		<tycho-version>0.14.0</tycho-version>
+		<next-release>1.1.0-SNAPSHOT</next-release>
 	</properties>
 
-	<modules>
-		<module>../org.eclipse.gemini.jpa.targetdef</module>
-		<module>../org.eclipse.gemini.jpa</module>
-		<module>../org.eclipse.gemini.jpa.samples</module>
-		<module>../org.eclipse.gemini.jpa.test.state</module>
-		<module>../org.eclipse.gemini.jpa.test.punit</module>
-		<module>../org.eclipse.gemini.jpa.test.emptypunit</module>
-		<module>../org.eclipse.gemini.jpa.test.weavedpunit</module>
-		<module>../org.eclipse.gemini.jpa.test.embeddedpunit</module>
-		<module>../org.eclipse.gemini.jpa.test.embeddedjdbc</module>
-		<module>../org.eclipse.gemini.jpa.test.xmlmappedpunit</module>
-		<module>../org.eclipse.gemini.jpa.feature</module>
-		<module>../org.eclipse.gemini.jpa.updatesite</module>
-		<!-- Don't use the source feature. 
-		<module>../org.eclipse.gemini.jpa.source.feature</module>
-		-->
-<!-- -->
-	</modules>
+	<profiles>
+		<profile>
+			<id>normal</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<defaultGoal>verify</defaultGoal>
+			</build>
+			<modules>
+				<module>org.eclipse.gemini.jpa.targetdef</module>
+				<module>org.eclipse.gemini.jpa</module>
+				<module>org.eclipse.gemini.jpa.samples</module>
+				<module>org.eclipse.gemini.jpa.test.punit</module>
+				<module>org.eclipse.gemini.jpa.test.emptypunit</module>
+				<module>org.eclipse.gemini.jpa.test.weavedpunit</module>
+				<module>org.eclipse.gemini.jpa.test.embeddedpunit</module>
+				<module>org.eclipse.gemini.jpa.test.embeddedjdbc</module>
+				<module>org.eclipse.gemini.jpa.test.xmlmappedpunit</module>
+				<module>org.eclipse.gemini.jpa.test.state</module>
+				<module>org.eclipse.gemini.jpa.feature</module>
+				<module>org.eclipse.gemini.jpa.source.feature</module>
+				<module>org.eclipse.gemini.jpa.updatesite</module>
+				<module>org.eclipse.gemini.jpa.tests</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>prepare-for-next-release</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<defaultGoal>org.eclipse.tycho:tycho-versions-plugin:set-version</defaultGoal>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-versions-plugin</artifactId>
+						<version>${tycho-version}</version>
+						<executions>
+							<execution>
+								<id>change-next-release</id>
+								<goals>
+									<goal>set-version</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<newVersion>${next-release}</newVersion>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 
 
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
-			<!-- Comment this out for now since it breaks -->
-			<!--
-			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
-				<artifactId>tycho-versions-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<extensions>true</extensions>
-			</plugin>
-			-->
 			<!-- Configure the target platform -->
 			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
@@ -79,7 +109,7 @@
 						<artifact>
 							<groupId>org.eclipse</groupId>
 							<artifactId>org.eclipse.gemini.jpa.targetdef</artifactId>
-							<version>1.1.0-SNAPSHOT</version>
+							<version>${project.version}</version>
 							<classifier>org.eclipse.gemini.jpa</classifier>
 						</artifact>
 					</target>
@@ -88,11 +118,11 @@
 			</plugin>
 			<!-- Specify that sources bundles are built -->
 
-			<!-- Bundle the source in the binary bundles
+			<!-- Bundle the source in the binary bundles -->
 			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
-				<artifactId>maven-osgi-source-plugin</artifactId>
-				<version>${tycho-version}</version>
+				<groupId>org.eclipse.tycho</groupId>
+        		<artifactId>tycho-source-plugin</artifactId>				
+        		<version>${tycho-version}</version>
 				<executions>
 					<execution>
 						<id>attach-source</id>
@@ -102,13 +132,12 @@
 					</execution>
 				</executions>
 			</plugin>
-			-->
 		</plugins>
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>org.sonatype.tycho</groupId>
-					<artifactId>maven-osgi-compiler-plugin</artifactId>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-compiler-plugin</artifactId>
 					<version>${tycho-version}</version>
 					<configuration>
 						<encoding>UTF-8</encoding>
@@ -117,7 +146,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
-					<version>2.4.1</version>
+					<version>2.5</version>
 					<configuration>
 						<encoding>ISO-8859-1</encoding>
 					</configuration>
@@ -126,7 +155,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>findbugs-maven-plugin</artifactId>
-					<version>2.3.2</version>
+					<version>2.4.0</version>
 					<configuration>
 						<findbugsXmlOutput>true</findbugsXmlOutput>
 						<findbugsXmlWithMessages>true</findbugsXmlWithMessages>

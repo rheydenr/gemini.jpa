@@ -29,6 +29,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * 
  * @author mkeith
  */
+@SuppressWarnings({"rawtypes","unchecked"})
 public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
     BundleContext ctx;

@@ -7,9 +7,9 @@
     http://www.eclipse.org/legal/epl-v10.html
    
     Contributors:
-        ktsvetkov, mkeith
+        ktsvetkov, mkeith, cvgaviao
  -->
-
+ 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -18,10 +18,13 @@
 		<groupId>org.eclipse</groupId>
 		<artifactId>gemini.jpa.parent</artifactId>
 		<version>1.1.0-SNAPSHOT</version>
-		<relativePath>../mvn_parent</relativePath>
 	</parent>
 
 	<artifactId>org.eclipse.gemini.jpa.test.state</artifactId>
-	<version>1.1.0-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+	</build>
+
 </project>

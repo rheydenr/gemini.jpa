@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.osgi.framework.Bundle;
 
+@SuppressWarnings({"rawtypes","unchecked"})
 public class BundleProxyClassLoader extends ClassLoader {
 
     private Bundle bundle;

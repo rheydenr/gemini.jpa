@@ -19,7 +19,7 @@
    </license>
 
    <url>
-      <update label="%updateSiteName" url="http://download.eclipse.org/gemini/updates/jpa/1.0.0"/>
+      <update label="%updateSiteName" url="http://download.eclipse.org/gemini/updates/jpa"/>
    </url>
 
    <requires>

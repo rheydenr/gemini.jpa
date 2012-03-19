@@ -39,6 +39,7 @@ import org.osgi.framework.Bundle;
  * @author tware
  *
  */
+@SuppressWarnings({"rawtypes","deprecation"})
 public class BundleArchive extends ArchiveBase implements Archive {
 
     protected Bundle bundle = null;
@@ -55,7 +56,6 @@ public class BundleArchive extends ArchiveBase implements Archive {
      */
     protected Integer pathPrefixSize = null;
 
-    @SuppressWarnings("deprecation")
     public BundleArchive(URL rootUrl, Map properties, String descriptorLocation) throws MalformedURLException {
         this(rootUrl, properties, descriptorLocation, Logger.global);
     }

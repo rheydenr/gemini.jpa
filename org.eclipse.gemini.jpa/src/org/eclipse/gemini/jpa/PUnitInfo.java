@@ -14,25 +14,22 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import java.sql.Driver;
-
 import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
 
+import org.eclipse.gemini.jpa.provider.OSGiJpaProvider;
+import org.eclipse.gemini.jpa.proxy.EMFBuilderServiceProxyHandler;
+import org.eclipse.gemini.jpa.proxy.EMFServiceProxyHandler;
+import org.eclipse.gemini.jpa.xml.PersistenceDescriptorHandler;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 
-import org.eclipse.gemini.jpa.provider.OSGiJpaProvider;
-import org.eclipse.gemini.jpa.proxy.EMFBuilderServiceProxyHandler;
-import org.eclipse.gemini.jpa.proxy.EMFServiceProxyHandler;
-
+@SuppressWarnings({"rawtypes"})
 public class PUnitInfo {
     
     /*===============*/

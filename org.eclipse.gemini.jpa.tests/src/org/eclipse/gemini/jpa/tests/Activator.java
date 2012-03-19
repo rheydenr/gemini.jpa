@@ -15,35 +15,30 @@
 package org.eclipse.gemini.jpa.tests;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
+
+import javax.persistence.EntityManagerFactory;
 
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
-
-import test.TestState;
-
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-
+import org.osgi.service.jdbc.DataSourceFactory;
+import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
-import javax.persistence.EntityManagerFactory;
-
-import org.osgi.service.jdbc.DataSourceFactory;
-import org.osgi.service.jpa.EntityManagerFactoryBuilder;
+import test.TestState;
 
 /**
  * Activator to start tests when relevant service becomes available
  * 
  * @author mkeith
  */
+@SuppressWarnings({"unchecked","rawtypes"})
 public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
     BundleContext ctx;

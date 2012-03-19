@@ -31,6 +31,7 @@ import org.eclipse.persistence.jpa.Archive;
  * @author tware
  *
  */
+@SuppressWarnings({"rawtypes"})
 public class OSGiArchiveFactoryImpl extends ArchiveFactoryImpl{
 
     @Override

@@ -40,6 +40,7 @@ import org.osgi.framework.BundleContext;
 
 import org.osgi.framework.hooks.weaving.WeavingHook;
 
+@SuppressWarnings("rawtypes")
 public class GeminiOSGiInitializer extends JPAInitializer {
     
     public static final String OSGI_BUNDLE = "org.eclipse.gemini.jpa.bundle";
@@ -143,7 +144,6 @@ public class GeminiOSGiInitializer extends JPAInitializer {
     /**
 	 * In OSGi we don't need a temp loader so use the loader built for the bundle.
 	 */
-	@SuppressWarnings("rawtypes")
     @Override
 	protected ClassLoader createTempLoader(Collection col) {
 	    return this.initializationClassloader;
