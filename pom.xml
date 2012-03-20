@@ -56,7 +56,9 @@
 				<module>org.eclipse.gemini.jpa.feature</module>
 				<module>org.eclipse.gemini.jpa.source.feature</module>
 				<module>org.eclipse.gemini.jpa.updatesite</module>
+<!--
 				<module>org.eclipse.gemini.jpa.tests</module>
+-->
 			</modules>
 		</profile>
 		<profile>

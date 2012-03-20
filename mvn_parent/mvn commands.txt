@@ -1,8 +1,0 @@
-# Set the version in all of the pom.xml, manifest.mf and feature.xml
-mvn -Dhttp.proxyHost=www-proxy.us.oracle.com -Dhttp.proxyPort=80 org.sonatype.tycho:tycho-versions-plugin:0.11.0:set-version -DnewVersion=1.0.0.RELEASE
-
-# Set the version in all of the pom.xml, manifest.mf and feature.xml back to snapshot
-mvn -Dhttp.proxyHost=www-proxy.us.oracle.com -Dhttp.proxyPort=80 org.sonatype.tycho:tycho-versions-plugin:0.11.0:set-version -DnewVersion=1.0.0-SNAPSHOT
-
-# option to add proxy
--Dhttp.proxyHost=www-proxy.us.oracle.com -Dhttp.proxyPort=80

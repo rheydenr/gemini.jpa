@@ -88,11 +88,13 @@
 		</dependency>
 		
 		<!-- this dep is needed to ensure that p2 will be created only if tests are ok ! -->
+<!--
 		<dependency>
 			<groupId>org.eclipse</groupId>
 			<artifactId>org.eclipse.gemini.jpa.tests</artifactId>
 			<version>${project.version}</version>
 			<type>eclipse-test-plugin</type>
 		</dependency>
+-->
 	</dependencies>
 </project>
