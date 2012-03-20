@@ -1,0 +1,346 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 9">
+<meta name=Originator content="Microsoft Word 9">
+<link rel=File-List
+href="./Gemini%20JPA%20Committers%20Guide_files/filelist.xml">
+<title>Gemini JPA Committers Guide</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Mike Keith</o:Author>
+  <o:LastAuthor>Mike Keith</o:LastAuthor>
+  <o:Revision>2</o:Revision>
+  <o:TotalTime>129</o:TotalTime>
+  <o:Created>2011-01-25T15:29:00Z</o:Created>
+  <o:LastSaved>2011-01-25T15:29:00Z</o:LastSaved>
+  <o:Pages>2</o:Pages>
+  <o:Words>605</o:Words>
+  <o:Characters>3450</o:Characters>
+  <o:Lines>28</o:Lines>
+  <o:Paragraphs>6</o:Paragraphs>
+  <o:CharactersWithSpaces>4236</o:CharactersWithSpaces>
+  <o:Version>9.6926</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:2;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:0 268435456 0 0 -2147483648 0;}
+@font-face
+	{font-family:"Arial Unicode MS";
+	panose-1:2 11 6 4 2 2 2 2 2 4;
+	mso-font-charset:128;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:-1 -369098753 63 0 4129023 0;}
+@font-face
+	{font-family:"\@Arial Unicode MS";
+	panose-1:2 11 6 4 2 2 2 2 2 4;
+	mso-font-charset:128;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:-1 -369098753 63 0 4129023 0;}
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+h1
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Arial;
+	mso-fareast-font-family:"Times New Roman";
+	mso-font-kerning:16.0pt;
+	font-weight:bold;}
+h2
+	{margin-right:0in;
+	mso-margin-top-alt:auto;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	mso-outline-level:2;
+	font-size:18.0pt;
+	font-family:"Arial Unicode MS";
+	font-weight:bold;}
+h3
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:3;
+	font-size:13.0pt;
+	font-family:Arial;
+	mso-fareast-font-family:"Times New Roman";
+	font-weight:bold;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+p
+	{margin-right:0in;
+	mso-margin-top-alt:auto;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Arial Unicode MS";}
+span.apple-converted-space
+	{mso-style-name:apple-converted-space;}
+span.mw-headline
+	{mso-style-name:mw-headline;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+@list l0
+	{mso-list-id:264196699;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-2034861066 -95389292 -932035628 -2092282018 1316539582 1001162536 -1870741846 183417726 1684415532 656979196;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l1
+	{mso-list-id:420682210;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1352161268 -2047342924 -1923316080 -1233599812 1100540742 -1925554034 -1715331694 -1453457386 -1708388142 -1010896106;}
+@list l1:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l2
+	{mso-list-id:445924887;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1082281952 -570789146 -2096212626 -1373606906 -1734595332 660509048 1421768590 -187129006 443430692 -1418397020;}
+@list l2:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l2:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l2:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:1.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l3
+	{mso-list-id:1365903483;
+	mso-list-type:hybrid;
+	mso-list-template-ids:915693240 67698705 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l3:level1
+	{mso-level-text:"%1\)";
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l4
+	{mso-list-id:1376464317;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-663302422 1922844560 -851778164 -267991290 -1464177518 -2031086460 1399731118 436501470 2001872730 -232226470;}
+@list l4:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+</head>
+
+<body lang=EN-US link=blue vlink=purple style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<h1>Gemini JPA Committers Guide</h1>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>Welcome to Gemini JPA! As a committer you have demonstrated
+that you are not only interested in the project but are willing to contribute
+some of your time and energy to improving and advancing it. Thanks for that.</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>This page contains some hints and helps to get you up to
+speed and on your way.</p>
+
+<h3>Communication</h3>
+
+<p class=MsoNormal>Gemini is a multi-faceted project, with multiple subprojects
+that work together. The most important way to achieve this is to ensure there
+is regular communication not only with other team members but with members of
+the other teams. This is achieved in 3 different ways:</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l3 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]>1)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><![endif]>Project Conference Calls</p>
+
+<p class=MsoNormal style='margin-left:.25in'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in'>The Gemini team has a regular
+conference call that is open to both committers and community members alike
+(although in practice consumers rarely join). Comitters are strongly encouraged
+to be on this call as it is the primary way that important issues are discussed
+and resolved. See the wiki <a href="http://wiki.eclipse.org/Gemini/Meetings">http://wiki.eclipse.org/Gemini/Meetings</a>
+for the call details, agenda for the next call, and minutes of previous calls. </p>
+
+<p class=MsoNormal style='margin-left:.25in'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l3 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]>2)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><![endif]>Gemini Dev List</p>
+
+<p class=MsoNormal style='margin-left:.25in'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in'>The dev list can be used to ask
+questions or bring up issues to the Gemini JPA subproject or the Gemini project
+at large. Committers should subscribe to the dev list (<a
+href="https://dev.eclipse.org/mailman/listinfo/gemini-dev">https://dev.eclipse.org/mailman/listinfo/gemini-dev</a>)
+and participate in the discussions.</p>
+
+<p class=MsoNormal style='margin-left:.25in'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in;mso-list:l3 level1 lfo1;
+tab-stops:list .5in'><![if !supportLists]>3)<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><![endif]>Bugzilla threads</p>
+
+<p class=MsoNormal style='margin-left:.25in'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal style='margin-left:.25in'>Bugzilla is used to track bugs and
+issues and there are often bug-related discussions. Avoid having these
+discussions in email since the discussion has value worth capturing and should
+be associated with and locatable from the bug under discussion. </p>
+
+<h3>External Contributions</h3>
+
+<p class=MsoNormal>External code must come through the Eclipse IP process (<a
+href="http://www.eclipse.org/legal/EclipseLegalProcessPoster.pdf">http://www.eclipse.org/legal/EclipseLegalProcessPoster.pdf</a>).
+Bugs must be filed by the contributor, with the code attached. Contributers
+should have been the primary authors of the code, and the code should be
+approved by the project lead before being committed to the repo.</p>
+
+<h3>Committing Code</h3>
+
+<p class=MsoNormal>All code that is being committed to the Gemini JPA repo
+should have an associated bug or enhancement request in Bugilla. The code
+should be revewed by another member of the team and have appropriate tests in
+place before being committed. </p>
+
+<h3>Project Builds</h3>
+
+<p class=MsoNormal>Builds are done by individual developers using Eclipse. To
+build Gemini JPA import the Eclipse project in the org.eclipse.gemini.jpa
+folder and build from within Eclipse. </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>The Gemini JPA team is not currently big enough to
+experience checkin collisions, but this highlights the importance of
+communication. If a checkin collision should occur, contact the team member you
+are colliding with and work out a suitable solution. It will likely just
+involve doing a simple managed merge.</p>
+
+<h3>Dependencies</h3>
+
+<p class=MsoNormal>Gemini JPA depends on EclipseLink so the most recent
+versions of the EclipseLink bundles should be obtained. The OSGi JPA classes
+are also required and are checked in the repo. Potential new dependencies
+should be discussed on the dev list before entering CQ requests.</p>
+
+<h3>Decision Making</h3>
+
+<p class=MsoNormal>We try (and have been successful up to this point) to
+achieve consensus around any issues and decisions that come up. This implies
+that there be flexibility on the part of all those involved. Stances taken
+based on pride or preconception are not productive and only serve to make
+issues more difficult to resolve. </p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal>In the event that a decision cannot be reached by consensus
+then a simple polling of the committers will be taken, with the project lead
+having the right to exercise a veto.</p>
+
+<h3>Release Process</h3>
+
+<p class=MsoNormal>Releases should be discussed and included in the project
+plan. The release process must include an Eclipse release review as dictated by
+<a href="http://wiki.eclipse.org/Development_Resources/HOWTO/Release_Reviews">http://wiki.eclipse.org/Development_Resources/HOWTO/Release_Reviews</a>.</p>
+
+<h3>Resources</h3>
+
+<p class=MsoNormal>A number of developer resources are available on the Eclipse
+wiki: <a href="http://wiki.eclipse.org/Development_Resources">http://wiki.eclipse.org/Development_Resources</a>.
+</p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+<p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+
+</div>
+
+</body>
+
+</html>
