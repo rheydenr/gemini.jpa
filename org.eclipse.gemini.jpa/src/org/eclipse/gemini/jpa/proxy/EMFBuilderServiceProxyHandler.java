@@ -54,6 +54,8 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
 
         if (method.getName().equals("hashCode"))
             return this.hashCode();
+        if (method.getName().equals("equals"))
+            return this.equals(args[0]);
         if (method.getName().equals("toString"))
             return this.toString();
 
