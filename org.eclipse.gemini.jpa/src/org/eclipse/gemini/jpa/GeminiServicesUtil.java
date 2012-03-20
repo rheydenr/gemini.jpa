@@ -372,7 +372,7 @@ public class GeminiServicesUtil {
                 debug("DataSourceFactory service for " + driverClassName + " not found.");
                 // Driver may be packaged in with the p-unit -- try loading it from there
                 try {
-                    Class<?> driverCls = pUnitInfo.getBundle().loadClass(driverClassName);
+                    pUnitInfo.getBundle().loadClass(driverClassName);
                     debug("JDBC driver " + driverClassName + " found locally.");
                     // We found the driver in the punit. Stop tracking DBAccess service and revert to direct access
                     stopTrackingDataSourceFactory(pUnitInfo);
@@ -475,7 +475,6 @@ public class GeminiServicesUtil {
 
         // See if the data source factory service for the driver is registered
         String filter = "(" + DataSourceFactory.OSGI_JDBC_DRIVER_CLASS + "=" + pUnitInfo.getDriverClassName() + ")";
-        ServiceReference<DataSourceFactory>[] result = null;
         try {
             dsfRefs = pUnitInfo.getBundle().getBundleContext()
                             .getServiceReferences(DataSourceFactory.class.getName(), filter);
