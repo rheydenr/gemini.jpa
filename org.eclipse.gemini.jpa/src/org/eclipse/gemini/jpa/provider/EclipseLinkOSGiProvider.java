@@ -206,20 +206,32 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         for (PUnitInfo info : pUnits) {
             String pUnitName = info.getUnitName();
             int attempts = 0;
-            while (pUnitsByName.containsKey(pUnitName) && (attempts < MAX_EVENT_COLLISION_TRIES)) {
-                // Shouldn't be in the map. We might have a race condition due to event ordering 
-                // where the previous entry just hasn't been removed yet. Take a short break 
-                // and give a chance for the unregister to occur.
-                try { Thread.sleep(1000); } catch (InterruptedException iEx) {}
-                attempts++;
-            } 
+
             if (pUnitsByName.containsKey(pUnitName)) {
-                // It's still there. Take matters into our own hands and force the unregister
-                warning("EclipseLinkProvider forcing unregister of persistence unit: " + info.getUnitName());
-                Collection<PUnitInfo> units = new ArrayList<PUnitInfo>();
-                units.add(info);
-                unregisterPersistenceUnits(units);
+                // Shouldn't be in the map. Race condition - 
+                // Either the bundle is already being registered or 
+                // it's being unregistered because of being stopped 
+                PUnitInfo existingInfo = pUnitsByName.get(pUnitName);
+                if ((existingInfo != null) && 
+                    (existingInfo.getBundle() == info.getBundle())) {
+                    // It is the same bundle - move along and assume it will be registered
+                    continue;
+                }
+                while (pUnitsByName.containsKey(pUnitName) && (attempts < MAX_EVENT_COLLISION_TRIES)) {
+                    // The previous entry just hasn't been removed yet. Take a short
+                    // break and give a chance for the unregister to occur.
+                    try { Thread.sleep(1000); } catch (InterruptedException iEx) {}
+                    attempts++;
+                } 
+                if (pUnitsByName.containsKey(pUnitName)) {
+                    // It's still there. Take matters into our own hands and force the unregister
+                    warning("EclipseLinkProvider forcing unregister of persistence unit: " + info.getUnitName());
+                    Collection<PUnitInfo> units = new ArrayList<PUnitInfo>();
+                    units.add(info);
+                    unregisterPersistenceUnits(units);
+                }
             }
+
             // Keep a local copy of all of the p-units we are registering
             pUnitsByName.put(pUnitName, info); 
             // Do the registering
