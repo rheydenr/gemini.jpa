@@ -213,7 +213,7 @@ public class GeminiUtil {
             case 8: return "STARTING";
             case 16: return "STOPPING";
             case 32: return "ACTIVE";
-            default: return "UNDEFINED_STATE";
+            default: return "UNDEFINED_STATE: " + bundleState;
         }
     }
     
@@ -229,7 +229,7 @@ public class GeminiUtil {
             case 128: return "STARTING";
             case 256: return "STOPPING";
             case 512: return "LAZY_ACTIVATION";
-            default: return "UNDEFINED_EVENT";
+            default: return "UNDEFINED_EVENT: " + eventType;
         }
     }
 
