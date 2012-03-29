@@ -43,7 +43,7 @@ import javax.sql.DataSource;
 
 import org.eclipse.gemini.jpa.AnchorClassUtil;
 import org.eclipse.gemini.jpa.FragmentUtil;
-import org.eclipse.gemini.jpa.GeminiProperties;
+import org.eclipse.gemini.jpa.GeminiSystemProperties;
 import org.eclipse.gemini.jpa.GeminiServicesUtil;
 import org.eclipse.gemini.jpa.GeminiUtil;
 import org.eclipse.gemini.jpa.PUnitInfo;
@@ -72,7 +72,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     /*==================*/
     /* Static constants */
     /*==================*/
-    public static final String PROVIDER_CLASS_NAME = "org.eclipse.persistence.jpa.PersistenceProvider";
+    public static final String PROVIDER_CLASS_NAME = "org.eclipse.persistence.jpa.PersistenceProvider";    
     
     public static final int MAX_EVENT_COLLISION_TRIES = 3;
     
@@ -112,7 +112,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         ctx = context;
         pUnitsByName = Collections.synchronizedMap(new HashMap<String, PUnitInfo>());
         extender = new PersistenceBundleExtender(this);
-        anchorUtil = new AnchorClassUtil(GeminiProperties.generateAnchorClasses());
+        anchorUtil = new AnchorClassUtil(GeminiSystemProperties.generateAnchorClasses());
         servicesUtil = new GeminiServicesUtil(this, anchorUtil);
         openEclipseLinkLoggingFile();
         eclipseLinkProvider = new org.eclipse.gemini.jpa.provider.PersistenceProvider();
@@ -177,7 +177,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         //TODO Check state of bundle in assign call
         debug("EclipseLinkProvider assignPersistenceUnitsInBundle: ", b);
         
-        if (GeminiProperties.generateFragments()) {
+        if (GeminiSystemProperties.generateFragments()) {
             // Generate a fragment for the p-units
             new FragmentUtil(ctx.getBundle())
                     .generateAndInstallFragment(b, pUnits, anchorUtil);

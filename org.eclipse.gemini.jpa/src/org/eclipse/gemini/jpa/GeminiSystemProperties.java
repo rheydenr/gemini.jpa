@@ -11,13 +11,14 @@
  *
  * Contributors:
  *     mkeith - Gemini JPA work 
+ *     mkeith - renamed to GeminiSystemProperties - Mar 28/2012
  ******************************************************************************/
 package org.eclipse.gemini.jpa;
 
 /**
- * Properties that can be configured for Gemini.
+ * System properties recognized by Gemini.
  */
-public class GeminiProperties {
+public class GeminiSystemProperties {
     
     /*==================*/
     /* Static constants */

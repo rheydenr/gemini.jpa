@@ -129,21 +129,21 @@ public class GeminiUtil {
     
     // Function to print out debug strings for XML parsing purposes
     public static void debugXml(String... msgs) { 
-        if (GeminiProperties.debugXml()) {
+        if (GeminiSystemProperties.debugXml()) {
             privateDebug(msgs);
         }
     }
     
     // Function to print out debug strings for classloading purposes
     public static void debugClassLoader(String... msgs) { 
-        if (GeminiProperties.debugClassloader()) {
+        if (GeminiSystemProperties.debugClassloader()) {
             privateDebug(msgs);
         }
     }
 
     // Function to print out debug string and classloader info for classloading debugging
     public static void debugClassLoader(String s, ClassLoader cl) { 
-        if (GeminiProperties.debugClassloader()) {
+        if (GeminiSystemProperties.debugClassloader()) {
             System.out.println(s + String.valueOf(cl));
             ClassLoader p = cl;
             while (p.getParent() != null) {
@@ -155,21 +155,21 @@ public class GeminiUtil {
 
     // Function to print out debug strings for weaving purposes
     public static void debugWeaving(String... msgs) { 
-        if (GeminiProperties.debugWeaving()) {
+        if (GeminiSystemProperties.debugWeaving()) {
             privateDebug(msgs);
         }
     }
     
     // Function to print out series of debug strings
     public static void debug(String... msgs) { 
-        if (GeminiProperties.debug()) {
+        if (GeminiSystemProperties.debug()) {
             privateDebug(msgs);
         }
     }
 
     // Function to print out series of objects
     public static void debug(Object... args) {
-        if (GeminiProperties.debug()) {
+        if (GeminiSystemProperties.debug()) {
             privateDebug(args);
         }
     }
@@ -177,11 +177,11 @@ public class GeminiUtil {
     // Function to print out a string and an object.
     // Handles some objects specially and prints out more info
     public static void debug(String msg, Object obj) { 
-        if (GeminiProperties.debug()) {
+        if (GeminiSystemProperties.debug()) {
             if (obj == null) {
                 System.out.println(msg + String.valueOf(obj));
             } else if ((ClassLoader.class.isAssignableFrom(obj.getClass())) &&
-                       (GeminiProperties.debugXml())) {
+                       (GeminiSystemProperties.debugXml())) {
                 debugClassLoader(msg, (ClassLoader)obj);
             } else if (Bundle.class.isAssignableFrom(obj.getClass())) {
                 Bundle b = (Bundle) obj;
