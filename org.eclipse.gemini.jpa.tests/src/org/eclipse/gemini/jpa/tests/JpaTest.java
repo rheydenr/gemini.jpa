@@ -52,7 +52,7 @@ public abstract class JpaTest {
         props.put("javax.persistence.jdbc.driver", JDBC_TEST_DRIVER);
         props.put("javax.persistence.jdbc.url", JDBC_TEST_URL);
         props.put("javax.persistence.jdbc.user", JDBC_TEST_USER);
-        props.put("javax.persistence.jdbc.password", JDBC_TEST_URL);
+        props.put("javax.persistence.jdbc.password", JDBC_TEST_PASSWORD);
         return props;
     }
 

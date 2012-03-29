@@ -17,6 +17,7 @@ package org.eclipse.gemini.jpa.proxy;
 import static org.eclipse.gemini.jpa.GeminiUtil.JPA_JDBC_DRIVER_PROPERTY;
 import static org.eclipse.gemini.jpa.GeminiUtil.JPA_JDBC_URL_PROPERTY;
 import static org.eclipse.gemini.jpa.GeminiUtil.debug;
+import static org.eclipse.gemini.jpa.GeminiUtil.warning;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -24,6 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
+
+import org.eclipse.persistence.config.PersistenceUnitProperties;
 
 import org.eclipse.gemini.jpa.PUnitInfo;
 
@@ -61,9 +64,25 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
 
         // Must be a createEntityManagerFactory(String, Map) call
 
-        // The first arg must be the properties Map
-        Map<String,Object> props = (Map<String,Object>)args[0];
-
+        // The first arg should be the properties Map
+        Map<String,Object> props = null;
+        try {
+            props = (Map<String,Object>)args[0];
+        } catch (ClassCastException ccEx) {
+            // Was some unexpected call, return null
+            warning("EMFBuilderProxy cannot handle method ", method.getName());
+            return null;
+        }
+        
+        // If EclipseLink SESSION_NAME property specified then just create and return an EMF
+        // NOTE: This will return an EMF that is not managed by Gemini.
+        //       The caller will be responsible for managing it.
+        if (props.get(PersistenceUnitProperties.SESSION_NAME) != null) {
+                // Let EclipseLink do its thing and create an EMF. Just return it.
+                debug("EMFBuilder found eclipselink.session-name - returning unmanaged EMF for props ", props);
+                return super.createEMF(props);
+        }
+        
         // If we have an EMF and it has already been closed, discard it
         EntityManagerFactory emf;
         synchronized (pUnitInfo) {
@@ -73,7 +92,8 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
                 emfProps.clear();
                 emf = null;
             }
-        }    
+        }
+        
         // Check if an EMF already exists 
         if (emf != null) {
 
