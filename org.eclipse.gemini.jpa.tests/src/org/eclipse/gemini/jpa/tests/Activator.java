@@ -49,7 +49,6 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
     
     // Map of test class to test instance
     Map<Class<? extends JpaTest>,JpaTest> testClasses = new HashMap<Class<? extends JpaTest>,JpaTest>();    
-//    Set<JpaTest> testClassInstances = new HashSet<JpaTest>();    
 
     public void start(BundleContext context) throws Exception {
         log("Tests active");

@@ -59,7 +59,6 @@ import org.eclipse.persistence.logging.SessionLog;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.jdbc.DataSourceFactory;
 
@@ -349,11 +348,17 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
 
         // Sort out which named driver we are dealing with
         String driverName = (String)properties.get(GeminiUtil.JPA_JDBC_DRIVER_PROPERTY);
+        String driverVersion = (String)properties.get(GeminiUtil.OSGI_JDBC_DRIVER_VERSION_PROPERTY);
         if (driverName == null) {
             driverName = pUnitInfo.getDriverClassName();
-            if (driverName == null)
+            if (driverName == null) {
                 // We at least need a driver name
                 fatalError("No driver was specified", null);
+            } else {
+                // No driver was specified in props so take the version from p-unit as well, if it's there
+                if (driverVersion == null)
+                    driverVersion = pUnitInfo.getDriverVersion();
+            }
         }
 
         // Try using a DSF service if we have one stored away and the one asked for is the same
@@ -373,15 +378,10 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         // If we still have no driver then try doing a dynamic lookup
         if (driver == null) {
             debug("Trying dynamic lookup of DSF for ", driverName, " for p-unit ", pUnitInfo.getUnitName());
-            String filter = "(" + DataSourceFactory.OSGI_JDBC_DRIVER_CLASS + "=" + driverName + ")";
-            ServiceReference[] dsfRefs = null;
-            try {
-                dsfRefs = pUnitInfo.getBundle().getBundleContext().getServiceReferences(
-                            DataSourceFactory.class.getName(), filter);
-            } catch (InvalidSyntaxException isEx) {
-                fatalError("Bad filter syntax (likely because of missing driver class name)", isEx);
-            }         
+            String filter = servicesUtil.filterForDSFLookup(driverName, driverVersion);
+            ServiceReference[] dsfRefs = servicesUtil.lookupDSF(pUnitInfo.getBundle().getBundleContext(), filter);
             if (dsfRefs != null) {
+                debug("Found DSF, props: ", GeminiUtil.serviceProperties(dsfRefs[0]));
                 DataSourceFactory dsf = (DataSourceFactory) getBundleContext().getService(dsfRefs[0]);
                 try {
                     driver = dsf.createDriver(null);
@@ -447,6 +447,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         return props;
     }
 
+    // EclipseLink-specific logging functions - why are these here?
     public void openEclipseLinkLoggingFile() {
         String loggingFile = System.getProperty(PersistenceUnitProperties.LOGGING_FILE);
         try {

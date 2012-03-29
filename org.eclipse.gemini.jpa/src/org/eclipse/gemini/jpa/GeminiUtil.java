@@ -16,6 +16,8 @@ package org.eclipse.gemini.jpa;
 
 import java.io.Closeable;
 import java.lang.reflect.Array;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -34,10 +36,16 @@ public class GeminiUtil {
     /* Static constants */
     /*==================*/
     
+    // JPA standard properties
+    public static String JPA_PROVIDER_PROPERTY = "javax.persistence.provider";
     public static String JPA_JDBC_DRIVER_PROPERTY = "javax.persistence.jdbc.driver";
     public static String JPA_JDBC_URL_PROPERTY = "javax.persistence.jdbc.url";
     public static String JPA_JDBC_USER_PROPERTY = "javax.persistence.jdbc.user";
     public static String JPA_JDBC_PASSWORD_PROPERTY = "javax.persistence.jdbc.password";
+
+    // OSGi standard properties
+    public static String OSGI_JDBC_DRIVER_VERSION_PROPERTY = "osgi.jdbc.driver.version";
+    public static String OSGI_JPA_PROVIDER_VERSION_PROPERTY = "osgi.jpa.provider.version";
     
     /*============================*/
     /* Helper and Utility methods */
@@ -92,6 +100,14 @@ public class GeminiUtil {
             fatalError("Could not load class " + clsName + " from bundle " + b, cnfEx);
         }
         return null;
+    }
+    
+    // Return the Map of service properties from a service reference
+    public static Map<String, String> serviceProperties(ServiceReference ref) {
+        Map props = new HashMap<String,String>();
+        for (String s : ref.getPropertyKeys())
+            props.put(s, ref.getProperty(s));
+        return props;
     }
     
     /*==================*/

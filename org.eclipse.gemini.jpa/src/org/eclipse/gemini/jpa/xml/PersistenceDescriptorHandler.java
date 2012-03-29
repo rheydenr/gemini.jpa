@@ -96,6 +96,8 @@ public class PersistenceDescriptorHandler extends DefaultHandler {
                 currentPUnit.setDriverUser(propValue);
             else if (propName.equals(GeminiUtil.JPA_JDBC_PASSWORD_PROPERTY))
                 currentPUnit.setDriverPassword(propValue);
+            else if (propName.equals(GeminiUtil.OSGI_JDBC_DRIVER_VERSION_PROPERTY))
+                currentPUnit.setDriverVersion(propValue);
         }
     }
 

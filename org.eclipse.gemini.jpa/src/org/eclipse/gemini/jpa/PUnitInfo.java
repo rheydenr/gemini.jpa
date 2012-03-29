@@ -119,6 +119,7 @@ public class PUnitInfo {
     String driverUrl;
     String driverUser;
     String driverPassword;
+    String driverVersion;
 
     /*=============================*/
     /* Accessors for runtime state */
@@ -185,6 +186,9 @@ public class PUnitInfo {
     public String getDriverPassword() { return driverPassword; }
     public void setDriverPassword(String driverPassword) { this.driverPassword = driverPassword; }
     
+    public String getDriverVersion() { return driverVersion; }
+    public void setDriverVersion(String driverVersion) { this.driverVersion = driverVersion; }
+
     /*=========*/
     /* Methods */
     /*=========*/
@@ -203,20 +207,18 @@ public class PUnitInfo {
         StringBuilder sb = new StringBuilder();
         sb.append("\nPUnit: ").append(getUnitName())
           .append("\n  --- XML Data ---")
-          .append("\n  provider: ").append(getProvider())
-          .append("\n  classes: ").append(getClasses())
-          .append("\n  driverClassName: ").append(getDriverClassName())
-          .append("\n  driverUrl: ").append(getDriverUrl())
-          .append("\n  driverUser: ").append(getDriverUser())
-          .append("\n  driverPassword: ").append(getDriverPassword())
+          .append((getProvider()!=null) ? "\n  provider: " + getProvider() : "")
+          .append((getClasses()!=null) ? "\n  classes: " + getClasses() : "")
+          .append((getDriverClassName()!=null) ? "\n  driverClassName: " + getDriverClassName() : "")
+          .append((getDriverUrl()!=null) ? "\n  driverUrl: " + getDriverUrl() : "")
+          .append((getDriverUser()!=null) ? "\n  driverUser: " + getDriverUser() : "")
+          .append((getDriverPassword()!=null) ? "\n  driverPassword: " + getDriverPassword() : "")
+          .append((getDriverVersion()!=null) ? "\n  driverVersion: " + getDriverVersion() : "")
           .append("\n  --- Runtime Data ---")
-          .append("\n  bundle: ").append(getBundle() == null ? "null" : getBundle().getSymbolicName())
-          .append("\n  assignedProvider: ").append(getAssignedProvider())
-          .append("\n  descriptorInfo: ").append(getDescriptorInfo())
-          .append("\n  uniquePackageNames: ").append(getUniquePackageNames())
-          .append("\n  emfHandler: ").append(getEmfHandler())
-          .append("\n  emfBuilderHandler: ").append(getEmfBuilderHandler())
-          .append("\n  DSF tracker: ").append(getTracker());
+          .append((getBundle()!=null) ? "\n  bundle: " + getBundle().getSymbolicName() : "")
+          .append((getAssignedProvider()!=null) ? "\n  assignedProvider: " + getAssignedProvider() : "")
+          .append((getDescriptorInfo()!=null) ? "\n  descriptorInfo: " + getDescriptorInfo() : "")
+          .append((getTracker()!=null) ? "\n  DSF tracker: " + getTracker() : "");
        return sb.toString();
     }
 }

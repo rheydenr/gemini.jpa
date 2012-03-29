@@ -35,6 +35,7 @@ import org.eclipse.gemini.jpa.provider.OSGiJpaProvider;
 import org.eclipse.gemini.jpa.proxy.EMFBuilderServiceProxyHandler;
 import org.eclipse.gemini.jpa.proxy.EMFServiceProxyHandler;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -87,8 +88,9 @@ public class GeminiServicesUtil {
         // Store the version of the provider as a service property
         String version = bundleVersion(osgiJpaProvider.getBundle());
         Dictionary<String,String> props = new Hashtable<String,String>();
-        props.put("osgi.jpa.provider.version", version);
-        props.put("javax.persistence.provider", providerClassName);
+        props.put(GeminiUtil.OSGI_JPA_PROVIDER_VERSION_PROPERTY, version);
+        props.put(GeminiUtil.JPA_PROVIDER_PROPERTY, providerClassName);
+        
         
         // Register the provider service
         providerService = osgiJpaProvider.getBundleContext().registerService(
@@ -474,18 +476,19 @@ public class GeminiServicesUtil {
         ServiceTracker tracker = null;
 
         // See if the data source factory service for the driver is registered
-        String filter = "(" + DataSourceFactory.OSGI_JDBC_DRIVER_CLASS + "=" + pUnitInfo.getDriverClassName() + ")";
         try {
-            dsfRefs = pUnitInfo.getBundle().getBundleContext()
-                            .getServiceReferences(DataSourceFactory.class.getName(), filter);
+            String filter = filterForDSFLookup(pUnitInfo.getDriverClassName(), pUnitInfo.getDriverVersion());
+            dsfRefs = lookupDSF(pUnitInfo.getBundle().getBundleContext(), filter);
             if (dsfRefs != null) {
                 // We found at least one -- track the first one
                 // *** Note: Race condition still exists where service could disappear before being tracked
+                ServiceReference dsfRef = dsfRefs[0];
                 debug("GeminiServicesUtil starting tracker on existing DSF for ", pUnitInfo.getUnitName());
                 tracker = new ServiceTracker(osgiJpaProvider.getBundleContext(), 
-                                             dsfRefs[0],
+                                             dsfRef,
                                              new DSFOfflineTracker(pUnitInfo, this));
-                pUnitInfo.setDsfService(dsfRefs[0]);
+                pUnitInfo.setDsfService(dsfRef);
+                debug("DSF service props: ", GeminiUtil.serviceProperties(dsfRef));
             } else {
                 // No service was found, track for a service that may come in the future 
                 debug("GeminiServicesUtil starting tracker to wait for DSF for ", pUnitInfo.getUnitName());
@@ -493,10 +496,8 @@ public class GeminiServicesUtil {
                                              osgiJpaProvider.getBundleContext().createFilter(filter),
                                              new DSFOnlineTracker(pUnitInfo, this));
             }
-        } catch (InvalidSyntaxException isEx) {
-            fatalError("Bad filter syntax (likely because of missing driver class name)", isEx);
         } catch (Exception ex) {
-            fatalError("Unexpected failure to creating DSF service tracker", ex);
+            fatalError("Unexpected failure creating DSF service tracker", ex);
         }
         pUnitInfo.setTracker(tracker);
         tracker.open();
@@ -565,5 +566,33 @@ public class GeminiServicesUtil {
         debug("dataSourceFactoryOffline - unregistering EMF service ", "for p-unit ", pUnitInfo.getUnitName());
         pUnitInfo.setDsfService(null);
         unregisterEMFService(pUnitInfo);
+    }
+    
+    /** 
+     * This method will be invoked by trackDataSourceFactory() or by the EclipseLinkProvider when 
+     * DSF service is being looked up
+     * Note that driverVersion may be null, driverName should not be
+     */
+    public String filterForDSFLookup(String driverName, String driverVersion) {
+        String driverNameFilter = "(" + DataSourceFactory.OSGI_JDBC_DRIVER_CLASS + "=" + driverName + ")";
+        if (driverVersion == null) {
+            return driverNameFilter;
+        } else {
+            String driverVersionFilter = "(" + DataSourceFactory.OSGI_JDBC_DRIVER_VERSION + "=" + driverVersion + ")";
+            return "(&" + driverNameFilter + driverVersionFilter + ")";
+        }
+    }
+    
+    /** 
+     * This method will be invoked by trackDataSourceFactory() or by the EclipseLinkProvider 
+     * to look up a DSF service
+     */
+    public ServiceReference[] lookupDSF(BundleContext ctx, String filter) {
+        try {
+            return ctx.getServiceReferences(DataSourceFactory.class.getName(), filter);
+        } catch (InvalidSyntaxException isEx) {
+            fatalError("Bad filter syntax (likely because of missing driver class name)", isEx);
+            return null; // For the compiler...
+        }
     }
 }
