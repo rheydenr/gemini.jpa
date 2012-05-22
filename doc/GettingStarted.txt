@@ -18,7 +18,7 @@ or on its own in standalone mode. Felix 4.0 has also been tested.
 Gemini JPA implements some of the OSGi Enterprise APIs so the osgi.enterprise bundle must be resident.
 This bundle includes both the source and the class files so it can be used for both execution and debugging.
 The Gemini DBAccess download includes this bundle as part of its download, or it can be downloaded from
-the OSGi web site: http://www.osgi.org/Download/Release4V42
+the OSGi web site: http://www.osgi.org/Download/Release4V43. It is also in Maven Central.
 
 3. Gemini DBAccess (Optional)
 
