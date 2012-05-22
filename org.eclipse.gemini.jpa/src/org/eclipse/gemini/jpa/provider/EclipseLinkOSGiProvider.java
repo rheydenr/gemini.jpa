@@ -15,14 +15,6 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa.provider;
 
-import static org.eclipse.gemini.jpa.GeminiUtil.debug;
-import static org.eclipse.gemini.jpa.GeminiUtil.debugClassLoader;
-import static org.eclipse.gemini.jpa.GeminiUtil.fatalError;
-import static org.eclipse.gemini.jpa.GeminiUtil.warning;
-import static org.osgi.service.jdbc.DataSourceFactory.JDBC_PASSWORD;
-import static org.osgi.service.jdbc.DataSourceFactory.JDBC_URL;
-import static org.osgi.service.jdbc.DataSourceFactory.JDBC_USER;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Driver;
@@ -41,6 +33,22 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.ProviderUtil;
 import javax.sql.DataSource;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.jdbc.DataSourceFactory;
+
+import static org.osgi.service.jdbc.DataSourceFactory.JDBC_PASSWORD;
+import static org.osgi.service.jdbc.DataSourceFactory.JDBC_URL;
+import static org.osgi.service.jdbc.DataSourceFactory.JDBC_USER;
+
+import org.eclipse.persistence.config.PersistenceUnitProperties;
+import org.eclipse.persistence.internal.jpa.deployment.PersistenceUnitProcessor;
+import org.eclipse.persistence.logging.AbstractSessionLog;
+import org.eclipse.persistence.logging.DefaultSessionLog;
+import org.eclipse.persistence.logging.SessionLog;
+
 import org.eclipse.gemini.jpa.AnchorClassUtil;
 import org.eclipse.gemini.jpa.FragmentUtil;
 import org.eclipse.gemini.jpa.GeminiSystemProperties;
@@ -51,16 +59,11 @@ import org.eclipse.gemini.jpa.PersistenceBundleExtender;
 import org.eclipse.gemini.jpa.PlainDriverDataSource;
 import org.eclipse.gemini.jpa.classloader.BundleProxyClassLoader;
 import org.eclipse.gemini.jpa.classloader.CompositeClassLoader;
-import org.eclipse.persistence.config.PersistenceUnitProperties;
-import org.eclipse.persistence.internal.jpa.deployment.PersistenceUnitProcessor;
-import org.eclipse.persistence.logging.AbstractSessionLog;
-import org.eclipse.persistence.logging.DefaultSessionLog;
-import org.eclipse.persistence.logging.SessionLog;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.jdbc.DataSourceFactory;
+
+import static org.eclipse.gemini.jpa.GeminiUtil.debug;
+import static org.eclipse.gemini.jpa.GeminiUtil.debugClassLoader;
+import static org.eclipse.gemini.jpa.GeminiUtil.fatalError;
+import static org.eclipse.gemini.jpa.GeminiUtil.warning;
 
 //TODO Add substitutability of provider
 
