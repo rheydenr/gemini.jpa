@@ -23,5 +23,13 @@ public class GeminiPersistenceUnitProperties {
     /*==================*/
     /* Static constants */
     /*==================*/
-       
+
+    // The presence of this property will imply that Gemini JPA will *not* look for the data source, but 
+    // assume that the provider will connect to it directly. (Note that no property value is required or processed.)
+    // This property should only be used if the provider can access/load the data source [driver] classes,
+    // or the data source is natively supported by the provider and can be connected to without having to load 
+    // additional classes. The connection properties needed by the provider must be supplied either in the
+    // persistence descriptor or passed at runtime. (JDBC properties not required)
+    public static String PROVIDER_CONNECTED_DATA_SOURCE = "gemini.jpa.providerConnectedDataSource";
+
 }

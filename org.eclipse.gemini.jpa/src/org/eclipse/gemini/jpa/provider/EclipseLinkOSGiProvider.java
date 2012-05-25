@@ -52,6 +52,7 @@ import org.eclipse.persistence.logging.SessionLog;
 import org.eclipse.gemini.jpa.AnchorClassUtil;
 import org.eclipse.gemini.jpa.FragmentUtil;
 import org.eclipse.gemini.jpa.GeminiSystemProperties;
+import org.eclipse.gemini.jpa.GeminiPersistenceUnitProperties;
 import org.eclipse.gemini.jpa.GeminiServicesUtil;
 import org.eclipse.gemini.jpa.GeminiUtil;
 import org.eclipse.gemini.jpa.PUnitInfo;
@@ -285,7 +286,9 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         Map<String,Object> props = new HashMap<String,Object>();
         props.putAll(properties);
         props.put(PersistenceUnitProperties.CLASSLOADER, compositeLoader(pUnitInfo));
-        props.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, acquireDataSource(pUnitInfo, properties));
+        DataSource ds = acquireDataSource(pUnitInfo, properties);
+        if (ds != null) 
+            props.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, ds);
         props.put(PersistenceUnitProperties.ECLIPSELINK_PERSISTENCE_XML, fullDescriptorPath(pUnitInfo));
         props.put(GeminiOSGiInitializer.OSGI_BUNDLE, pUnitInfo.getBundle());
         
@@ -305,7 +308,9 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         Map<String,Object> props = new HashMap<String,Object>();
         props.putAll(properties);
         props.put(PersistenceUnitProperties.CLASSLOADER, compositeLoader(pUnitInfo));
-        props.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, acquireDataSource(pUnitInfo, properties));
+        DataSource ds = acquireDataSource(pUnitInfo, properties);
+        if (ds != null) 
+            props.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, ds);
         props.put(PersistenceUnitProperties.ECLIPSELINK_PERSISTENCE_XML, fullDescriptorPath(pUnitInfo));
         props.put(GeminiOSGiInitializer.OSGI_BUNDLE, pUnitInfo.getBundle());
 
@@ -347,6 +352,14 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         if (ds instanceof DataSource) {
             return (DataSource) ds;
         }
+        
+        // Support the case of a provider-connected data source. In this case the provider
+        // will be responsible for connecting to a data source (using specified properties)
+        // ### Enhancement for bug 369029 - Ideas contributed by Gunnar W ###
+        if (properties.containsKey(GeminiPersistenceUnitProperties.PROVIDER_CONNECTED_DATA_SOURCE)) {
+            return null;
+        }
+        
         Driver driver = null;
 
         // Sort out which named driver we are dealing with

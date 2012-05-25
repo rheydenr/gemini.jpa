@@ -53,6 +53,7 @@
 				<module>org.eclipse.gemini.jpa.test.embeddedjdbc</module>
 				<module>org.eclipse.gemini.jpa.test.xmlmappedpunit</module>
 				<module>org.eclipse.gemini.jpa.test.driverversion</module>
+				<module>org.eclipse.gemini.jpa.test.mongo</module>
 				<module>org.eclipse.gemini.jpa.test.state</module>
 				<module>org.eclipse.gemini.jpa.feature</module>
 				<module>org.eclipse.gemini.jpa.source.feature</module>

@@ -60,7 +60,8 @@ public class TestState implements BundleActivator {
             // Each test is the name of a JpaTest subclass in the 
             // org.eclipse.gemini.jpa.tests package
             /*   */
-            incompletedTests.add("TestStaticPersistence");
+            incompletedTests.add("TestMongo");
+           /* incompletedTests.add("TestStaticPersistence");
             incompletedTests.add("TestEMFService");
             incompletedTests.add("TestEMFBuilderService");
             incompletedTests.add("TestEMFBuilderServiceProperties");
@@ -72,7 +73,7 @@ public class TestState implements BundleActivator {
             incompletedTests.add("TestEmptyPersistenceWithProps");
             incompletedTests.add("TestWeaving");
             incompletedTests.add("TestEmbeddedJdbc");
-        }
+         */}
         return true;
     }
     
