@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Gemini JPA
 Bundle-SymbolicName: org.eclipse.gemini.jpa
 Bundle-Version: 1.1.0.qualifier
-Bundle-Activator: org.eclipse.gemini.jpa.provider.EclipseLinkOSGiProvider
+Bundle-Activator: 
+ org.eclipse.gemini.jpa.provider.EclipseLinkOSGiProvider
 Bundle-Vendor: Oracle Corporation
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: javax.naming,
@@ -28,3 +29,10 @@ Require-Bundle: org.eclipse.persistence.asm;bundle-version="2.3",
  org.eclipse.persistence.core;bundle-version="2.3",
  org.eclipse.persistence.jpa;bundle-version="2.3"
 Export-Package: org.eclipse.gemini.jpa.provider
+Provide-Capability: osgi.extender;
+ osgi.extender="osgi.jpa";
+ provider="org.eclipse.gemini.jpa";
+ uses:="org.osgi.service.jpa,java.persistence,
+ javax.persistence.criteria,javax.persistence.metamodel,
+ javax.persistence.spi";
+ version:Version="1.1"

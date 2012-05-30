@@ -61,7 +61,7 @@ public class TestState implements BundleActivator {
             // org.eclipse.gemini.jpa.tests package
             /*   */
             incompletedTests.add("TestMongo");
-           /* incompletedTests.add("TestStaticPersistence");
+            incompletedTests.add("TestStaticPersistence");
             incompletedTests.add("TestEMFService");
             incompletedTests.add("TestEMFBuilderService");
             incompletedTests.add("TestEMFBuilderServiceProperties");
@@ -73,7 +73,7 @@ public class TestState implements BundleActivator {
             incompletedTests.add("TestEmptyPersistenceWithProps");
             incompletedTests.add("TestWeaving");
             incompletedTests.add("TestEmbeddedJdbc");
-         */}
+        }
         return true;
     }
     

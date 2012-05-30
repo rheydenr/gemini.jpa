@@ -5,5 +5,7 @@ Bundle-Name: Gemini JPA Test JDBC Driver version
 Bundle-SymbolicName: org.eclipse.gemini.jpa.test.driverversion
 Bundle-Version: 1.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.osgi.framework;version="1.4.0"
+Import-Package: org.osgi.framework;version="1.6.0"
+ZZZComment-header: Require-Capability: osgi.extender;
+ filter:="(&(osgi.extender=osgi.jpa)(version>=1.0))"
 Bundle-Activator: punit.Activator

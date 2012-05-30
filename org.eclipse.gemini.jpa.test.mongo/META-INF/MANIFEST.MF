@@ -9,6 +9,8 @@ Import-Package: javax.persistence;version="1.1.0";jpa="2.0",
  javax.persistence.criteria;version="1.1.0";jpa="2.0",
  javax.persistence.metamodel;version="1.1.0";jpa="2.0",
  org.eclipse.persistence.nosql.annotations;version="2.4",
- org.osgi.framework;version="1.4.0"
+ org.osgi.framework;version="1.6.0"
+ZZZComment-header: Require-Capability: osgi.extender;
+ filter:="(&(osgi.extender=osgi.jpa)(version>=1.0))"
 Export-Package: model.mongo;version="1.0.0"
 Bundle-Activator: mongo.Activator

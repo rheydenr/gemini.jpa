@@ -5,8 +5,10 @@ Bundle-Name: Gemini JPA Test Embedded JDBC Persistence Unit
 Bundle-SymbolicName: org.eclipse.gemini.jpa.test.embeddedjdbc
 Bundle-Version: 1.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.osgi.framework;version="1.4.0",
+Import-Package: org.osgi.framework;version="1.6.0",
  javax.persistence;jpa="2.0";version="1.1.0"
+ZZZComment-header: Require-Capability: osgi.extender;
+ filter:="(&(osgi.extender=osgi.jpa)(version>=1.0))"
 Export-Package: model.embeddedjdbc;version="1.0.0"
 Bundle-ClassPath: .,jdbc/derby.jar
 Bundle-Activator: punit.Activator
