@@ -21,7 +21,7 @@
 </location>
 <location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.junit" version="4.8.2.v4_8_2_v20110321-1705"/>
-<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/S20120123151124/repository/"/>
+<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20120526062928/repository/"/>
 </location>
 </locations>
 </target>
