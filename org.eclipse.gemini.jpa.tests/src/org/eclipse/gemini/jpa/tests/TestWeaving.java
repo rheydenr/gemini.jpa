@@ -19,9 +19,9 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
-import model.weaved.WeavedEntity;
-
 import org.junit.*;
+
+import model.weaved.WeavedEntity;
 
 /**
  * Test class to test weaving of JPA provider

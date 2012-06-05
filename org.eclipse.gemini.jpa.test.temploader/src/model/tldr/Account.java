@@ -10,18 +10,20 @@
  * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
- *     mkeith - Gemini JPA Sample 
+ *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package model.account;
+package model.tldr;
 
 import javax.persistence.*;
+
+import java.sql.Timestamp;
 
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Sample JPA model class
+ * Test JPA model class
  * 
  * @author mkeith
  */
@@ -30,7 +32,10 @@ public class Account {
 
     @Id @GeneratedValue
     int id;
-    
+
+	@Version
+	Timestamp timeCreated;
+	
     double balance;
     
     @OneToOne(mappedBy="account")

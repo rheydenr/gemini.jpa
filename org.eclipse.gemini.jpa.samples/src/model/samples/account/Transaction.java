@@ -12,7 +12,7 @@
  * Contributors:
  *     mkeith - Gemini JPA Sample 
  ******************************************************************************/
-package model.account;
+package model.samples.account;
 
 import javax.persistence.*;
 import java.util.Date;

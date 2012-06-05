@@ -20,8 +20,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
 
-import model.account.Account;
-import model.account.Customer;
+import model.samples.account.Account;
+import model.samples.account.Customer;
 
 /**
  * Gemini JPA sample client class

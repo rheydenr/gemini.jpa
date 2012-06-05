@@ -16,25 +16,25 @@ package org.eclipse.gemini.jpa.tests;
 
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 
-import model.embeddedaccount.*;
+import model.tldr.Person;
 
 import org.junit.*;
 
 /**
- * Test class to test looking up EMF Service of an embedded persistence unit
+ * Test class to test looking up EMF Service from a client
  * 
  * @author mkeith
  */
-public class TestEmbeddedPUnit extends JpaTest {
+public class TestTempLoader extends JpaTest {
         
-    public static final String TEST_NAME = "TestEmbeddedPUnit";
-    public static final String PERSISTENCE_UNIT_UNDER_TEST = "EmbeddedAccounts";
+    public static final String TEST_NAME = "TestTempLoader";
+    public static final String PERSISTENCE_UNIT_UNDER_TEST = "TLAccounts";
 
     protected static EntityManagerFactory emf;
-    
+
     /* === Test Methods === */
 
     @BeforeClass
@@ -57,24 +57,24 @@ public class TestEmbeddedPUnit extends JpaTest {
     public EntityManagerFactory getEmf() { return emf; }
 
     public String getTestPersistenceUnitName() { return PERSISTENCE_UNIT_UNDER_TEST; }
-
+    
     public Object newObject() {
-        EmbAccount a = new EmbAccount();
-        a.setBalance(100.0);
+        Person a = new Person();
         return a;
     }
     
     public Object findObject() {
-        EntityManager em = emf.createEntityManager();
-        Object obj = em.find(EmbAccount.class, 1);
+        EntityManager em = getEmf().createEntityManager();
+        Person a = em.find(Person.class, 1);
         em.close();
-        return obj;
+        return a;
     }
 
     public Object queryObjects() {
-        EntityManager em = emf.createEntityManager();
-        List<?> result = em.createQuery("SELECT a FROM EmbAccount a").getResultList();
+        EntityManager em = getEmf().createEntityManager();
+        List<?> result = em.createQuery("SELECT a FROM Person a").getResultList();
         em.close();
         return result;
     }
+
 }

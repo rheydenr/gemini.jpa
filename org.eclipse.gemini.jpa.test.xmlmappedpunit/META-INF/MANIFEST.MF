@@ -7,7 +7,7 @@ Bundle-Version: 1.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.osgi.framework;version="1.6.0",
  javax.persistence;jpa="2.0";version="1.1.0"
-ZZZComment-header: Require-Capability: osgi.extender;
- filter:="(&(osgi.extender=osgi.jpa)(version>=1.0))"
 Export-Package: model.xmlmapped;version="1.0.0"
 Bundle-Activator: punit.Activator
+ZZZComment-header: Require-Capability: osgi.extender;
+ filter:="(&(osgi.extender=osgi.jpa)(version>=1.0))"

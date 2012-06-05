@@ -10,12 +10,12 @@
  * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
- *     mkeith - Gemini JPA Sample 
+ *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package model.account;
+package model.tldr;
 
 /**
- * Gemini JPA Sample class
+ * Test JPA model class
  * 
  * @author mkeith
  */

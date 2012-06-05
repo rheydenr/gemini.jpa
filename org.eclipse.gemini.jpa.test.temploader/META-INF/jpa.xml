@@ -4,12 +4,15 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
 
-    <persistence-unit name="Accounts" transaction-type="RESOURCE_LOCAL">
-        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <persistence-unit name="TLAccounts" transaction-type="RESOURCE_LOCAL">
+        <provider>
+            org.eclipse.persistence.jpa.PersistenceProvider
+        </provider>
 
-        <class>model.samples.account.Account</class>
-        <class>model.samples.account.Customer</class>
-        <class>model.samples.account.Transaction</class>
+        <class>model.tldr.Person</class>
+        <class>model.tldr.Account</class>
+        <class>model.tldr.Customer</class>
+        <class>model.tldr.Transaction</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -20,7 +23,8 @@
             <property name="javax.persistence.jdbc.user" value="app"/>
             <property name="javax.persistence.jdbc.password" value="app"/>
 
-            <property name="eclipselink.logging.level" value="FINE"/>
+
+            <property name="eclipselink.logging.level" value="FINEST"/>
             <property name="eclipselink.logging.timestamp" value="false"/>
             <property name="eclipselink.logging.thread" value="false"/>
             <property name="eclipselink.logging.exceptions" value="true"/>

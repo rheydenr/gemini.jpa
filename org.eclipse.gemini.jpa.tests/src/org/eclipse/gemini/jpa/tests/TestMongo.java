@@ -10,7 +10,7 @@
  * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
- *     Eduard Bartsch - initial test class
+ *     Mike Keith - Initial test class
  ******************************************************************************/
 package org.eclipse.gemini.jpa.tests;
 
@@ -24,9 +24,9 @@ import javax.persistence.EntityManager;
 
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
-import org.junit.*;
+import model.mongo.Account;
 
-import model.mongo.*;
+import org.junit.*;
 
 /**
  * Test class to test Mongo

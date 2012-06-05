@@ -28,7 +28,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
-import model.account.*;
+import model.account.Account;
 
 /**
  * Test class to test EMF Service from a client
