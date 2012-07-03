@@ -23,6 +23,8 @@ import model.embeddedaccount.*;
 
 import org.junit.*;
 
+import org.eclipse.gemini.jpa.test.common.JpaTest;
+
 /**
  * Test class to test looking up EMF Service of an embedded persistence unit
  * 

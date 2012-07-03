@@ -23,6 +23,8 @@ import org.junit.*;
 
 import model.weaved.WeavedEntity;
 
+import org.eclipse.gemini.jpa.test.common.JpaTest;
+
 /**
  * Test class to test weaving of JPA provider
  * 

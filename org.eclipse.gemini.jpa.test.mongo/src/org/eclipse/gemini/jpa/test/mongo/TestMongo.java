@@ -28,6 +28,8 @@ import model.mongo.Account;
 
 import org.junit.*;
 
+import org.eclipse.gemini.jpa.test.common.JpaTest;
+
 /**
  * Test class to test Mongo
  * 

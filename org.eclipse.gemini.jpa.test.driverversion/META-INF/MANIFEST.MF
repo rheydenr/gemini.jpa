@@ -1,25 +1,18 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Gemini JPA Unit Tests
-Bundle-SymbolicName: org.eclipse.gemini.jpa.test.basic
+Bundle-Name: Gemini JPA Driver Version Tests
+Bundle-SymbolicName: org.eclipse.gemini.jpa.test.driverversion
 Bundle-Version: 1.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: javax.persistence;jpa="2.0";version="1.1.0",
  javax.persistence.metamodel;jpa="2.0";version="1.1.0",
  model.account;version="1.0.0",
- model.embeddedaccount;version="1.0.0";resolution:=optional,
- model.embeddedjdbc;version="1.0.0";resolution:=optional,
- model.mongo;version="1.0.0";resolution:=optional,
- model.weaved;version="1.0.0";resolution:=optional,
- model.xmlmapped;version="1.0.0";resolution:=optional,
- model.tldr;version="1.0.0";resolution:=optional,
+ org.eclipse.gemini.jpa.test.common;version="1.0.0",
  org.junit;version="4.8.2",
  org.junit.runner;version="4.8.2",
  org.junit.runner.notification;version="4.8.2",
  org.osgi.framework;version="1.6.0",
- org.osgi.service.jdbc;version="[1.0,2.0)",
+ org.osgi.service.jdbc;version="1.0.0",
  org.osgi.service.jpa;version="1.0.0",
  org.osgi.util.tracker;version="1.3.1"
-Require-Bundle: org.eclipse.persistence.core,
- org.eclipse.gemini.jpa.test.state;bundle-version="1.0.0"
-Bundle-Activator: org.eclipse.gemini.jpa.tests.Activator
+Bundle-Activator: org.eclipse.gemini.jpa.test.driverversion.Activator

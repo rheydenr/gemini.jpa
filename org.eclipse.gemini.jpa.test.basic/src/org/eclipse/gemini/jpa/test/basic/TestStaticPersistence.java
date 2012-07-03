@@ -19,6 +19,8 @@ import javax.persistence.EntityManagerFactory;
 
 import org.junit.*;
 
+import org.eclipse.gemini.jpa.test.common.JpaTest;
+
 /**
  * Test class to test static Persistence class using OSGi JPA services
  * 

@@ -20,6 +20,8 @@ import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
 import org.junit.*;
 
+import org.eclipse.gemini.jpa.test.common.JpaTest;
+
 /**
  * Test class to test looking up EMF Builder Service from a client
  * for a punit that does not have data source props specified

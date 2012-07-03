@@ -23,6 +23,8 @@ import model.xmlmapped.SimpleEntity2;
 
 import org.junit.*;
 
+import org.eclipse.gemini.jpa.test.common.JpaTest;
+
 /**
  * Test class for an entity mapped in orm.xml
  * 

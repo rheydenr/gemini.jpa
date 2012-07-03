@@ -28,6 +28,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
+import org.eclipse.gemini.jpa.test.common.JpaTest;
+
 // import org.junit.*;
 
 /**

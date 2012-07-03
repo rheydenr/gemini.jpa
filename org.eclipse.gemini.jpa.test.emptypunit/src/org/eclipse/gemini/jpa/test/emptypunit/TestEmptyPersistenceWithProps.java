@@ -22,6 +22,8 @@ import javax.persistence.EntityManagerFactory;
 import org.junit.*;
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
+import org.eclipse.gemini.jpa.test.common.JpaTest;
+
 /**
  * Test class to test empty persistence unit using OSGi JPA services
  * 

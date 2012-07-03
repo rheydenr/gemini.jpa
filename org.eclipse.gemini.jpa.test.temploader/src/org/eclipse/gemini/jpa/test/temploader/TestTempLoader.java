@@ -23,6 +23,8 @@ import model.tldr.Person;
 
 import org.junit.*;
 
+import org.eclipse.gemini.jpa.test.common.JpaTest;
+
 /**
  * Test class to test looking up EMF Service from a client
  * 

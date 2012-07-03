@@ -24,6 +24,8 @@ import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
 import org.junit.*;
 
+import org.eclipse.gemini.jpa.test.common.JpaTest;
+
 /**
  * Test class to test being able to specify a dependency on a driver version
  * 

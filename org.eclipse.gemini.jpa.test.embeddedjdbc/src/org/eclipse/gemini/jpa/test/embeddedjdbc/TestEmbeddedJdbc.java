@@ -23,6 +23,8 @@ import model.embeddedjdbc.EmptyEntity;
 
 import org.junit.*;
 
+import org.eclipse.gemini.jpa.test.common.JpaTest;
+
 /**
  * Test class to test persistence without using DBAccess
  *  

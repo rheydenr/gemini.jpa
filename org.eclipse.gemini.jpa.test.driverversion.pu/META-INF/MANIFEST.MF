@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Meta-Persistence: META-INF/jpa.xml
 Bundle-Name: Gemini JPA Test JDBC Driver version
-Bundle-SymbolicName: org.eclipse.gemini.jpa.test.driverversion
+Bundle-SymbolicName: org.eclipse.gemini.jpa.test.driverversion.pu
 Bundle-Version: 1.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.osgi.framework;version="1.6.0"
