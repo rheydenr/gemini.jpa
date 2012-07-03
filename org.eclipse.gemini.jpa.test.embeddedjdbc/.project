@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.eclipse.gemini.jpa.test.embeddedjdbc</name>
+	<name>org.eclipse.gemini.jpa.test.basic</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -20,14 +20,20 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.pde.api.tools.apiAnalysisBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.eclipse.pde.api.tools.apiAnalysisNature</nature>
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1332260339562</id>
+			<id>1332260585800</id>
 			<name></name>
 			<type>10</type>
 			<matcher>

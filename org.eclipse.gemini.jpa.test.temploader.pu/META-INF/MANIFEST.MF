@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Meta-Persistence: META-INF/jpa.xml
+Bundle-Name: Gemini JPA Test Temp Loader Persistence Unit
+Bundle-SymbolicName: org.eclipse.gemini.jpa.test.temploader
+Bundle-Version: 1.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: javax.persistence;version="1.1.0";jpa="2.0",
+ javax.persistence.criteria;version="1.1.0";jpa="2.0",
+ javax.persistence.metamodel;version="1.1.0";jpa="2.0",
+ org.osgi.framework;version="1.6.0"
+Export-Package: model.tldr;version="1.1.0"
+Bundle-Activator: tldr.Activator
