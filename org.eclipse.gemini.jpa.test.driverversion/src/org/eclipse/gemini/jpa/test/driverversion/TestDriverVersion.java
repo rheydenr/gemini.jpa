@@ -12,7 +12,7 @@
  * Contributors:
  *     Eduard Bartsch - initial test class
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
+package org.eclipse.gemini.jpa.test.driverversion;
 
 
 import java.util.HashMap;
@@ -20,6 +20,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
 import org.junit.*;
@@ -40,17 +41,19 @@ public class TestDriverVersion extends JpaTest {
     protected static EntityManagerFactoryBuilder emfb1, emfb2;
     protected static EntityManagerFactory emf1, emf2;
 
+	public static BundleContext ctx;
+		
     /* === Test Methods === */
 
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        emfb1 = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        emfb1 = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         Map<String,Object> props = new HashMap<String,Object>();        
         emf1 = emfb1.createEntityManagerFactory(props);
         slog(TEST_NAME, "Got EMF-1 - " + emf1);
 
-        emfb2 = lookupEntityManagerFactoryBuilder(TEST_NAME, PUNIT_2);   
+        emfb2 = lookupEntityManagerFactoryBuilder(TEST_NAME, PUNIT_2, ctx);
     }
 
     @AfterClass
@@ -96,4 +99,6 @@ public class TestDriverVersion extends JpaTest {
     public Object newObject() { return null; }
     public Object findObject() { return null; }
     public Object queryObjects() { return null; }
+    // Not used
+    public String queryString() { return null; }
 }

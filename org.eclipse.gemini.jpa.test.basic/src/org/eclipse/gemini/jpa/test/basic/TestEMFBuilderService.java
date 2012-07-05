@@ -12,37 +12,37 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
+package org.eclipse.gemini.jpa.test.basic;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
 import org.junit.*;
-
-import org.eclipse.gemini.jpa.test.common.JpaTest;
 
 /**
  * Test class to test looking up EMF Builder Service from a client
  * 
  * @author mkeith
  */
-public class TestEMFBuilderService extends JpaTest {
+public class TestEMFBuilderService extends AccountTest {
     
     public static final String TEST_NAME = "TestEMFBuilderService";
     public static final String PERSISTENCE_UNIT_UNDER_TEST = "Accounts";
 
     protected static EntityManagerFactory emf;
+    public static BundleContext ctx;
 
     /* === Test Methods === */
 
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         Map<String,Object> props = new HashMap<String,Object>();        
         emf = emfb.createEntityManagerFactory(props);
         slog(TEST_NAME, "Got EMF - " + emf);

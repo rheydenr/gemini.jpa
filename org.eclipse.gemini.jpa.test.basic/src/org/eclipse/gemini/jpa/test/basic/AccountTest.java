@@ -12,21 +12,37 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package punit;
+package org.eclipse.gemini.jpa.test.basic;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import javax.persistence.*;
+
+import model.account.Account;
+
+import org.eclipse.gemini.jpa.test.common.JpaTest;
 
 /**
- * Embedded Test JPA persistence unit activator class
+ * Abstract Test class to for Account entity
  * 
  * @author mkeith
  */
-public class Activator implements BundleActivator {
+public abstract class AccountTest extends JpaTest {
 
-    public void start(BundleContext context) throws Exception {
-        System.out.println("Embedded test persistence unit active");
+    /* === Methods that *must* be subclassed === */
+
+    public Object newObject() {
+        Account a = new Account();
+        a.setBalance(100.0);
+        return a;
     }
 
-    public void stop(BundleContext context) throws Exception {}
+    public Object findObject() {
+        EntityManager em = getEmf().createEntityManager();
+        Object obj = em.find(Account.class, 1);
+        em.close();
+        return obj;
+    }
+
+    public String queryString() {
+        return "SELECT a FROM Account a";
+    }    	
 }

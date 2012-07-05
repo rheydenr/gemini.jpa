@@ -12,32 +12,32 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
+package org.eclipse.gemini.jpa.test.basic;
 
 import javax.persistence.EntityManagerFactory;
 
 import org.junit.*;
-
-import org.eclipse.gemini.jpa.test.common.JpaTest;
+import org.osgi.framework.BundleContext;
 
 /**
  * Test class to test looking up EMF Service from a client
  * 
  * @author mkeith
  */
-public class TestEMFService extends JpaTest {
+public class TestEMFService extends AccountTest {
         
     public static final String TEST_NAME = "TestEMFService";
     public static final String PERSISTENCE_UNIT_UNDER_TEST = "Accounts";
 
     protected static EntityManagerFactory emf;
+    public static BundleContext ctx;
 
     /* === Test Methods === */
 
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         slog(TEST_NAME, "Got EMF - " + emf);
     }
 

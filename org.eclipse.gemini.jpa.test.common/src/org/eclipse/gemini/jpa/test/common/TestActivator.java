@@ -12,9 +12,10 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
+package org.eclipse.gemini.jpa.test.common;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,15 +32,14 @@ import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
-import test.TestState;
-
 /**
  * Activator to start tests when relevant service becomes available
+ * Test bundles subclass this activator to inherit test behavior
  * 
  * @author mkeith
  */
 @SuppressWarnings({"unchecked","rawtypes"})
-public class Activator implements BundleActivator, ServiceTrackerCustomizer {
+public class TestActivator implements BundleActivator, ServiceTrackerCustomizer {
 
     BundleContext ctx;
     
@@ -49,54 +49,82 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
     
     // Map of test class to test instance
     Map<Class<? extends JpaTest>,JpaTest> testClasses = new HashMap<Class<? extends JpaTest>,JpaTest>();    
+	
+    /*==========================================*/
+    /* Subclasses *must* override these methods */
+    /*==========================================*/
 
+    public void setBundleContext(BundleContext ctx) {
+        // This method must set the context in a static on each test case in the test bundle
+    }
+    public String getTestGroupName() { return "Test activator must implement getTestGroupName()"; }
+    public String getTestPackage() { return "Test activator must implement getTestPackage()"; }
+
+    public String[] getTestClasses() { 
+        String[] s = { "Test activator must implement getTestClasses()" };
+        return s;
+    }
+	
+    /*===================*/
+    /* Lifecycle methods */
+    /*===================*/
+	
     public void start(BundleContext context) throws Exception {
-        log("Tests active");
-
+        // Method is called within the context of an inheriting test bundle
+        log("Starting " + getTestGroupName() + " tests.");
         ctx = context;
-        JpaTest.context = context;
+        this.setBundleContext(context);
                 
         emfTracker = new ServiceTracker(ctx, EntityManagerFactory.class.getName(), this);
         emfbTracker = new ServiceTracker(ctx, EntityManagerFactoryBuilder.class.getName(), this);
         dsfTracker = new ServiceTracker(ctx, DataSourceFactory.class.getName(), this);
 
-        // Create the set of tests to run (get list from TestState)
-        try {
-            for (String clsString : TestState.getIncompletedTests()) {
-                // Load the class
+        // Register the tests to run if we have not already registered this group
+        if (! TestState.isGroupRegistered(this.getTestGroupName())) {
+            TestState.registerGroup(this.getTestGroupName());
+            for (String testName : this.getTestClasses())
+                TestState.addTest(testName);
+        }
+        // Now [re]load the classes in this bundle since we have just been started (and may have been refreshed)
+        for (String testName : this.getTestClasses()) {
+            try {
                 Class<? extends JpaTest> testClass = (Class<? extends JpaTest>)
-                            ctx.getBundle().loadClass("org.eclipse.gemini.jpa.tests." + clsString);
+                            ctx.getBundle().loadClass(this.getTestPackage() + "." + testName);
                 // Create an instance of the class
                 JpaTest test = null;
-                test = testClass.newInstance(); 
-                // Store the instance against the class 
+                test = testClass.newInstance();
+                // Store the instance against the class
                 testClasses.put(testClass, test);
-            }
-            log("TestClasses: " + testClasses.keySet());
-        } catch (ClassNotFoundException cnfEx) {
-            log("***************** Failed trying to load test class: " + cnfEx);
+                log("TestClasses: " + testClasses.keySet());
+            } catch (ClassNotFoundException cnfEx) {
+                log("***************** Failed trying to load test class: " + cnfEx);
+            }   
         }
-        // Run tests from tracker when service is online
+        // Tracker event will cause tests to run when service is online
         emfTracker.open();
         emfbTracker.open();
         dsfTracker.open();
     }
 
     public void stop(BundleContext context) throws Exception {
-        log("Tests stopped");
+        log("Stopping " + getTestGroupName() + " tests.");
         emfbTracker.close();
         emfTracker.close();
         dsfTracker.close();
-        // Clear the queue since if we are being refreshed we may have new classes on restart
-        TestState.dsfQueuedTests.clear();
     }
-    
+
+    /*======================*/
+    /* Utility test methods */
+    /*======================*/
+	
     private JpaTest testInstance(Class<? extends JpaTest> cls) {
         return testClasses.get(cls);
     }
     
     boolean shouldRun(Class<? extends JpaTest> testClass, String unitName, boolean isEMFService) {
         JpaTest test = testClasses.get(testClass);
+        if (test == null) 
+            return false;
         return !TestState.isTested(testClass.getSimpleName())
                && test.getTestPersistenceUnitName().equals(unitName)
                && (!(test.needsEmfService() ^ isEMFService));
@@ -104,23 +132,24 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
     
     void runTest(Class<? extends JpaTest> testClass) {
         String testName = testClass.getSimpleName();
-        TestState.startTest(testName);
+        TestState.testStarted(testName);
         log("Running " + testName + ": ");
+        // Invoke JUnit to run the test
         Result r = JUnitCore.runClasses(testClass);
-
         log(testName + " results: ");
         logResultStats(r);
-        TestState.completedTest(testName,r);
-            
+        TestState.testCompleted(testName, r);
         log("Done " + testName);
+		TestState.getAllTestResults().put(testName, r);
+		// Remove from our local list of classes
+		testClasses.remove(testClass);
 
-        Set<String> incompleteTests = TestState.getIncompletedTests();
-        if (!incompleteTests.isEmpty()) {
-            System.out.println("------------------- Tests not run yet: " + incompleteTests);
+        if (!testClasses.isEmpty()) {
+            System.out.println("------------------- " + this.getTestGroupName() + " Tests not run yet: " + testClasses.values());
         } else {
             // If no more tests to run, print out a summary
             System.out.println("-----------------------------------------------------"); 
-            System.out.println("------------------- Test Summary --------------------"); 
+            System.out.println("---------- " + getTestGroupName() + " tests complete." + " ----------"); 
             System.out.println("-----------------------------------------------------"); 
             Set<Map.Entry<String,Result>> results = TestState.getAllTestResults().entrySet();
             for (Map.Entry<String,Result> entry : results) {
@@ -140,9 +169,8 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
         // Check to see if it is a DSF (and the Client driver)
         String driverClassName = (String) ref.getProperty(DataSourceFactory.OSGI_JDBC_DRIVER_CLASS);
         if ((driverClassName != null) && (driverClassName.equals(JpaTest.JDBC_TEST_DRIVER))) {
-            // Record in the TestState (does not risk getting refreshed) that the DSF is online
-            TestState.isDsfOnline = true;
             log("Service added **** DataSourceFactory for " + driverClassName);
+			TestState.setDsfOnline(true);
             // Now go through the pending dsf queue and run the tests
             log("**** Running queued tests");
             for (Class cls : TestState.dsfQueuedTests) {
@@ -161,14 +189,16 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
                 // Now ask each test if it should run based on the punit name and whether 
                 // the service is an EMF or an EMFBuilder. Note that more than one test 
                 // may run on the same EMF/B service.
-                for (Class<? extends JpaTest> cls : testClasses.keySet()) {
+                Set<Class<? extends JpaTest>> classes = new HashSet<Class<? extends JpaTest>>();
+                classes.addAll(testClasses.keySet());
+                for (Class<? extends JpaTest> cls : classes) {
                     
                     // See if the test would run (ignoring whether DSF is online)
                     if (shouldRun(cls, unitName, isEmfService)) {
                         
                         // If the test needs the DSF service but the service is not online  
                         // then put the test in the pending DSF queue.
-                        if (testInstance(cls).needsDsfService() && !TestState.isDsfOnline) {
+                        if (testInstance(cls).needsDsfService() && !TestState.isDsfOnline()) {
                             TestState.dsfQueuedTests.add(cls);
                         } else {
                             // We are good to go
@@ -185,9 +215,9 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
     public void removedService(ServiceReference ref, Object service) {}
 
-    /*================*/
-    /* Helper methods */
-    /*================*/
+    /*=================*/
+    /* Logging methods */
+    /*=================*/
 
     void logResultStats(Result r) {
         log("Result: " + 

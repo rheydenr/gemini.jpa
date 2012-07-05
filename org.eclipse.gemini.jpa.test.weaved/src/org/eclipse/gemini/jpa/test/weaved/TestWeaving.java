@@ -12,14 +12,14 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
-
-import java.util.List;
+package org.eclipse.gemini.jpa.test.weaved;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.junit.*;
+
+import org.osgi.framework.BundleContext;
 
 import model.weaved.WeavedEntity;
 
@@ -36,13 +36,14 @@ public class TestWeaving extends JpaTest {
     public static final String PERSISTENCE_UNIT_UNDER_TEST = "Weaved";
 
     public static EntityManagerFactory emf;
+    public static BundleContext ctx;
 
     /* === Test Methods === */
 
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);                
+        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         slog(TEST_NAME, "Got EMF - " + emf);        
     }
 
@@ -94,10 +95,7 @@ public class TestWeaving extends JpaTest {
         return obj;
     }
 
-    public Object queryObjects() {
-        EntityManager em = getEmf().createEntityManager();
-        List<?> result = em.createQuery("SELECT a FROM WeavedEntity a").getResultList();
-        em.close();
-        return result;
+    public String queryString() {
+        return "SELECT a FROM WeavedEntity a";
     }        
 }

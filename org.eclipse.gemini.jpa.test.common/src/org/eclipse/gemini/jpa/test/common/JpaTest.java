@@ -12,7 +12,7 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
+package org.eclipse.gemini.jpa.test.common;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,18 +28,14 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
-import model.account.Account;
-
 /**
- * Test class to test EMF Service from a client
+ * Abstract test class for JPA EMF Services
  * 
  * @author mkeith
  */
 @SuppressWarnings({"unchecked","rawtypes"})
 public abstract class JpaTest {
     
-    public static BundleContext context;
-
     // Define the JDBC access details. At some point we should probably externalize this...
     public static final String JDBC_TEST_DRIVER = "org.apache.derby.jdbc.ClientDriver";
     public static final String JDBC_TEST_URL = "jdbc:derby://localhost:1527/accountDB;create=true";
@@ -55,14 +51,24 @@ public abstract class JpaTest {
         props.put("javax.persistence.jdbc.password", JDBC_TEST_PASSWORD);
         return props;
     }
-
-    /* === Methods that *must* be subclassed === */
+    
+    /*==============================*/
+    /* Methods *must* be subclassed */
+    /*==============================*/
 
     public abstract EntityManagerFactory getEmf();
 
     public abstract String getTestPersistenceUnitName();
     
-    /* === Methods that *may* be subclassed === */
+	public abstract Object newObject();
+    
+    public abstract Object findObject(); 
+	
+	public abstract String queryString();
+	
+    /*=============================*/
+    /* Methods *may* be subclassed */
+    /*=============================*/
 
     public boolean needsEmfService() { return true; }
 
@@ -72,27 +78,16 @@ public abstract class JpaTest {
         return this.getClass().getSimpleName();
     }
 
-    public Object newObject() {
-        Account a = new Account();
-        a.setBalance(100.0);
-        return a;
-    }
-    
-    public Object findObject() {
+	public Object queryObjects() {
         EntityManager em = getEmf().createEntityManager();
-        Object obj = em.find(Account.class, 1);
-        em.close();
-        return obj;
-    }
-
-    public Object queryObjects() {
-        EntityManager em = getEmf().createEntityManager();
-        List<?> result = em.createQuery("SELECT a FROM Account a").getResultList();
+        List<?> result = em.createQuery(this.queryString()).getResultList();
         em.close();
         return result;
     }
 
-    /* === Test Methods === */
+    /*==============*/
+    /* Test Methods */
+    /*==============*/
     
     @Test
     public void testGettingEntityManager() {
@@ -144,34 +139,36 @@ public abstract class JpaTest {
         }
     }
     
-    /* === Helper methods === */
+    /*================*/
+    /* Helper methods */
+    /*================*/
 
-    public static EntityManagerFactory lookupEntityManagerFactory(String testName, String puName) {
+    public static EntityManagerFactory lookupEntityManagerFactory(String testName, String puName, BundleContext ctx) {
         String filter = "(osgi.unit.name="+puName+")";
         ServiceReference[] refs = null;
         try {
-            refs = context.getServiceReferences(EntityManagerFactory.class.getName(), filter);
+            refs = ctx.getServiceReferences(EntityManagerFactory.class.getName(), filter);
         } catch (InvalidSyntaxException isEx) {
             new RuntimeException("Bad filter", isEx);
         }
         slog(testName, "EMF Service refs looked up from registry: " + refs);
         return (refs == null)
             ? null
-            : (EntityManagerFactory) context.getService(refs[0]);
+            : (EntityManagerFactory) ctx.getService(refs[0]);
     }
     
-    public static EntityManagerFactoryBuilder lookupEntityManagerFactoryBuilder(String testName, String puName) {
+    public static EntityManagerFactoryBuilder lookupEntityManagerFactoryBuilder(String testName, String puName, BundleContext ctx) {
         String filter = "(osgi.unit.name="+puName+")";
         ServiceReference[] refs = null;
         try {
-            refs = context.getServiceReferences(EntityManagerFactoryBuilder.class.getName(), filter);
+            refs = ctx.getServiceReferences(EntityManagerFactoryBuilder.class.getName(), filter);
         } catch (InvalidSyntaxException isEx) {
             new RuntimeException("Bad filter", isEx);
         }
         slog(testName, "EMF Builder Service refs looked up from registry: " + refs);
         return (refs == null)
             ? null
-            : (EntityManagerFactoryBuilder) context.getService(refs[0]);
+            : (EntityManagerFactoryBuilder) ctx.getService(refs[0]);
     }
 
     public static void slog(String testName, String msg) {

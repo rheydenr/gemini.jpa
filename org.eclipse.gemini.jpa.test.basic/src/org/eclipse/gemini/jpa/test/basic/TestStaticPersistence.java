@@ -12,26 +12,26 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
+package org.eclipse.gemini.jpa.test.basic;
 
 import javax.persistence.Persistence;
 import javax.persistence.EntityManagerFactory;
 
 import org.junit.*;
-
-import org.eclipse.gemini.jpa.test.common.JpaTest;
+import org.osgi.framework.BundleContext;
 
 /**
  * Test class to test static Persistence class using OSGi JPA services
  * 
  * @author mkeith
  */
-public class TestStaticPersistence extends JpaTest {
+public class TestStaticPersistence extends AccountTest {
     
     public static final String TEST_NAME = "TestStaticPersistence";
     public static final String PERSISTENCE_UNIT_UNDER_TEST = "Accounts";
 
     public static EntityManagerFactory emf;
+    public static BundleContext ctx;
 
     /* === Test Methods === */
 

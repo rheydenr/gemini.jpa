@@ -12,9 +12,7 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
-
-import java.util.List;
+package org.eclipse.gemini.jpa.test.embeddedjdbc;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityManager;
@@ -22,6 +20,7 @@ import javax.persistence.EntityManager;
 import model.embeddedjdbc.EmptyEntity;
 
 import org.junit.*;
+import org.osgi.framework.BundleContext;
 
 import org.eclipse.gemini.jpa.test.common.JpaTest;
 
@@ -36,13 +35,14 @@ public class TestEmbeddedJdbc extends JpaTest {
     public static final String PERSISTENCE_UNIT_UNDER_TEST = "EmbeddedJDBC";
 
     protected static EntityManagerFactory emf;
+    public static BundleContext ctx;
     
     /* === Test Methods === */
 
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         slog(TEST_NAME, "Got EMF - " + emf);
     }
 
@@ -76,10 +76,7 @@ public class TestEmbeddedJdbc extends JpaTest {
         return obj;
     }
 
-    public Object queryObjects() {
-        EntityManager em = emf.createEntityManager();
-        List<?> result = em.createQuery("SELECT a FROM EmptyEntity a").getResultList();
-        em.close();
-        return result;
+    public String queryString() { 
+        return "SELECT a FROM EmptyEntity a";
     }
 }

@@ -12,19 +12,21 @@
  * Contributors:
  *     Mike Keith - Initial test class
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
+package org.eclipse.gemini.jpa.test.mongo;
 
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityManager;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
 import model.mongo.Account;
+
+// import org.osgi.framework.BundleContext;
 
 import org.junit.*;
 
@@ -42,6 +44,7 @@ public class TestMongo extends JpaTest {
 
     protected static EntityManagerFactoryBuilder emfb;
     protected static EntityManagerFactory emf;
+    protected static BundleContext ctx;
 
     static Account acct;
     
@@ -50,7 +53,7 @@ public class TestMongo extends JpaTest {
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         Map<String,Object> props = new HashMap<String,Object>();        
         props.put("gemini.jpa.providerConnectedDataSource", true);
         emf = emfb.createEntityManagerFactory(props);
@@ -95,13 +98,10 @@ public class TestMongo extends JpaTest {
         Object obj = em.find(Account.class, acct.getId()); 
         em.close();
         return obj;
-    }
-    
-    public Object queryObjects() {
-        EntityManager em = getEmf().createEntityManager();
-        List<?> result = em.createQuery("SELECT a FROM Account a").getResultList();
-        em.close();
-        return result;
+    }    
+
+    public String queryString() {
+        return "SELECT a FROM Account a";
     }
     
     /* === Helper Methods === */

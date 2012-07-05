@@ -12,9 +12,7 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
-
-import java.util.List;
+package org.eclipse.gemini.jpa.test.temploader;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -22,6 +20,7 @@ import javax.persistence.EntityManagerFactory;
 import model.tldr.Person;
 
 import org.junit.*;
+import org.osgi.framework.BundleContext;
 
 import org.eclipse.gemini.jpa.test.common.JpaTest;
 
@@ -36,13 +35,14 @@ public class TestTempLoader extends JpaTest {
     public static final String PERSISTENCE_UNIT_UNDER_TEST = "TLAccounts";
 
     protected static EntityManagerFactory emf;
+    public static BundleContext ctx;
 
     /* === Test Methods === */
 
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         slog(TEST_NAME, "Got EMF - " + emf);
     }
 
@@ -72,11 +72,7 @@ public class TestTempLoader extends JpaTest {
         return a;
     }
 
-    public Object queryObjects() {
-        EntityManager em = getEmf().createEntityManager();
-        List<?> result = em.createQuery("SELECT a FROM Person a").getResultList();
-        em.close();
-        return result;
+    public String queryString() {
+        return "SELECT a FROM Person a";
     }
-
 }

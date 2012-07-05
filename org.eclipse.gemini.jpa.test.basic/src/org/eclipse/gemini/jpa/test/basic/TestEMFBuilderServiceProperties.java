@@ -12,15 +12,14 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
+package org.eclipse.gemini.jpa.test.basic;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
 import org.junit.*;
-
-import org.eclipse.gemini.jpa.test.common.JpaTest;
 
 /**
  * Test class to test looking up EMF Builder Service from a client
@@ -28,18 +27,19 @@ import org.eclipse.gemini.jpa.test.common.JpaTest;
  * 
  * @author mkeith
  */
-public class TestEMFBuilderServiceProperties extends JpaTest {
+public class TestEMFBuilderServiceProperties extends AccountTest {
 
     public static final String TEST_NAME = "TestEMFBuilderServiceProperties";
     public static final String PERSISTENCE_UNIT_UNDER_TEST = "AccountsNoDataSource";
 
     public static EntityManagerFactory emf;
-
+    public static BundleContext ctx;
+    
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
-        emf = emfb.createEntityManagerFactory(JpaTest.defaultProps());
+        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
+        emf = emfb.createEntityManagerFactory(defaultProps());
         slog(TEST_NAME, "Got EMF - " + emf);
     }
 

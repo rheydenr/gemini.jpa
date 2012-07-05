@@ -12,7 +12,7 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package test;
+package org.eclipse.gemini.jpa.test.common;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -23,9 +23,6 @@ import java.util.Map;
 
 import org.junit.runner.Result;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-
 /**
  * Test state class used to keep a memory of the tests that get executed
  * in the face of the test cases continually being refreshed.
@@ -35,57 +32,57 @@ import org.osgi.framework.BundleContext;
  * 
  * @author mkeith
  */
-public class TestState implements BundleActivator {
+public class TestState {
 
     public static String GEMINI_TEST_CLASSES = "GEMINI_TESTS";
 
-    public static boolean isDsfOnline = false;
+    public static boolean dsfOnline = false;
     public static Set<Class<?>> dsfQueuedTests = new HashSet<Class<?>>();
 
+    static Set<String> testGroups = new HashSet<String>();
     static Set<String> incompletedTests = new HashSet<String>();
     static Map<String,Result> completedTests = new HashMap<String,Result>();
+    static boolean init = initTests();
     
     static boolean initTests() {
+        dsfQueuedTests = new HashSet<Class<?>>();
+        testGroups = new HashSet<String>();
         incompletedTests = new HashSet<String>();
         completedTests = new HashMap<String,Result>();
 
         // If test property provided then just run comma-separated list 
         // of unqualified JpaTest subclasses in org.eclipse.gemini.jpa.tests
         String tests = System.getProperty(GEMINI_TEST_CLASSES, null);
-        if (tests != null) {
+        if (tests != null)
             incompletedTests.addAll(Arrays.asList(tests.split(",")));
-        } else {
-            // Enumerate the tests to run - Comment out tests to disable them.
-            // Each test is the name of a JpaTest subclass in the 
-            // org.eclipse.gemini.jpa.tests package
-            /*   */
-/*            incompletedTests.add("TestMongo");
-            incompletedTests.add("TestStaticPersistence");
-            incompletedTests.add("TestEMFService");
-            incompletedTests.add("TestEMFBuilderService");
-            incompletedTests.add("TestEMFBuilderServiceProperties");
-            incompletedTests.add("TestEMFBuilderExternalDataSource");
-            incompletedTests.add("TestEmbeddedPUnit");
-            incompletedTests.add("TestOrmMappingFile");
-            incompletedTests.add("TestMappingFileElement");
-            incompletedTests.add("TestEmptyPersistence");
-            incompletedTests.add("TestEmptyPersistenceWithProps");
-            incompletedTests.add("TestWeaving");
-            incompletedTests.add("TestEmbeddedJdbc");
-*/            incompletedTests.add("TestTempLoader");
-        }
+        // Otherwise just let the tests add their own 
         return true;
     }
     
-    public static void resetTests() { 
-        initTests(); 
+    public static boolean isDsfOnline() { return dsfOnline; }
+    public static void setDsfOnline(boolean value) { dsfOnline = value; }
+    
+    public static boolean isGroupRegistered(String group) { 
+        return testGroups.contains(group); 
     }
 
-    public static void startTest(String s) { 
+    public static void registerGroup(String group) { 
+        testGroups.add(group); 
+    }
+    
+    public static boolean isTested(String testName) { 
+        return !incompletedTests.contains(testName); 
+    }
+
+    public static void addTest(String testName) { 
+        incompletedTests.add(testName); 
+    }
+
+    public static void testStarted(String s) { 
         incompletedTests.remove(s);
     }
     
-    public static void completedTest(String s, Result r) { 
+    public static void testCompleted(String s, Result r) { 
         completedTests.put(s, r);
     }
 
@@ -93,20 +90,11 @@ public class TestState implements BundleActivator {
         return incompletedTests;
     }
 
-    public static boolean isTested(String s) { 
-        return !incompletedTests.contains(s); 
-    }
-
     public static Map<String,Result> getAllTestResults() { 
         return completedTests; 
     }
 
-    public void start(BundleContext context) throws Exception {
-        System.out.println("TestState active");
-		initTests();
-        System.out.println("Tests in run list: ");
-        System.out.println("" + incompletedTests);
+    public static void resetTests() { 
+        initTests(); 
     }
-
-    public void stop(BundleContext context) throws Exception {}
 }

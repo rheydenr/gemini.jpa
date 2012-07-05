@@ -12,7 +12,7 @@
  * Contributors:
  *     Eduard Bartsch - initial test class
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
+package org.eclipse.gemini.jpa.test.basic;
 
 
 import java.util.List;
@@ -23,33 +23,30 @@ import javax.persistence.EntityManagerFactory;
 
 import model.account.Account;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
-import org.eclipse.gemini.jpa.test.common.JpaTest;
-
-// import org.junit.*;
+import org.junit.*;
 
 /**
  * Test class to test creating multiple EMFs from a single builder
  * 
  * @author Eduard Bartsch
  */
-public class TestMultipleEMFCreation extends JpaTest {
+public class TestMultipleEMFCreation extends AccountTest {
         
     public static final String TEST_NAME = "TestMultipleEMFCreation";
     public static final String PERSISTENCE_UNIT_UNDER_TEST = "AccountsNoDataSource";
 
     protected static EntityManagerFactory emf1, emf2;
+    public static BundleContext ctx;
 
     /* === Test Methods === */
 
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);   
+        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);   
         slog(TEST_NAME, "Got EMFB - " + emfb);
 
         Map<String,Object> props = defaultProps();

@@ -12,7 +12,7 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
+package org.eclipse.gemini.jpa.test.xmlmapped;
 
 import java.util.List;
 
@@ -20,6 +20,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityManager;
 
 import model.xmlmapped.SimpleEntity;
+
+import org.osgi.framework.BundleContext;
 
 import org.junit.*;
 
@@ -36,13 +38,14 @@ public class TestOrmMappingFile extends JpaTest {
     public static final String PERSISTENCE_UNIT_UNDER_TEST = "XmlMapped";
 
     protected static EntityManagerFactory emf;
+    public static BundleContext ctx;
     
     /* === Test Methods === */
 
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         slog(TEST_NAME, "Got EMF - " + emf);
     }
 
@@ -81,4 +84,6 @@ public class TestOrmMappingFile extends JpaTest {
         em.close();
         return result;
     }
+    // Not used
+    public String queryString() { return null; }
 }

@@ -12,7 +12,7 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
+package org.eclipse.gemini.jpa.test.basic;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -22,14 +22,13 @@ import java.util.Properties;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.jdbc.DataSourceFactory;
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
 import org.junit.*;
-
-import org.eclipse.gemini.jpa.test.common.JpaTest;
 
 /**
  * Test class to test looking up EMF Builder Service from a client
@@ -38,26 +37,27 @@ import org.eclipse.gemini.jpa.test.common.JpaTest;
  * @author mkeith
  */
 @SuppressWarnings({"unchecked","rawtypes"})
-public class TestEMFBuilderExternalDataSource extends JpaTest {
+public class TestEMFBuilderExternalDataSource extends AccountTest {
 
     public static final String TEST_NAME = "TestEMFBuilderExternalDataSource";
     public static final String PERSISTENCE_UNIT_UNDER_TEST = "AccountsNoDataSource";
 
     public static EntityManagerFactory emf;
+    public static BundleContext ctx;
 
 	@BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         DataSource ds = null;
         try {
-			ServiceReference[] refs = context.getServiceReferences(
+			ServiceReference[] refs = ctx.getServiceReferences(
                     DataSourceFactory.class.getName(), "(osgi.jdbc.driver.class=" + JDBC_TEST_DRIVER + ")");
             if (refs == null) {
                 throw new RuntimeException("Failed looking up driver in registry");
             }
 
-            DataSourceFactory dsf = (DataSourceFactory)context.getService(refs[0]);        	
+            DataSourceFactory dsf = (DataSourceFactory) ctx.getService(refs[0]);        	
         	if (dsf == null) {
         	    throw new RuntimeException("Failed getting svc from DSF svc ref");
         	}

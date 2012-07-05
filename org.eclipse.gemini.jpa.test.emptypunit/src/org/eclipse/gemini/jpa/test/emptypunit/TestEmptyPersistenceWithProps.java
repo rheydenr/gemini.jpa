@@ -12,7 +12,7 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package org.eclipse.gemini.jpa.tests;
+package org.eclipse.gemini.jpa.test.emptypunit;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 
 import org.junit.*;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
 import org.eclipse.gemini.jpa.test.common.JpaTest;
@@ -35,13 +36,14 @@ public class TestEmptyPersistenceWithProps extends JpaTest {
     public static final String PERSISTENCE_UNIT_UNDER_TEST = "Empty2";
 
     public static EntityManagerFactory emf;
+    public static BundleContext ctx;
     
     /* === Test Methods === */
 
     @BeforeClass
     public static void classSetUp() {
         slog(TEST_NAME, "In setup");
-        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST);
+        EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         Map<String,Object> props = new HashMap<String,Object>();        
         emf = emfb.createEntityManagerFactory(props);
         slog(TEST_NAME, "Got EMF - " + emf);
@@ -70,4 +72,6 @@ public class TestEmptyPersistenceWithProps extends JpaTest {
     public Object newObject() { return null; }
     public Object findObject() { return null; }
     public Object queryObjects() { return null; }
+    // Not used
+    public String queryString() { return null; }
 }
