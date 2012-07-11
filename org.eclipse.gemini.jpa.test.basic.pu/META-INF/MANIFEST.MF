@@ -1,8 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Meta-Persistence: jpa1.xml, META-INF/jpa2.xml
-Require-Capability: osgi.extender;
- filter:="(&(osgi.extender=osgi.jpa)(version>=1.0))"
 Bundle-Name: Gemini JPA Basic Test Persistence Unit
 Bundle-SymbolicName: org.eclipse.gemini.jpa.test.basic.pu
 Bundle-Version: 1.1.0.qualifier

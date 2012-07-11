@@ -74,8 +74,6 @@ public class TestWeaving extends JpaTest {
     
     /* === Subclassed methods === */
 
-    // Dues to Lazy EMF creation, and the fact that we are never actually invoking  
-    // methods on the EMF, the real underlying provider EMF is never really created
     public boolean needsDsfService() { return false; }
 
     public EntityManagerFactory getEmf() { return emf; }
