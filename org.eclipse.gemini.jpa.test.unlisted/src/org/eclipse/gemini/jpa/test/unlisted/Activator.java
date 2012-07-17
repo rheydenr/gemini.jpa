@@ -29,12 +29,14 @@ public class Activator extends TestActivator {
     /* Overridden methods */
     /*====================*/
     
-    String[] classNames = { "TestUnlisted" };
+    String[] classNames = { "TestUnlisted1", "TestUnlisted2", "TestUnlisted3" };
     
     public String getTestGroupName() { return "Unlisted"; }
     public String getTestPackage() { return "org.eclipse.gemini.jpa.test.unlisted"; }
     public String[] getTestClasses() { return classNames; }
     public void setBundleContext(BundleContext ctx) { 
         TestUnlisted1.ctx = ctx;
+        TestUnlisted2.ctx = ctx;
+        TestUnlisted3.ctx = ctx;
     }
 }

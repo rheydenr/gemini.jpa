@@ -14,8 +14,10 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
@@ -220,5 +222,23 @@ public class PUnitInfo {
           .append((getDescriptorInfo()!=null) ? "\n  descriptorInfo: " + getDescriptorInfo() : "")
           .append((getTracker()!=null) ? "\n  DSF tracker: " + getTracker() : "");
        return sb.toString();
+    }
+    
+    public Map<String,Object> toMap() {
+        Map<String,Object> map = new HashMap<String,Object>();
+        map.put("unitName", unitName);
+        map.put("provider", provider);
+        map.put("classes", classes);
+        map.put("driverClassName", driverClassName);
+        map.put("driverUrl", driverUrl);
+        map.put("driverUser", driverUser);
+        map.put("driverUser", driverUser);
+        map.put("driverPassword", driverPassword);
+        map.put("driverVersion", driverVersion);
+        map.put("bundle", bundle);
+        map.put("assignedProvider", assignedProvider);
+        map.put("emfSetByBuilderService", emfSetByBuilderService);
+        map.put("descriptorInfo", descriptorInfo);
+        return map;
     }
 }

@@ -42,11 +42,11 @@ public class TestEmptyPersistenceWithProps extends JpaTest {
 
     @BeforeClass
     public static void classSetUp() {
-        slog(TEST_NAME, "In setup");
+        sdebug(TEST_NAME, "In setup");
         EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         Map<String,Object> props = new HashMap<String,Object>();        
         emf = emfb.createEntityManagerFactory(props);
-        slog(TEST_NAME, "Got EMF - " + emf);
+        sdebug(TEST_NAME, "Got EMF - " + emf);
     }
 
     @AfterClass
@@ -58,7 +58,7 @@ public class TestEmptyPersistenceWithProps extends JpaTest {
     }
 
     public void testPersisting() {
-        log("overridden testPersisting");
+        // override testPersisting
     }
 
     /* === Subclassed methods === */

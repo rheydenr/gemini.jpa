@@ -52,6 +52,8 @@ public abstract class JpaTest {
         return props;
     }
     
+    public static boolean debug = true;
+    
     /*==============================*/
     /* Methods *must* be subclassed */
     /*==============================*/
@@ -91,51 +93,51 @@ public abstract class JpaTest {
     
     @Test
     public void testGettingEntityManager() {
-        log("testGettingEntityManager");
+        debug("testGettingEntityManager");
         EntityManager em = getEmf().createEntityManager();
-        log("Got EM - " + em);
+        debug("Got EM - " + em);
     }
 
     @Test
     public void testPersisting() {
-        log("testPersisting");
+        debug("testPersisting");
         EntityManager em = getEmf().createEntityManager();
         Object obj = newObject();
         em.getTransaction().begin();
-        log("testPersisting - tx begun");
+        debug("testPersisting - tx begun");
         try {
             em.persist(obj);
         } catch (Exception e) {
             log("Error calling persist(): ");
             e.printStackTrace(System.out);
         }
-        log("testPersisting - tx committing");
+        debug("testPersisting - tx committing");
         em.getTransaction().commit();
         em.close();
-        log("Persisted " + obj);
+        debug("Persisted " + obj);
     }
     
     @Test
     public void testFinding() {
-        log("testFinding");
-        log("Find returned - " + findObject());
+        debug("testFinding");
+        debug("Find returned - " + findObject());
     }
 
     @Test
     public void testQuerying() {
-        log("testQuerying");
-        log("Query returned - " + queryObjects());
+        debug("testQuerying");
+        debug("Query returned - " + queryObjects());
     }
 
     @Test
     public void testGettingMetamodel() {
-        log("testGettingMetamodel");
+        debug("testGettingMetamodel");
         EntityManager em = getEmf().createEntityManager();
         Set<EntityType<?>> s = em.getMetamodel().getEntities();
         for (EntityType<?> et : s) {
-            log("Managed Entity name: " + et.getName());
-            log("Managed Entity class: " + et.getJavaType());
-            log("Classloader: " + et.getJavaType().getClassLoader());
+            debug("Managed Entity name: " + et.getName());
+            debug("Managed Entity class: " + et.getJavaType());
+            debug("Classloader: " + et.getJavaType().getClassLoader());
         }
     }
     
@@ -143,6 +145,8 @@ public abstract class JpaTest {
     /* Helper methods */
     /*================*/
 
+    public static boolean getDebug() { return debug; }
+    
     public static EntityManagerFactory lookupEntityManagerFactory(String testName, String puName, BundleContext ctx) {
         String filter = "(osgi.unit.name="+puName+")";
         ServiceReference[] refs = null;
@@ -151,7 +155,7 @@ public abstract class JpaTest {
         } catch (InvalidSyntaxException isEx) {
             new RuntimeException("Bad filter", isEx);
         }
-        slog(testName, "EMF Service refs looked up from registry: " + refs);
+        sdebug(testName, "EMF Service refs looked up from registry: " + refs);
         return (refs == null)
             ? null
             : (EntityManagerFactory) ctx.getService(refs[0]);
@@ -165,16 +169,26 @@ public abstract class JpaTest {
         } catch (InvalidSyntaxException isEx) {
             new RuntimeException("Bad filter", isEx);
         }
-        slog(testName, "EMF Builder Service refs looked up from registry: " + refs);
+        sdebug(testName, "EMF Builder Service refs looked up from registry: " + refs);
         return (refs == null)
             ? null
             : (EntityManagerFactoryBuilder) ctx.getService(refs[0]);
     }
 
-    public static void slog(String testName, String msg) {
-        System.out.println("***** " + testName + " - " + msg);
-    }    
-    public void log(String msg) {
-        System.out.println("***** " + this.getClass().getSimpleName() + " - " + msg);
-    }    
+    public static void sdebug(String msg) { if (getDebug()) slog(msg); }
+    public static void sdebug(String testName, String msg) { if (getDebug()) slog(testName, msg); } 
+    public static void slog(String msg) { out("***** - ", msg); }
+    public static void slog(String testName, String msg) { out("***** ",testName," - ",msg); }
+    public static void out(String... msgs) {
+        for (String msg : msgs) 
+            System.out.print(msg);
+        System.out.println();
+    }
+    
+    public void debug(String msg) { if (getDebug()) log(msg); }
+    public void log(String msg) { out("***** ", this.getClass().getSimpleName(), " - ", msg); }
+
+    public Map<String,Object> getPUnitInfo() {
+        return (Map<String,Object>) getEmf().getProperties().get("PUnitInfo");
+    }
 }

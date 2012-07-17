@@ -37,9 +37,9 @@ public class TestStaticPersistence extends AccountTest {
 
     @BeforeClass
     public static void classSetUp() {
-        slog(TEST_NAME, "In setup");
+        sdebug(TEST_NAME, "In setup");
         emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_UNDER_TEST);
-        slog(TEST_NAME, "Got EMF - " + emf);
+        sdebug(TEST_NAME, "Got EMF - " + emf);
     }
 
     @AfterClass

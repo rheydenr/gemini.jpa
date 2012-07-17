@@ -71,7 +71,7 @@ public class TestActivator implements BundleActivator, ServiceTrackerCustomizer 
 	
     public void start(BundleContext context) throws Exception {
         // Method is called within the context of an inheriting test bundle
-        log("Starting " + getTestGroupName() + " tests.");
+        sdebug(getTestGroupName(), "test group starting");
         ctx = context;
         this.setBundleContext(context);
                 
@@ -87,17 +87,17 @@ public class TestActivator implements BundleActivator, ServiceTrackerCustomizer 
         }
         // Now [re]load the classes in this bundle since we have just been started (and may have been refreshed)
         for (String testName : this.getTestClasses()) {
+            String fqTestName = this.getTestPackage() + "." + testName;
             try {
                 Class<? extends JpaTest> testClass = (Class<? extends JpaTest>)
-                            ctx.getBundle().loadClass(this.getTestPackage() + "." + testName);
+                            ctx.getBundle().loadClass(fqTestName);
                 // Create an instance of the class
                 JpaTest test = null;
                 test = testClass.newInstance();
                 // Store the instance against the class
                 testClasses.put(testClass, test);
-                log("TestClasses: " + testClasses.keySet());
             } catch (ClassNotFoundException cnfEx) {
-                log("***************** Failed trying to load test class: " + cnfEx);
+                slog("***************** Failed trying to load test class " + fqTestName + ": " + cnfEx);
             }   
         }
         // Tracker event will cause tests to run when service is online
@@ -107,7 +107,7 @@ public class TestActivator implements BundleActivator, ServiceTrackerCustomizer 
     }
 
     public void stop(BundleContext context) throws Exception {
-        log("Stopping " + getTestGroupName() + " tests.");
+        sdebug(getTestGroupName(), "test group stopping");
         emfbTracker.close();
         emfTracker.close();
         dsfTracker.close();
@@ -133,29 +133,20 @@ public class TestActivator implements BundleActivator, ServiceTrackerCustomizer 
     void runTest(Class<? extends JpaTest> testClass) {
         String testName = testClass.getSimpleName();
         TestState.testStarted(testName);
-        log("Running " + testName + ": ");
+        sdebug(testName, "running");
         // Invoke JUnit to run the test
         Result r = JUnitCore.runClasses(testClass);
-        log(testName + " results: ");
-        logResultStats(r);
         TestState.testCompleted(testName, r);
-        log("Done " + testName);
+        sdebug(testName, "done");
 		TestState.getAllTestResults().put(testName, r);
 		// Remove from our local list of classes
 		testClasses.remove(testClass);
 
         if (!testClasses.isEmpty()) {
-            System.out.println("------------------- " + this.getTestGroupName() + " Tests not run yet: " + testClasses.values());
+            sdebug(this.getTestGroupName(), "Tests not run yet: " + testClasses.values());
         } else {
             // If no more tests to run, print out a summary
-            System.out.println("-----------------------------------------------------"); 
-            System.out.println("---------- " + getTestGroupName() + " tests complete." + " ----------"); 
-            System.out.println("-----------------------------------------------------"); 
-            Set<Map.Entry<String,Result>> results = TestState.getAllTestResults().entrySet();
-            for (Map.Entry<String,Result> entry : results) {
-                System.out.println("Test: " + entry.getKey()); 
-                logResultStats(entry.getValue()); 
-            }
+            logGroupSummary();
         }
     }
 
@@ -169,14 +160,14 @@ public class TestActivator implements BundleActivator, ServiceTrackerCustomizer 
         // Check to see if it is a DSF (and the Client driver)
         String driverClassName = (String) ref.getProperty(DataSourceFactory.OSGI_JDBC_DRIVER_CLASS);
         if ((driverClassName != null) && (driverClassName.equals(JpaTest.JDBC_TEST_DRIVER))) {
-            log("Service added **** DataSourceFactory for " + driverClassName);
+            sdebug("Service added", "DataSourceFactory for " + driverClassName);
 			TestState.setDsfOnline(true);
             // Now go through the pending dsf queue and run the tests
-            log("**** Running queued tests");
+			sdebug("Running queued tests", "");
             for (Class cls : TestState.dsfQueuedTests) {
                 runTest((Class<? extends JpaTest>)cls);
             }
-            log("**** Finished running queued tests");
+            sdebug("Finished running queued tests", "");
             TestState.dsfQueuedTests.clear();
         } else {
             // Check if it is JPA service (EMF or EMFB)
@@ -184,7 +175,7 @@ public class TestActivator implements BundleActivator, ServiceTrackerCustomizer 
             if (unitName != null) {
                 // We have a JPA service. Is it an EMF or an EMFBuilder?
                 boolean isEmfService = EntityManagerFactory.class.isInstance(service);                
-                log("Service added **** name=" + unitName + " EMF" + (isEmfService ? "" : "Builder"));
+                sdebug("Service added", "name=" + unitName + " EMF" + (isEmfService ? "" : "Builder"));
 
                 // Now ask each test if it should run based on the punit name and whether 
                 // the service is an EMF or an EMFBuilder. Note that more than one test 
@@ -219,17 +210,30 @@ public class TestActivator implements BundleActivator, ServiceTrackerCustomizer 
     /* Logging methods */
     /*=================*/
 
+    void logGroupSummary() {
+        slog("-----------------------------------------------------"); 
+        slog("---------- " + getTestGroupName() + " tests complete." + " ----------"); 
+        slog("-----------------------------------------------------"); 
+        Set<Map.Entry<String,Result>> results = TestState.getAllTestResults().entrySet();
+        for (Map.Entry<String,Result> entry : results) {
+            slog("Test: " + entry.getKey()); 
+            logResultStats(entry.getValue()); 
+        }
+    }
     void logResultStats(Result r) {
-        log("Result: " + 
+        slog("Result: " + 
                 " runs=" + r.getRunCount() + 
                 " failures=" + r.getFailureCount() +
                 " ignore=" + r.getIgnoreCount());        
-        log("Failures: " + r.getFailures());
+        slog("Failures: " + r.getFailures());
         for (Failure f : r.getFailures())
-            log("--- Failure: \n" + f.getTrace());
+            slog("--- Failure: \n" + f.getTrace());
     }
     
-    static void log(String msg) {
-        System.out.println("===== " + msg);
+    static void slog(String msg) {
+        JpaTest.slog(msg);
+    }    
+    static void sdebug(String testName, String msg) {
+        JpaTest.sdebug(testName, msg);
     }    
 }

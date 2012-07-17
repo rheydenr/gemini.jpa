@@ -26,7 +26,7 @@ import model.unlisted.*;
 import org.eclipse.gemini.jpa.test.common.JpaTest;
 
 /**
- * Test class to test weaving of JPA provider
+ * Test class to test unlisted entities
  * 
  * @author mkeith
  */
@@ -42,9 +42,9 @@ public class TestUnlisted1 extends JpaTest {
 
     @BeforeClass
     public static void classSetUp() {
-        slog(TEST_NAME, "In setup");
+        sdebug(TEST_NAME, "In setup");
         emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
-        slog(TEST_NAME, "Got EMF - " + emf);        
+        sdebug(TEST_NAME, "Got EMF - " + emf);        
     }
 
     @AfterClass
@@ -58,7 +58,8 @@ public class TestUnlisted1 extends JpaTest {
     /* === Additional test methods === */
     @Test
     public void testUnlistedEntities() {
-        log("testUnlisted");
+        debug("testUnlisted");
+        debug("testing PUnitInfo: " + getPUnitInfo());
     }
     
     /* === Subclassed methods === */

@@ -52,12 +52,12 @@ public class TestMongo extends JpaTest {
 
     @BeforeClass
     public static void classSetUp() {
-        slog(TEST_NAME, "In setup");
+        sdebug(TEST_NAME, "In setup");
         emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         Map<String,Object> props = new HashMap<String,Object>();        
         props.put("gemini.jpa.providerConnectedDataSource", true);
         emf = emfb.createEntityManagerFactory(props);
-        slog(TEST_NAME, "Got EMFB - " + emfb);
+        sdebug(TEST_NAME, "Got EMFB - " + emfb);
     }
 
     @AfterClass
@@ -70,9 +70,9 @@ public class TestMongo extends JpaTest {
 
     @Test
     public void testConnecting() {
-        slog(TEST_NAME, "testConnecting creating EM ");
+        debug("testConnecting creating EM ");
         EntityManager em = emf.createEntityManager();
-        slog(TEST_NAME, "Closing EM");
+        debug("Closing EM");
         em.close();
     }
         

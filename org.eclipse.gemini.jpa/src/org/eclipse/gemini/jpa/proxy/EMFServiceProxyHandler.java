@@ -58,8 +58,7 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
             return this.hashCode();
         if (method.getName().equals("toString"))
             return this.toString();
-        
-        
+                
         /*===========================================================================*/
         /* ** NOTE: What if the provider supports multiple EMFs for the same punit?  */
         /*          Should we ignore the cache and just call the provider each time? */
@@ -71,6 +70,14 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
                                                             new HashMap<String,Object>());
         // Invoke the EMF method that was called
         Object result = method.invoke(emf, args);
+        
+        // If it was a getProperties() method then add in a PUnitInfo entry
+        if (method.getName().equals("getProperties")) {
+            Map<String,Object> resultMap = new HashMap<String,Object>();
+            resultMap.putAll((Map<String,Object>)result);
+            resultMap.put("PUnitInfo", pUnitInfo.toMap());
+            result = resultMap;
+        }
         
         // If the operation was to close the EMF then chuck our reference away
         if (!emf.isOpen()) {
@@ -130,5 +137,5 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
         if (result == null)
             fatalError("Proxy could not create EMF " + unitName + " from provider " + provider, null);
         return result;
-    }
+    }    
 }        

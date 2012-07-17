@@ -47,11 +47,11 @@ public class TestDriverVersion extends JpaTest {
 
     @BeforeClass
     public static void classSetUp() {
-        slog(TEST_NAME, "In setup");
+        sdebug(TEST_NAME, "In setup");
         emfb1 = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         Map<String,Object> props = new HashMap<String,Object>();        
         emf1 = emfb1.createEntityManagerFactory(props);
-        slog(TEST_NAME, "Got EMF-1 - " + emf1);
+        sdebug(TEST_NAME, "Got EMF-1 - " + emf1);
 
         emfb2 = lookupEntityManagerFactoryBuilder(TEST_NAME, PUNIT_2, ctx);
     }
@@ -71,7 +71,7 @@ public class TestDriverVersion extends JpaTest {
     @Test
     public void testDriverVersionIncludedInDescriptor() {
         // Don't yet know how to test this apart from checking the logs for DSF properties
-        log("emf1 is " + emf1);
+        debug("emf1 is " + emf1);
     }
 
     @Test
@@ -80,8 +80,7 @@ public class TestDriverVersion extends JpaTest {
         Map<String,Object> props = defaultProps();        
         props.put("osgi.jdbc.driver.version", "4.0");
         emf2 = emfb2.createEntityManagerFactory(props);
-        slog(TEST_NAME, "Got EMF-2 - " + emf2);
-        log("emf2 is " + emf2);
+        debug("emf2 is " + emf2);
     }
 
     public void testPersisting() {

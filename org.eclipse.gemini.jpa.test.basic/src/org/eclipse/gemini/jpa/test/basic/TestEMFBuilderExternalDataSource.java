@@ -47,7 +47,7 @@ public class TestEMFBuilderExternalDataSource extends AccountTest {
 
 	@BeforeClass
     public static void classSetUp() {
-        slog(TEST_NAME, "In setup");
+	    sdebug(TEST_NAME, "In setup");
         EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         DataSource ds = null;
         try {
@@ -78,7 +78,7 @@ public class TestEMFBuilderExternalDataSource extends AccountTest {
         props.put("javax.persistence.nonJtaDataSource", ds);
         
         emf = emfb.createEntityManagerFactory(props);
-        slog(TEST_NAME, "Got EMF - " + emf);
+        sdebug(TEST_NAME, "Got EMF - " + emf);
     }
 
     @AfterClass

@@ -45,9 +45,9 @@ public class TestMultipleEMFCreation extends AccountTest {
 
     @BeforeClass
     public static void classSetUp() {
-        slog(TEST_NAME, "In setup");
+        sdebug(TEST_NAME, "In setup");
         EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);   
-        slog(TEST_NAME, "Got EMFB - " + emfb);
+        sdebug(TEST_NAME, "Got EMFB - " + emfb);
 
         Map<String,Object> props = defaultProps();
         
@@ -56,24 +56,24 @@ public class TestMultipleEMFCreation extends AccountTest {
         props.put("eclipselink.session-name", "db1");
 
         // Create EMF 1
-        slog(TEST_NAME, "EMF-1 props" + props);
+        sdebug(TEST_NAME, "EMF-1 props" + props);
         emf1 = emfb.createEntityManagerFactory(props);
-        slog(TEST_NAME, "Got EMF-1 - " + emf1);
+        sdebug(TEST_NAME, "Got EMF-1 - " + emf1);
 
         EntityManager em1 = emf1.createEntityManager();
-        slog(TEST_NAME, "Got EM from EMF-1 - " + em1);
+        sdebug(TEST_NAME, "Got EM from EMF-1 - " + em1);
 
         // Props for EMF 2
         props.put("javax.persistence.jdbc.url","jdbc:derby://localhost:1527/secondDB;create=true");
         props.put("eclipselink.session-name", "db2");
 
         // Create EMF 2
-        slog(TEST_NAME, "EMF-2 props" + props);
+        sdebug(TEST_NAME, "EMF-2 props" + props);
         EntityManagerFactory emf2 = emfb.createEntityManagerFactory(props);
-        slog(TEST_NAME, "Got EMF-2 - " + emf2);
+        sdebug(TEST_NAME, "Got EMF-2 - " + emf2);
 
         EntityManager em2 = emf2.createEntityManager();
-        slog(TEST_NAME, "Got EM from EMF-2 - " + em2);
+        sdebug(TEST_NAME, "Got EM from EMF-2 - " + em2);
 
         em1.getTransaction().begin();
         em1.persist(new Account());

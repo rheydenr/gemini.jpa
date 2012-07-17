@@ -43,10 +43,10 @@ public class TestEmptyPersistence extends JpaTest {
 
     @BeforeClass
     public static void classSetUp() {
-        slog(TEST_NAME, "In setup");
+        sdebug(TEST_NAME, "In setup");
         EntityManagerFactoryBuilder emfb = lookupEntityManagerFactoryBuilder(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
         emf = emfb.createEntityManagerFactory(JpaTest.defaultProps());
-        slog(TEST_NAME, "Got EMF - " + emf);
+        sdebug(TEST_NAME, "Got EMF - " + emf);
     }
 
     @AfterClass
@@ -58,7 +58,7 @@ public class TestEmptyPersistence extends JpaTest {
     }
 
     public void testPersisting() {
-        log("overridden testPersisting");
+        // override testPersisting
     }
 
     /* === Subclassed methods === */

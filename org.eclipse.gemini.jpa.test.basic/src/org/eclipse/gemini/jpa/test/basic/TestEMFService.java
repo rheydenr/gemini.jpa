@@ -36,9 +36,9 @@ public class TestEMFService extends AccountTest {
 
     @BeforeClass
     public static void classSetUp() {
-        slog(TEST_NAME, "In setup");
+        sdebug(TEST_NAME, "In setup");
         emf = lookupEntityManagerFactory(TEST_NAME, PERSISTENCE_UNIT_UNDER_TEST, ctx);
-        slog(TEST_NAME, "Got EMF - " + emf);
+        sdebug(TEST_NAME, "Got EMF - " + emf);
     }
 
     @AfterClass
