@@ -188,7 +188,8 @@ public abstract class JpaTest {
     public void debug(String msg) { if (getDebug()) log(msg); }
     public void log(String msg) { out("***** ", this.getClass().getSimpleName(), " - ", msg); }
 
-    public Map<String,Object> getPUnitInfo() {
+    // Method used during testing to obtain Gemini p-unit configuration information
+    public Map<String,Object> getPUnitConfigInfo() {
         return (Map<String,Object>) getEmf().getProperties().get("PUnitInfo");
     }
 }

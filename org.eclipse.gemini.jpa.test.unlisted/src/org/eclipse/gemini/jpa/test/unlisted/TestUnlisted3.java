@@ -55,8 +55,6 @@ public class TestUnlisted3 extends JpaTest {
         }
     }
 
-    /* === Additional test methods === */
-    
     /* === Subclassed methods === */
 
     public boolean needsDsfService() { return false; }

@@ -54,13 +54,6 @@ public class TestUnlisted1 extends JpaTest {
             emf = null;
         }
     }
-
-    /* === Additional test methods === */
-    @Test
-    public void testUnlistedEntities() {
-        debug("testUnlisted");
-        debug("testing PUnitInfo: " + getPUnitInfo());
-    }
     
     /* === Subclassed methods === */
 

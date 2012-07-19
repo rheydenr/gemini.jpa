@@ -54,8 +54,6 @@ public class TestUnlisted2 extends JpaTest {
             emf = null;
         }
     }
-
-    /* === Additional test methods === */
     
     /* === Subclassed methods === */
 
