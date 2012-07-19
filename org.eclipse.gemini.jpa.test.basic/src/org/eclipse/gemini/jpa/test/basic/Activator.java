@@ -34,7 +34,8 @@ public class Activator extends TestActivator {
             "TestEMFBuilderServiceProperties",
             "TestEMFBuilderExternalDataSource",
             "TestMultipleEMFCreation",
-            "TestStaticPersistence" 
+            "TestStaticPersistence",
+            "TestUserClassLoaderProperty"
     };
 
     public String getTestGroupName() { return "Basic"; }
@@ -47,5 +48,6 @@ public class Activator extends TestActivator {
         TestEMFBuilderExternalDataSource.ctx = ctx;
         TestMultipleEMFCreation.ctx = ctx;
         TestStaticPersistence.ctx = ctx;
+        TestUserClassLoaderProperty.ctx = ctx;
     }
 }

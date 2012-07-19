@@ -283,19 +283,36 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         PUnitInfo pUnitInfo = pUnitsByName.get(emName);
         if (pUnitInfo == null)
             fatalError("createEntityManagerFactory() called on provider, but provider has not registered the p-unit " + emName, null);
+
         Map<String,Object> props = new HashMap<String,Object>();
         props.putAll(properties);
-        props.put(PersistenceUnitProperties.CLASSLOADER, compositeLoader(pUnitInfo));
+        
+        // Create a composite loader that loads from the punit bundle and the provider bundle
+        CompositeClassLoader compositeLoader = compositeLoader(pUnitInfo);
+        // Bug 385170 - If user supplies a classloader then tack it on the front
+        if (props.containsKey(PersistenceUnitProperties.CLASSLOADER)) {
+            ClassLoader userLoader = (ClassLoader) props.get(PersistenceUnitProperties.CLASSLOADER);
+            compositeLoader.getClassLoaders().add(0, userLoader);
+        }
+        props.put(PersistenceUnitProperties.CLASSLOADER, compositeLoader);
+
         DataSource ds = acquireDataSource(pUnitInfo, properties);
         if (ds != null) 
             props.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, ds);
+        
         props.put(PersistenceUnitProperties.ECLIPSELINK_PERSISTENCE_XML, fullDescriptorPath(pUnitInfo));
+
         props.put(GeminiOSGiInitializer.OSGI_BUNDLE, pUnitInfo.getBundle());
         
         EntityManagerFactory emf = eclipseLinkProvider.createEntityManagerFactory(emName, props);
         return emf;
     }
 
+    /**
+     * NOTE: This method is not supported or tested.
+     * An effort is made to try anyway, though, rather than just error out.
+     * (Worst that can happen is it doesn't work).
+     */
     public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map properties) {
 
         String pUnitName = info.getPersistenceUnitName();
@@ -326,11 +343,11 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
     /* Helper methods */
     /*================*/
 
-    protected ClassLoader compositeLoader(PUnitInfo pUnitInfo) {
+    protected CompositeClassLoader compositeLoader(PUnitInfo pUnitInfo) {
         return compositeLoader(getBundleContext(), pUnitInfo.getBundle());
     }
 
-    protected ClassLoader compositeLoader(BundleContext providerCtx, Bundle pUnitBundle) {
+    protected CompositeClassLoader compositeLoader(BundleContext providerCtx, Bundle pUnitBundle) {
         ClassLoader pUnitLoader = new BundleProxyClassLoader(pUnitBundle);
         debugClassLoader("PUnit bundle proxy loader created: ", pUnitLoader);
         ClassLoader providerLoader = new BundleProxyClassLoader(providerCtx.getBundle());
@@ -338,7 +355,7 @@ public class EclipseLinkOSGiProvider implements BundleActivator,
         List<ClassLoader> loaders = new ArrayList<ClassLoader>();
         loaders.add(pUnitLoader);
         loaders.add(providerLoader);
-        ClassLoader compositeLoader = new CompositeClassLoader(loaders);
+        CompositeClassLoader compositeLoader = new CompositeClassLoader(loaders);
         debugClassLoader("Composite loader created: ", compositeLoader);
         return compositeLoader;
     }
