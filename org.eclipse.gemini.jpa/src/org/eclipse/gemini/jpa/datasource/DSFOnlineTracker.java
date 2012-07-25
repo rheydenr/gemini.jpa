@@ -12,39 +12,46 @@
  * Contributors:
  *     mkeith - Gemini JPA work 
  ******************************************************************************/
-package org.eclipse.gemini.jpa;
+package org.eclipse.gemini.jpa.datasource;
 
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
+import org.eclipse.gemini.jpa.PUnitInfo;
+import org.eclipse.gemini.jpa.GeminiUtil;
+
 /**
- *  Detect when an existing DataSourceFactory service goes offline.
- *  Created and started when a registered DSF service was discovered 
+ *  Detect when a new DataSourceFactory service comes online.
+ *  Created and started when no DSF service was found to be registered
  *  at EMF service registration time.
  */
 @SuppressWarnings("rawtypes")
-public class DSFOfflineTracker implements ServiceTrackerCustomizer {
+public class DSFOnlineTracker implements ServiceTrackerCustomizer {
 
     // The unit this tracker belongs to
     private PUnitInfo pUnitInfo;
-    
-    // The util to notify when the service goes away
-    private GeminiServicesUtil servicesUtil;
 
-    public DSFOfflineTracker(PUnitInfo pUnitInfo, GeminiServicesUtil servicesUtil) {
+    // The util to notify when the service comes online 
+    private DataSourceUtil dataSourceUtil;
+
+    public DSFOnlineTracker(PUnitInfo pUnitInfo,
+                            DataSourceUtil dataSourceUtil) {
         this.pUnitInfo = pUnitInfo;
-        this.servicesUtil = servicesUtil;
+        this.dataSourceUtil = dataSourceUtil;
     }
     
+    @Override
     public Object addingService(ServiceReference ref) {
-        GeminiUtil.debug("OfflineTracker.addingService - ignoring service ", ref);
+        GeminiUtil.debug("OnlineTracker.addingService - ", ref);
+        dataSourceUtil.dataSourceFactoryOnline(pUnitInfo, ref);
         return null;
     }
 
+    @Override
     public void modifiedService(ServiceReference ref, Object service) {}
 
+    @Override
     public void removedService(ServiceReference ref, Object service) {
-        GeminiUtil.debug("OfflineTracker.removingService ", ref);
-        servicesUtil.dataSourceFactoryOffline(pUnitInfo, ref);
+        GeminiUtil.debug("OnlineTracker.removingService - ignoring service ", ref);
     }
 }

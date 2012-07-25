@@ -18,6 +18,10 @@ import java.util.Map;
 
 import org.eclipse.persistence.internal.jpa.deployment.JPAInitializer;
 
+/**
+ * Create a subclass of the EclipseLink provider so that Gemini JPA has 
+ * a way of hooking in its own initializer.
+ */
 @SuppressWarnings({"rawtypes"})
 public class PersistenceProvider extends org.eclipse.persistence.jpa.PersistenceProvider {
     
@@ -31,6 +35,7 @@ public class PersistenceProvider extends org.eclipse.persistence.jpa.Persistence
      * @param m
      * @return
      */
+    @Override
     public JPAInitializer getInitializer(String emName, Map m){
         ClassLoader classLoader = getClassLoader(emName, m);
         return createInitializer(classLoader, m);

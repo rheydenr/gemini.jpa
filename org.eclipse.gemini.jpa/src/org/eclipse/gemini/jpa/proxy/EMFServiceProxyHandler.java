@@ -45,6 +45,7 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
     /*=========================*/
     
     // Will only get calls for the methods on the EntityManagerFactory interface
+    @SuppressWarnings({"unchecked"})
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
         debug("EMFProxy invocation on method ", method.getName());

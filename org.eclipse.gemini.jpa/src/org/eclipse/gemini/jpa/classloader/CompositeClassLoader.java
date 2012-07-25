@@ -24,33 +24,47 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+
 public class CompositeClassLoader extends ClassLoader {
+
     private List<ClassLoader> classLoaders = new ArrayList<ClassLoader>();
     
     /**
-     * Create a CompositeClassLoader with two class loaders.
-     * 
-     * @param loader1
-     * @param loader2
+     * Return a class loader that will delegate to both the punit bundle 
+     * and the provider bundle 
+     */
+    public static CompositeClassLoader createCompositeLoader(BundleContext providerCtx, Bundle pUnitBundle) {
+        ClassLoader pUnitLoader = new BundleProxyClassLoader(pUnitBundle);
+        debugClassLoader("PUnit bundle proxy loader created: ", pUnitLoader);
+        ClassLoader providerLoader = new BundleProxyClassLoader(providerCtx.getBundle());
+        debugClassLoader("Provider bundle proxy loader created: ", providerLoader);
+        List<ClassLoader> loaders = new ArrayList<ClassLoader>();
+        loaders.add(pUnitLoader);
+        loaders.add(providerLoader);
+        CompositeClassLoader compositeLoader = new CompositeClassLoader(loaders);
+        debugClassLoader("Composite loader created: ", compositeLoader);
+        return compositeLoader;
+    }
+    
+    /**
+     *  Create a CompositeClassLoader with two class loaders 
      */
     public CompositeClassLoader(ClassLoader loader1, ClassLoader loader2) {
         classLoaders.add(loader1);
         classLoaders.add(loader2);
     }
 
-    /**
-     * Create a CompositeClassLoader from a list of class loaders.
-     * 
-     * @param loaders
+    /** 
+     * Create a CompositeClassLoader from a list of class loaders 
      */
     public CompositeClassLoader(List<ClassLoader> loaders) {
         classLoaders.addAll(loaders);
     }
 
-    /**
-     * Get the contained class loaders.
-     * 
-     * @return the list of the contained class loaders
+    /** 
+     * Get the contained class loaders 
      */
     public List<ClassLoader> getClassLoaders() {
         return classLoaders;
@@ -60,8 +74,6 @@ public class CompositeClassLoader extends ClassLoader {
      * Sets the default assertion status for this class loader to
      * <tt>false</tt> and discards any package defaults or class assertion
      * on all contained class loaders.
-     * 
-     * @see  ClassLoader#clearAssertionStatus()
      */
     @Override
     public synchronized void clearAssertionStatus() {
@@ -74,8 +86,6 @@ public class CompositeClassLoader extends ClassLoader {
      * Finds the resource with the given name.  Contained class 
      * loaders are queried until one returns the requested
      * resource or <tt>null</tt> if not found. 
-     * 
-     * @see  ClassLoader#getResource(String)
      */
     @Override
     public URL getResource(String name) {
@@ -94,8 +104,6 @@ public class CompositeClassLoader extends ClassLoader {
      * Returns an input stream for reading the specified resource.
      * Contained class loaders are queried until one returns the 
      * requested resource stream or <tt>null</tt> if not found.
-     * 
-     * @see  ClassLoader#getResourceAsStream(String)
      */ 
     @Override
     public InputStream getResourceAsStream(String name) {
@@ -114,11 +122,6 @@ public class CompositeClassLoader extends ClassLoader {
      * Finds all the resources with the given name. Contained class 
      * loaders are queried and the results aggregated into a single
      * Enumeration.
-     * 
-     * @throws  IOException
-     *          If I/O errors occur
-     *          
-     * @see  ClassLoader#getResources(String)
      */
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
@@ -138,11 +141,6 @@ public class CompositeClassLoader extends ClassLoader {
      * Loads the class with the specified <a href="#name">binary name</a>.
      * Contained class loaders are queried until one returns the 
      * requested class.
-     * 
-     * @see  ClassLoader#loadClass(String)
-     * 
-     * @throws  ClassNotFoundException
-     *          If the class was not found
      */
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
@@ -160,8 +158,6 @@ public class CompositeClassLoader extends ClassLoader {
 
     /** 
      * Sets the desired assertion status for the named top-level class.
-     * 
-     * @see  ClassLoader#setClassAssertionStatus(String, boolean)
      */
     @Override
     public synchronized void setClassAssertionStatus(String className,
@@ -173,8 +169,6 @@ public class CompositeClassLoader extends ClassLoader {
 
     /**
      * Sets the default assertion status for this class loader. 
-     * 
-     * @see  ClassLoader#setDefaultAssertionStatus(boolean)
      */
     @Override
     public synchronized void setDefaultAssertionStatus(boolean enabled) {
@@ -185,8 +179,6 @@ public class CompositeClassLoader extends ClassLoader {
 
     /**
      * Sets the package default assertion status for the named package.
-     * 
-     * @see  ClassLoader#setPackageAssertionStatus(String,boolean)
      */
     @Override
     public synchronized void setPackageAssertionStatus(String packageName,
@@ -194,8 +186,5 @@ public class CompositeClassLoader extends ClassLoader {
         for (ClassLoader classLoader : getClassLoaders()) {
             classLoader.setPackageAssertionStatus(packageName, enabled);
         }
-    }
-    
-    
-    
+    }    
 }

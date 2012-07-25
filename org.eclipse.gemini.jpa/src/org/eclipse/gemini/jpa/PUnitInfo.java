@@ -22,7 +22,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.eclipse.gemini.jpa.provider.OSGiJpaProvider;
+import org.eclipse.gemini.jpa.provider.EclipseLinkOSGiProvider;
 import org.eclipse.gemini.jpa.proxy.EMFBuilderServiceProxyHandler;
 import org.eclipse.gemini.jpa.proxy.EMFServiceProxyHandler;
 import org.eclipse.gemini.jpa.xml.PersistenceDescriptorHandler;
@@ -48,7 +48,7 @@ public class PUnitInfo {
      * The provider servicing this p-unit - set by extender
      * @see PersistenceBundleExtender 
      */
-    OSGiJpaProvider assignedProvider;
+    EclipseLinkOSGiProvider assignedProvider;
     
     /** 
      * Info about the persistence descriptor this data came from - set by bundleUtil
@@ -130,8 +130,8 @@ public class PUnitInfo {
     public Bundle getBundle() { return bundle; }
     public void setBundle(Bundle b) { this.bundle = b; }
     
-    public OSGiJpaProvider getAssignedProvider() { return assignedProvider; }
-    public void setAssignedProvider(OSGiJpaProvider p) { this.assignedProvider = p; }
+    public EclipseLinkOSGiProvider getAssignedProvider() { return assignedProvider; }
+    public void setAssignedProvider(EclipseLinkOSGiProvider p) { this.assignedProvider = p; }
 
     public PersistenceDescriptorInfo getDescriptorInfo() { return descriptorInfo; }
     public void setDescriptorInfo(PersistenceDescriptorInfo info) { this.descriptorInfo = info; }

@@ -12,7 +12,7 @@
  * Contributors:
  *     mkeith - Gemini JPA work 
  ******************************************************************************/
-package org.eclipse.gemini.jpa;
+package org.eclipse.gemini.jpa.datasource;
 
 import java.io.PrintWriter;
 import java.sql.Connection;

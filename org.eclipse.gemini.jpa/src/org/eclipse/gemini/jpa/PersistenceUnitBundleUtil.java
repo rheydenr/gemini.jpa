@@ -29,10 +29,7 @@ import org.eclipse.gemini.jpa.xml.PersistenceDescriptorHandler;
 import static org.eclipse.gemini.jpa.GeminiUtil.*;
 
 /**
- * Utility class that implements functionality for JPA providers 
- * to be able to support the OSGi JPA specification.
- * 
- * This class provides some of the functionality for processing
+ * Utility class that provides some of the functionality for processing
  * a persistence unit bundle.
  */
 public class PersistenceUnitBundleUtil {

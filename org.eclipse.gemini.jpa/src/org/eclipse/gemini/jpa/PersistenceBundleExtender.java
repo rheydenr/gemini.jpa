@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.gemini.jpa.provider.OSGiJpaProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -35,8 +34,8 @@ import org.osgi.framework.SynchronousBundleListener;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
- * This extender is used by the provider to listen for persistence unit 
- * bundles and assign them to the provider if the unit is able to be assigned.
+ * This extender listens for persistence unit bundles and assigns
+ * them to our provider if the unit is able to be assigned.
  */
 @SuppressWarnings({"deprecation"})
 public class PersistenceBundleExtender implements SynchronousBundleListener  {
@@ -45,10 +44,10 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     /* Instance state */
     /*================*/
     
-    // The provider associated with this extender
-    OSGiJpaProvider osgiJpaProvider;
+    // Pointer back to the mgr
+    GeminiManager mgr;
     
-    // Utility classes
+    // Stateless utility class
     PersistenceUnitBundleUtil bundleUtil;
     
     // Persistence units by bundle 
@@ -64,15 +63,14 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     /*==============*/
     
     public PersistenceBundleExtender() {}
-    public PersistenceBundleExtender(OSGiJpaProvider provider) { 
-        this.osgiJpaProvider = provider;
+    public PersistenceBundleExtender(GeminiManager mgr) { 
+        this.mgr = mgr;
         this.bundleUtil = new PersistenceUnitBundleUtil();
-        
     }
 
-    /*================================*/
-    /* API methods called by provider */
-    /*================================*/
+    /*===============================*/
+    /* API methods called by the mgr */
+    /*===============================*/
 
     /**
      * Start listening for bundle events to indicate the presence of 
@@ -80,7 +78,7 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
      */
     public void startListening() {
         debug("GeminiExtender listening");
-        osgiJpaProvider.getBundleContext().addBundleListener(this);
+        mgr.getBundleContext().addBundleListener(this);
     }
 
     /**
@@ -88,7 +86,7 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
      */
     public void stopListening() {
         debug("GeminiExtender no longer listening");
-        osgiJpaProvider.getBundleContext().removeBundleListener(this);
+        mgr.getBundleContext().removeBundleListener(this);
     }
 
     /**
@@ -97,7 +95,7 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     public void lookForExistingBundles() {
         
         // Look at the bundles that are already installed
-        Bundle[] installedBundles = osgiJpaProvider.getBundleContext().getBundles();
+        Bundle[] installedBundles = mgr.getBundleContext().getBundles();
         debug("GeminiExtender looking at existing bundles: ", installedBundles);
         
         // Check if any are p-unit bundles
@@ -162,17 +160,17 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
 
         // Cycle through each p-unit info and see if a provider was specified
         for (PUnitInfo info : pUnitInfos) {
-            if ((info.getProvider() == null) || (osgiJpaProvider.getProviderClassName().equals(info.getProvider()))) {
+            if ((info.getProvider() == null) || (mgr.getProvider().getProviderClassName().equals(info.getProvider()))) {
                 // We can be the provider; claim the p-unit and add it to our list
                 info.setBundle(b);
-                info.setAssignedProvider(osgiJpaProvider);
+                info.setAssignedProvider(mgr.getProvider());
                 addToBundleUnits(unitsByBundle, b, info);
             }
         }
         // If we found any that were for us then let the provider know
         List<PUnitInfo> unitsFound = unitsByBundle.get(b);
         if ((unitsFound != null) && (unitsFound.size() != 0)) {
-            osgiJpaProvider.assignPersistenceUnitsInBundle(b, unitsByBundle.get(b));
+            mgr.assignPersistenceUnitsInBundle(b, unitsByBundle.get(b));
         }
     }
     
@@ -187,7 +185,7 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
         List<PUnitInfo> infos = unitsByBundle.get(b);
         unitsByBundle.remove(b);
         removeFromLazyBundles(b);   
-        osgiJpaProvider.unassignPersistenceUnitsInBundle(b, infos);
+        mgr.unassignPersistenceUnitsInBundle(b, infos);
         // Uninitialize the state of the p-unit
         for (PUnitInfo info : infos) {
             info.setAssignedProvider(null);
@@ -207,13 +205,13 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
             warning("Register called on bundle " + b.getSymbolicName(), " but bundle was not assigned");
             return;
         }
-        if (areCompatibleBundles(b, osgiJpaProvider.getBundle())) { 
+        if (areCompatibleBundles(b, mgr.getBundle())) { 
             debug("GeminiExtender provider compatible with bundle: ", b);            
-            osgiJpaProvider.registerPersistenceUnits(unitsByBundle.get(b));
+            mgr.registerPersistenceUnits(unitsByBundle.get(b));
         } else {
             warning("Cannot support bundle " + b.getSymbolicName() +  
                     " because it is not JPA-compatible with the assigned provider " + 
-                    osgiJpaProvider.getProviderClassName() + ". This is because the " +
+                    mgr.getProvider().getProviderClassName() + ". This is because the " +
                     "persistence unit bundle has resolved to a different javax.persistence " +
                     "than the provider. \nTo fix this, uninstall one of the javax.persistence " +
                     "bundles so that both the persistence unit bundle and the provider resolve " +
@@ -236,7 +234,7 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
             warning("Unregister called on bundle " + b.getSymbolicName(), " but bundle was not assigned");
             return;
         }
-        osgiJpaProvider.unregisterPersistenceUnits(unitsByBundle.get(b));
+        mgr.unregisterPersistenceUnits(unitsByBundle.get(b));
     }    
     
     /**
@@ -249,7 +247,7 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
         // (It will be removed when the UNRESOLVED event is fired on it)
         addToRefreshingBundles(b);
         // Call refresh on all of the packages
-        PackageAdmin admin = getPackageAdmin(osgiJpaProvider.getBundleContext());
+        PackageAdmin admin = getPackageAdmin(mgr.getBundleContext());
         debug("GeminiExtender refreshing packages of bundle ", b);
         admin.refreshPackages(new Bundle[] { b }); 
 

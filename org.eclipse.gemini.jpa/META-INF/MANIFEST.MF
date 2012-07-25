@@ -4,7 +4,7 @@ Bundle-Name: Gemini JPA
 Bundle-SymbolicName: org.eclipse.gemini.jpa
 Bundle-Version: 1.1.0.qualifier
 Bundle-Activator: 
- org.eclipse.gemini.jpa.provider.EclipseLinkOSGiProvider
+ org.eclipse.gemini.jpa.Activator
 Bundle-Vendor: Oracle Corporation
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: javax.naming,
@@ -17,7 +17,7 @@ Import-Package: javax.naming,
  org.osgi.framework;version="1.6",
  org.osgi.framework.hooks.weaving;version="1.0",
  org.osgi.framework.wiring;version="1.0",
- org.osgi.service.jdbc,
+ org.osgi.service.jdbc;version="1.0.0",
  org.osgi.service.jpa,
  org.osgi.service.packageadmin;version="1.2.0",
  org.osgi.util.tracker,

@@ -31,41 +31,31 @@ import javax.persistence.EntityManagerFactory;
 
 import org.eclipse.gemini.jpa.classloader.BundleProxyClassLoader;
 import org.eclipse.gemini.jpa.classloader.CompositeClassLoader;
-import org.eclipse.gemini.jpa.provider.OSGiJpaProvider;
 import org.eclipse.gemini.jpa.proxy.EMFBuilderServiceProxyHandler;
 import org.eclipse.gemini.jpa.proxy.EMFServiceProxyHandler;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.jdbc.DataSourceFactory;
-import org.osgi.util.tracker.ServiceTracker;
+
 
 /**
- * This class provides functionality to handle service registration of 
- * persistence units and providers, etc. One instance per provider.
+ * This singleton class provides functionality to handle service registration of 
+ * persistence units and the provider.
  */
-@SuppressWarnings({"rawtypes","unchecked"})
-public class GeminiServicesUtil {
+@SuppressWarnings({"rawtypes"})
+public class ServicesUtil {
 
-    // The provider using this instance
-    OSGiJpaProvider osgiJpaProvider;
+    // Pointer back to the mgr
+    GeminiManager mgr;
     
     // Keep this for logging convenience
     String providerClassName;
    
-    // The anchor util to use to get anchor class info from
-    AnchorClassUtil anchorUtil;
-    
     // PersistenceProvider service
     ServiceRegistration providerService;
     
-    
-    public GeminiServicesUtil(OSGiJpaProvider provider, AnchorClassUtil anchorUtil) {
-        this.osgiJpaProvider = provider;
-        this.providerClassName = provider.getProviderClassName();
-        this.anchorUtil= anchorUtil;
+    public ServicesUtil(GeminiManager mgr) {
+        this.mgr = mgr;
+        this.providerClassName = mgr.getProvider().getProviderClassName();
     }
     
     /*==================*/
@@ -78,24 +68,24 @@ public class GeminiServicesUtil {
      */
     public void registerProviderService() {
         
-        debug("GeminiServicesUtil registering provider service for ", providerClassName);
+        debug("ServicesUtil registering provider service for ", providerClassName);
 
         // Service strings
         String[] serviceNames = { javax.persistence.spi.PersistenceProvider.class.getName() };
         // Get a provider JPA SPI instance 
-        javax.persistence.spi.PersistenceProvider persistenceProvider = osgiJpaProvider.getProviderInstance();
+        javax.persistence.spi.PersistenceProvider persistenceProvider = mgr.getProvider().getProviderInstance();
 
         // Store the version of the provider as a service property
-        String version = bundleVersion(osgiJpaProvider.getBundle());
+        String version = bundleVersion(mgr.getBundle());
         Dictionary<String,String> props = new Hashtable<String,String>();
         props.put(GeminiUtil.OSGI_JPA_PROVIDER_VERSION_PROPERTY, version);
         props.put(GeminiUtil.JPA_PROVIDER_PROPERTY, providerClassName);
         
         
         // Register the provider service
-        providerService = osgiJpaProvider.getBundleContext().registerService(
+        providerService = mgr.getBundleContext().registerService(
                 serviceNames, persistenceProvider, props);
-        debug("GeminiServicesUtil successfully registered provider service for ", providerClassName);
+        debug("ServicesUtil successfully registered provider service for ", providerClassName);
     }    
 
     /**
@@ -103,10 +93,10 @@ public class GeminiServicesUtil {
      */
     public void unregisterProviderService() {
 
-        debug("GeminiServicesUtil un-registering provider service for ", providerClassName);
+        debug("ServicesUtil un-registering provider service for ", providerClassName);
         providerService.unregister();
         providerService = null;
-        debug("GeminiServicesUtil successfully un-registered provider service for ", providerClassName);
+        debug("ServicesUtil successfully un-registered provider service for ", providerClassName);
     }
 
     /**
@@ -114,13 +104,13 @@ public class GeminiServicesUtil {
      */
     public void registerEMFServices(PUnitInfo pUnitInfo) {
 
-        debug("GeminiServicesUtil registerEMFServices for ", pUnitInfo.getUnitName());
+        debug("ServicesUtil registerEMFServices for ", pUnitInfo.getUnitName());
 
         // Map of generated anchor classes keyed by class name
         Map<String, Class<?>> anchorClasses; 
         
         // Will be empty if anchor classes not generated
-        anchorClasses = anchorUtil.loadAnchorClasses(pUnitInfo);
+        anchorClasses = mgr.getAnchorUtil().loadAnchorClasses(pUnitInfo);
 
         // Create the properties used for both services
         Dictionary<String,String> props = buildServiceProperties(pUnitInfo);
@@ -149,23 +139,23 @@ public class GeminiServicesUtil {
      */
     public void unregisterEMFService(PUnitInfo pUnitInfo) {
 
-        debug("GeminiServicesUtil un-registerEMFService for ", pUnitInfo.getUnitName());
+        debug("ServicesUtil un-registerEMFService for ", pUnitInfo.getUnitName());
 
         // If the tracking service is going, stop it
         // Note: By stopping the tracker now we will not be able to handle a 
         //       DSF that comes and goes; only one that comes for the first time
-        stopTrackingDataSourceFactory(pUnitInfo);
+        mgr.getDataSourceUtil().stopTrackingDataSourceFactory(pUnitInfo);
 
         // If an EMF service is registered then unregister it
         ServiceRegistration emfService = pUnitInfo.getEmfService();
         if (emfService != null) {
-            debug("GeminiServicesUtil un-registering EMF service for ", pUnitInfo.getUnitName());
+            debug("ServicesUtil un-registering EMF service for ", pUnitInfo.getUnitName());
             try { 
                 emfService.unregister(); 
             } catch (Exception e) {
                 warning("Error unregistering EMF service: ", e);
             }
-            debug("GeminiServicesUtil un-registered EMF service for ", pUnitInfo.getUnitName());
+            debug("ServicesUtil un-registered EMF service for ", pUnitInfo.getUnitName());
             pUnitInfo.setEmfService(null);
         }
 
@@ -174,7 +164,7 @@ public class GeminiServicesUtil {
         if ((emf != null) && (!pUnitInfo.isEmfSetByBuilderService())) {
             if (emf.isOpen()) emf.close();
             pUnitInfo.getEmfHandler().syncUnsetEMF();
-            debug("GeminiServicesUtil EMF service removed EMF: ", emf);
+            debug("ServicesUtil EMF service removed EMF: ", emf);
         }
         pUnitInfo.setEmfHandler(null);
     }
@@ -187,18 +177,18 @@ public class GeminiServicesUtil {
      */
     public void unregisterEMFBuilderService(PUnitInfo pUnitInfo) {
 
-        debug("GeminiServicesUtil un-registerEMFBuilderService for ", pUnitInfo.getUnitName());
+        debug("ServicesUtil un-registerEMFBuilderService for ", pUnitInfo.getUnitName());
 
         // Unregister the service
         ServiceRegistration emfBuilderService = pUnitInfo.getEmfBuilderService();
         if (emfBuilderService != null) {
-            debug("GeminiServicesUtil un-registering EMFBuilder service for ", pUnitInfo.getUnitName());
+            debug("ServicesUtil un-registering EMFBuilder service for ", pUnitInfo.getUnitName());
             try {
                 emfBuilderService.unregister();
             } catch (Exception e) {
                 warning("Error un-registering EMFBuilder service: ", e);
             }
-            debug("GeminiServicesUtil un-registered EMFBuilder service for ", pUnitInfo.getUnitName());
+            debug("ServicesUtil un-registered EMFBuilder service for ", pUnitInfo.getUnitName());
             pUnitInfo.setEmfBuilderService(null);
         }
 
@@ -207,7 +197,7 @@ public class GeminiServicesUtil {
         if (emf != null) {
             if (emf.isOpen()) emf.close();
             pUnitInfo.getEmfBuilderHandler().syncUnsetEMF();
-            debug("GeminiServicesUtil EMFBuilder service removed emf: ", emf);
+            debug("ServicesUtil EMFBuilder service removed emf: ", emf);
         }
         pUnitInfo.setEmfBuilderHandler(null);
 
@@ -242,7 +232,7 @@ public class GeminiServicesUtil {
         } else {
             pUnitLoader = new BundleProxyClassLoader(pUnitInfo.getBundle());
         }
-        debug("GeminiServicesUtil pUnit loader ", pUnitLoader);
+        debug("ServicesUtil pUnit loader ", pUnitLoader);
         return pUnitLoader;
     }
 
@@ -275,7 +265,7 @@ public class GeminiServicesUtil {
                 fatalError("Could not load domain class in p-unit", cnfEx);
             }
         }
-        debugClassLoader("GeminiServicesUtil proxy loader ", cl);
+        debugClassLoader("ServicesUtil proxy loader ", cl);
         return cl;
     }
 
@@ -289,9 +279,9 @@ public class GeminiServicesUtil {
         Object result = null;
         try {
             result = Proxy.newProxyInstance(loader, clsArray, emfProxyHandler);
-            debug("GeminiServicesUtil created EMF proxy ");
+            debug("ServicesUtil created EMF proxy ");
         } catch (Exception e) { 
-            fatalError("GeminiServicesUtil - Failed to create proxy for EMF service: ", e); 
+            fatalError("ServicesUtil - Failed to create proxy for EMF service: ", e); 
         }
         pUnitInfo.setEmfHandler(emfProxyHandler);
         return result;
@@ -311,9 +301,9 @@ public class GeminiServicesUtil {
         Object result = null;
         try {
             result = Proxy.newProxyInstance(loader, clsArray, emfBuilderProxyHandler);
-            debug("GeminiServicesUtil created EMFBuilder proxy ");
+            debug("ServicesUtil created EMFBuilder proxy ");
         } catch (Exception e) { 
-            fatalError("GeminiServicesUtil - Failed to create proxy for EMFBuilder service: ", e); 
+            fatalError("ServicesUtil - Failed to create proxy for EMFBuilder service: ", e); 
         }
         pUnitInfo.setEmfBuilderHandler(emfBuilderProxyHandler);
         return result;
@@ -333,7 +323,7 @@ public class GeminiServicesUtil {
         // For now, only support punits composed of one bundle
         String bundleId = pUnitBundle.getSymbolicName() + "_" + bundleVersion(pUnitBundle);
         props.put("osgi.managed.bundles", bundleId);
-        debug("GeminiServicesUtil JPA services props: ", props);
+        debug("ServicesUtil JPA services props: ", props);
         return props;
     }
 
@@ -344,19 +334,19 @@ public class GeminiServicesUtil {
                                         Map<String,Class<?>> anchorClasses,
                                         Dictionary<String,String> props) {
 
-        debug("GeminiServicesUtil tryToregister EMF service for ", pUnitInfo.getUnitName());
+        debug("ServicesUtil tryToregister EMF service for ", pUnitInfo.getUnitName());
         // Array of classes being proxied by EMF proxy
         Collection<Class<?>> proxiedClasses = new ArrayList<Class<?>>();
 
         // Load the EMF class. TODO Make this the pUnit loader?
         Class<?> emfClass = GeminiUtil.loadClassFromBundle("javax.persistence.EntityManagerFactory",
-                                                           osgiJpaProvider.getBundle());
+                                                           mgr.getBundle());
         
         // Add EMF class and anchor classes to the proxied class collection for EMF proxy
         proxiedClasses.addAll(anchorClasses.values());
         proxiedClasses.add(emfClass);
         Class<?>[] classArray = proxiedClasses.toArray(new Class[0]);
-        debug("GeminiServicesUtil EMF proxy class array: ", classArray);
+        debug("ServicesUtil EMF proxy class array: ", classArray);
         
         // Get a loader to load the proxy classes
         ClassLoader loader = proxyLoader(pUnitInfo, anchorClasses, emfClass);
@@ -367,9 +357,9 @@ public class GeminiServicesUtil {
         // Do we create an EMF service?
         String driverClassName = pUnitInfo.getDriverClassName();
         if (driverClassName == null) {
-            debug("GeminiServicesUtil No driver class specified so no factory service created");            
+            debug("ServicesUtil No driver class specified so no factory service created");            
         } else {
-            if (!trackDataSourceFactory(pUnitInfo)) {
+            if (!mgr.getDataSourceUtil().trackDataSourceFactory(pUnitInfo)) {
                 // DSF service was not found.
                 debug("DataSourceFactory service for " + driverClassName + " not found.");
                 // Driver may be packaged in with the p-unit -- try loading it from there
@@ -377,7 +367,7 @@ public class GeminiServicesUtil {
                     pUnitInfo.getBundle().loadClass(driverClassName);
                     debug("JDBC driver " + driverClassName + " found locally.");
                     // We found the driver in the punit. Stop tracking DBAccess service and revert to direct access
-                    stopTrackingDataSourceFactory(pUnitInfo);
+                    mgr.getDataSourceUtil().stopTrackingDataSourceFactory(pUnitInfo);
                 } catch (ClassNotFoundException cnfEx) {
                     // Driver not local, bail and wait for the tracker to detect DBAccess service
                     debug("JDBC driver " + driverClassName + " was not found locally.");
@@ -397,14 +387,13 @@ public class GeminiServicesUtil {
             try {
                 emfService = pUnitInfo.getBundle().getBundleContext()
                                .registerService(classNameArray, emfServiceProxy, props);
-                debug("GeminiServicesUtil EMF service: ", emfService);
+                debug("ServicesUtil EMF service: ", emfService);
             } catch (Exception e) {
-                fatalError("GeminiServicesUtil could not register EMF service for " + pUnitInfo.getUnitName(), e);
+                fatalError("ServicesUtil could not register EMF service for " + pUnitInfo.getUnitName(), e);
             }
             pUnitInfo.setEmfService(emfService);
         }
     }
-    
     
     /** 
      * Register the EMFBuilder service.
@@ -413,18 +402,18 @@ public class GeminiServicesUtil {
                                           Map<String,Class<?>> anchorClasses,
                                           Dictionary<String,String> props) {
     
-        debug("GeminiServicesUtil register EMFBuilder service for ", pUnitInfo.getUnitName());
+        debug("ServicesUtil register EMFBuilder service for ", pUnitInfo.getUnitName());
         // Array of classes being proxied by EMFBuilder proxy
         Collection<Class<?>> proxiedClasses = new ArrayList<Class<?>>();
 
         // Load the EMFB class. TODO Make this the pUnit loader?
         Class<?> emfBuilderClass = GeminiUtil.loadClassFromBundle("org.osgi.service.jpa.EntityManagerFactoryBuilder",
-                                                                  osgiJpaProvider.getBundle());
+                                                                  mgr.getBundle());
 
         // Add EMF class and anchor classes to the proxied class collection for EMF proxy
         proxiedClasses.addAll(anchorClasses.values());
         proxiedClasses.add(emfBuilderClass);
-        debug("GeminiServicesUtil EMFBuilder proxied classes: ", proxiedClasses);
+        debug("ServicesUtil EMFBuilder proxied classes: ", proxiedClasses);
         Class<?>[] classArray = proxiedClasses.toArray(new Class[0]);
         
         // Get a loader to load the proxy classes
@@ -443,156 +432,12 @@ public class GeminiServicesUtil {
         try {
             // TODO Should be registered by p-unit context, not provider context
             // emfBuilderService = pUnitInfo.getBundle().getBundleContext()
-            emfBuilderService = osgiJpaProvider.getBundleContext()
+            emfBuilderService = mgr.getBundleContext()
                     .registerService(classNameArray, emfBuilderServiceProxy, props);
-            debug("GeminiServicesUtil EMFBuilder service: ", emfBuilderService);
+            debug("ServicesUtil EMFBuilder service: ", emfBuilderService);
         } catch (Exception e) {
-            fatalError("GeminiServicesUtil could not register EMFBuilder service for " + pUnitInfo.getUnitName(), e);
+            fatalError("ServicesUtil could not register EMFBuilder service for " + pUnitInfo.getUnitName(), e);
         }
         pUnitInfo.setEmfBuilderService(emfBuilderService);
     }    
-
-    /*==============================================*/
-    /* Data source factory service tracking methods */
-    /*==============================================*/
-    
-    /** 
-     * Look up the data source factory service for the specified
-     * persistence unit and start a data source factory tracker. 
-     * One of two trackers will be created:
-     * 
-     * a) If the DSF was registered then start a tracker to track when it goes away
-     * so that we can remove the dependent EMF service
-     * 
-     * b) If the DSF was not registered then start a tracker to detect when it comes online
-     * 
-     * @param pUnitInfo The metadata for this p-unit
-     * @return true if the data source factory service was registered, false if it wasn't
-     */
-    public boolean trackDataSourceFactory(PUnitInfo pUnitInfo) {
-        
-        debug("GeminiServicesUtil trackDataSourceFactory for p-unit ", pUnitInfo.getUnitName());
-        ServiceReference[] dsfRefs = null;
-        ServiceTracker tracker = null;
-
-        // See if the data source factory service for the driver is registered
-        try {
-            String filter = filterForDSFLookup(pUnitInfo.getDriverClassName(), pUnitInfo.getDriverVersion());
-            dsfRefs = lookupDSF(pUnitInfo.getBundle().getBundleContext(), filter);
-            if (dsfRefs != null) {
-                // We found at least one -- track the first one
-                // *** Note: Race condition still exists where service could disappear before being tracked
-                ServiceReference dsfRef = dsfRefs[0];
-                debug("GeminiServicesUtil starting tracker on existing DSF for ", pUnitInfo.getUnitName());
-                tracker = new ServiceTracker(osgiJpaProvider.getBundleContext(), 
-                                             dsfRef,
-                                             new DSFOfflineTracker(pUnitInfo, this));
-                pUnitInfo.setDsfService(dsfRef);
-                debug("DSF service props: ", GeminiUtil.serviceProperties(dsfRef));
-            } else {
-                // No service was found, track for a service that may come in the future 
-                debug("GeminiServicesUtil starting tracker to wait for DSF for ", pUnitInfo.getUnitName());
-                tracker = new ServiceTracker(osgiJpaProvider.getBundleContext(), 
-                                             osgiJpaProvider.getBundleContext().createFilter(filter),
-                                             new DSFOnlineTracker(pUnitInfo, this));
-            }
-        } catch (Exception ex) {
-            fatalError("Unexpected failure creating DSF service tracker", ex);
-        }
-        pUnitInfo.setTracker(tracker);
-        tracker.open();
-        return dsfRefs != null;
-    }
-
-    /** 
-     * Stop tracking the data source factory for the given p-unit
-     */
-    public void stopTrackingDataSourceFactory(PUnitInfo pUnitInfo) {
-        // Clean up the tracker
-        debug("GeminiServicesUtil stopTrackingDataSourceFactory", 
-              " for p-unit ", pUnitInfo.getUnitName());
-        if (pUnitInfo.getTracker() != null) {
-            debug("GeminiServicesUtil stopping tracker for p-unit ", 
-                    pUnitInfo.getUnitName());
-            pUnitInfo.getTracker().close();
-            pUnitInfo.setTracker(null);
-        }
-    }
-
-    /** 
-     * This method will be invoked by the OnlineTracker when a data source factory 
-     * service comes online. This occurs when the p-unit has been processed before the
-     * JDBC service has had a chance to be activated or register its DSF services.
-     */
-    public void dataSourceFactoryOnline(PUnitInfo pUnitInfo, ServiceReference ref) {
-        // TODO async handling of data source adding
-        debug("dataSourceFactoryOnline, ref=", ref, " for p-unit ", pUnitInfo.getUnitName());
-        if (pUnitInfo.getEmf() != null) {
-            // EMF has already been created by the user (using EMFBuilder svc). Too late for a DSF service
-            warning("DSF " + ref + " came online when EMF for p-unit " + pUnitInfo.getUnitName() +
-                    " already existed - ignoring DSF");
-        } else {
-            // If we already have a DSF service, for some reason, then ignore this one
-            if (pUnitInfo.getDsfService() != null) { 
-                warning("DSF service already exists for p-unit " + pUnitInfo.getUnitName() + " - ignoring new DSF service");
-            } else {
-                // We registered a tracker and don't have a DSF service so this one must be of interest to us.
-                // Unregister and go through the entire registration process again, assuming we will find this new DSF
-                debug("dataSourceFactoryOnline, unregistering and reregistering EMF services for p-unit ", pUnitInfo.getUnitName());
-                unregisterEMFServices(pUnitInfo);
-                registerEMFServices(pUnitInfo);
-            }
-        }
-    }
-
-    /** 
-     * This method will be invoked by the OfflineTracker when the data source factory 
-     * that we are relying on goes offline. 
-     */
-    public void dataSourceFactoryOffline(PUnitInfo pUnitInfo, ServiceReference removedRef) {
-        // TODO async handling of data source removal
-        ServiceReference dsServiceRef = pUnitInfo.getDsfService();
-        debug("dataSourceFactoryOffline, p-unit=", pUnitInfo.getUnitName(), "removedRef=", removedRef,
-              "storedRef=", dsServiceRef);
-        // Verify that this is the dsf service that we care about
-        if (dsServiceRef == null) {
-            warning("DataSourceFactory " + removedRef + " went offline but no record of it was stored in p-unit " + pUnitInfo.getUnitName());
-        } else {
-            if (dsServiceRef.compareTo(removedRef) != 0) { 
-                warning("DataSourceFactory " + removedRef + " went offline but a different DSF was stored in p-unit " + pUnitInfo.getUnitName());
-            }
-        }
-        // Unregister the EMF service but leave the Builder
-        debug("dataSourceFactoryOffline - unregistering EMF service ", "for p-unit ", pUnitInfo.getUnitName());
-        pUnitInfo.setDsfService(null);
-        unregisterEMFService(pUnitInfo);
-    }
-    
-    /** 
-     * This method will be invoked by trackDataSourceFactory() or by the EclipseLinkProvider when 
-     * DSF service is being looked up
-     * Note that driverVersion may be null, driverName should not be
-     */
-    public String filterForDSFLookup(String driverName, String driverVersion) {
-        String driverNameFilter = "(" + DataSourceFactory.OSGI_JDBC_DRIVER_CLASS + "=" + driverName + ")";
-        if (driverVersion == null) {
-            return driverNameFilter;
-        } else {
-            String driverVersionFilter = "(" + DataSourceFactory.OSGI_JDBC_DRIVER_VERSION + "=" + driverVersion + ")";
-            return "(&" + driverNameFilter + driverVersionFilter + ")";
-        }
-    }
-    
-    /** 
-     * This method will be invoked by trackDataSourceFactory() or by the EclipseLinkProvider 
-     * to look up a DSF service
-     */
-    public ServiceReference[] lookupDSF(BundleContext ctx, String filter) {
-        try {
-            return ctx.getServiceReferences(DataSourceFactory.class.getName(), filter);
-        } catch (InvalidSyntaxException isEx) {
-            fatalError("Bad filter syntax (likely because of missing driver class name)", isEx);
-            return null; // For the compiler...
-        }
-    }
 }
