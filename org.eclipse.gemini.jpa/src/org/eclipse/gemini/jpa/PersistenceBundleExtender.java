@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.Constants;
 import org.osgi.framework.SynchronousBundleListener;
@@ -53,6 +52,11 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     // Persistence units by bundle 
     Map<Bundle, List<PUnitInfo>> unitsByBundle = 
         Collections.synchronizedMap(new HashMap<Bundle, List<PUnitInfo>>());
+    
+    // BSNs of persistence bundles that have been examined but 
+    // didn't have descriptors These will be assigned if/when a 
+    // config admin configuration comes along 
+    Set<String> inLimbo = Collections.synchronizedSet(new HashSet<String>());
     
     // Just keep the bundle ids to prevent hard references to the bundles
     Set<Long> lazyBundles = new HashSet<Long>();
@@ -154,6 +158,12 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
 
         // Look for all of the persistence descriptor files in the bundle
         List<PersistenceDescriptorInfo> descriptorInfos = bundleUtil.persistenceDescriptorInfos(b);
+
+        // If there were no descriptors so we can't assign it just yet. Add to the limbo list
+        if (descriptorInfos.isEmpty()) {
+            warning("No persistence descriptors found in persistence bundle " + b.getSymbolicName());
+            inLimbo.add(b.getSymbolicName());
+        }
 
         // Do a partial parse of the descriptors
         Set<PUnitInfo> pUnitInfos = bundleUtil.persistenceUnitInfoFromXmlFiles(descriptorInfos);
@@ -288,8 +298,9 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
                 }
             }
         } else if (eventType == BundleEvent.STARTED) {
-            // If not assigned then it must have been here already and we need to refresh it
-            if (!isAssigned(b)) {
+            // If not assigned and not in limbo then this must be the fist time we 
+            // have seen it. We need to refresh it to get through our system
+            if (!isAssigned(b) && !isInLimbo(b)) {
                 refreshBundle(b);
             }
         } else if (eventType == BundleEvent.STOPPING) {
@@ -323,7 +334,11 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     /*================*/
     /* Helper methods */
     /*================*/
-    
+
+    protected boolean isInLimbo(Bundle b) {
+        return inLimbo.contains(b.getSymbolicName());
+    }
+
     protected boolean isAssigned(Bundle b) {
         return unitsByBundle.containsKey(b);
     }
@@ -385,9 +400,5 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
             // then by definition the two are consistent w.r.t. that package
             return true;
         } 
-    }
-    public void stop(BundleContext context) throws Exception {
-    }
-    public void start(BundleContext context) throws Exception {
     }
 }
