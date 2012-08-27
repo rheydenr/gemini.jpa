@@ -135,9 +135,7 @@ public abstract class JpaTest {
         EntityManager em = getEmf().createEntityManager();
         Set<EntityType<?>> s = em.getMetamodel().getEntities();
         for (EntityType<?> et : s) {
-            debug("Managed Entity name: " + et.getName());
-            debug("Managed Entity class: " + et.getJavaType());
-            debug("Classloader: " + et.getJavaType().getClassLoader());
+            debug("Managed Entity name: " + et.getName() + " class: " + et.getJavaType());
         }
     }
     

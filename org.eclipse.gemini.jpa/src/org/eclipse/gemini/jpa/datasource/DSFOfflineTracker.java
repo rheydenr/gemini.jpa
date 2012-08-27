@@ -41,7 +41,7 @@ public class DSFOfflineTracker implements ServiceTrackerCustomizer {
     
     @Override
     public Object addingService(ServiceReference ref) {
-        GeminiUtil.debug("OfflineTracker.addingService - ignoring service ", ref);
+        GeminiUtil.debug("OfflineTracker.addingService - not concerned with added service ", ref);
         return null;
     }
 

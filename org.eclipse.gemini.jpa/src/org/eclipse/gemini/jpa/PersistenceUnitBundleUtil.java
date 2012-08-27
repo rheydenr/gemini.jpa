@@ -45,7 +45,7 @@ public class PersistenceUnitBundleUtil {
      * 
      * @param b the persistence unit bundle 
      * 
-     * @return a List of PersistenceDescriptorInfo
+     * @return a List of PersistenceDescriptorInfo (empty if none were found)
      */
     public List<PersistenceDescriptorInfo> persistenceDescriptorInfos(Bundle pUnitBundle) {
         List<PersistenceDescriptorInfo> descInfos = new ArrayList<PersistenceDescriptorInfo>();
@@ -59,45 +59,49 @@ public class PersistenceUnitBundleUtil {
 
         Object headerEntry = pUnitBundle.getHeaders().get(JPA_MANIFEST_HEADER);
         
-        // If no entries were specified then we're done
-        if (headerEntry == null) return descInfos;
-
-        // Iterate through all of the specified Meta-Persistence entries
-        for (String paddedPath : headerEntry.toString().split(",")) {
-            String path = stripPrecedingSlash(paddedPath.trim());
-            
-            // If standard path was specified ignore it since we already added it above
-            if ((path.length() == 0) || path.equals(DEFAULT_DESCRIPTOR_PATH)) {
-                continue;
-            }
-            // Check if it is an embedded JAR path
-            int splitPosition = path.indexOf(EMBEDDED_JAR_SEPARATOR);
-            URL url = null;
-            if (splitPosition == -1) {
-                // Not an embedded JAR path, just get URL from bundle call
-                url = pUnitBundle.getEntry(path);
-                if (url != null)
-                    descInfos.add(new PersistenceDescriptorInfo(url, path));
-                else
-                    warning("Could not find JPA descriptor: ", path);
-            } else {
-                // It's an embedded JAR path, we need to do some work to get the info
-                String jarPrefixPath = path.substring(0, splitPosition);
-                String descPath = path.substring(splitPosition+2);
-                descPath = stripPrecedingSlash(descPath);
-                debug("Descriptor JAR prefix: ", jarPrefixPath);
-                debug("Embedded descriptor suffix: ", descPath);
-                URL prefixUrl = pUnitBundle.getEntry(jarPrefixPath);
-                debug("Embedded JAR url: ", prefixUrl);
-                if (prefixUrl != null) {
-                    descInfos.add(new PersistenceDescriptorInfo(prefixUrl, descPath, jarPrefixPath));
-                } else {
-                    warning("Could not find nested JAR: ", jarPrefixPath);                    
+        // If entries were specified then go through them
+        if (headerEntry != null) {
+            // Iterate through all of the specified Meta-Persistence entries
+            for (String paddedPath : headerEntry.toString().split(",")) {
+                String path = stripPrecedingSlash(paddedPath.trim());
+                
+                // If standard path was specified ignore it since we already added it above
+                if ((path.length() == 0) || path.equals(DEFAULT_DESCRIPTOR_PATH)) {
                     continue;
+                }
+                // Check if it is an embedded JAR path
+                int splitPosition = path.indexOf(EMBEDDED_JAR_SEPARATOR);
+                URL url = null;
+                if (splitPosition == -1) {
+                    // Not an embedded JAR path, just get URL from bundle call
+                    url = pUnitBundle.getEntry(path);
+                    if (url != null)
+                        descInfos.add(new PersistenceDescriptorInfo(url, path));
+                    else
+                        warning("Could not find JPA descriptor: ", path);
+                } else {
+                    // It's an embedded JAR path, we need to do some work to get the info
+                    String jarPrefixPath = path.substring(0, splitPosition);
+                    String descPath = path.substring(splitPosition+2);
+                    descPath = stripPrecedingSlash(descPath);
+                    debug("Descriptor JAR prefix: ", jarPrefixPath);
+                    debug("Embedded descriptor suffix: ", descPath);
+                    URL prefixUrl = pUnitBundle.getEntry(jarPrefixPath);
+                    debug("Embedded JAR url: ", prefixUrl);
+                    if (prefixUrl != null) {
+                        descInfos.add(new PersistenceDescriptorInfo(prefixUrl, descPath, jarPrefixPath));
+                    } else {
+                        warning("Could not find nested JAR: ", jarPrefixPath);                    
+                        continue;
+                    }
                 }
             }
         }
         debug("Found persistence descriptors: ", descInfos);
+        
+        // Apply any config admin configurations to persistence units
+//        List<Dictionary> 
+        
         return descInfos;
     }
 

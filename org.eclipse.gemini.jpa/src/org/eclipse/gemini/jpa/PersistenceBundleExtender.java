@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.gemini.jpa.configadmin.InlinedDescriptorInfo;
+import org.eclipse.gemini.jpa.configadmin.PersistenceUnitConfiguration;
+import org.eclipse.gemini.jpa.eclipselink.EclipseLinkProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.Constants;
@@ -33,8 +36,45 @@ import org.osgi.framework.SynchronousBundleListener;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
- * This extender listens for persistence unit bundles and assigns
- * them to our provider if the unit is able to be assigned.
+ * The extender listens for persistence unit bundles and pushes them through 
+ * the life cycle according to the various conditions.
+ * At startup all of the already installed bundles are checked to see if 
+ * any persistence bundles have already been
+ * 
+ * There are two basic stages:
+ * 
+ * (1) assignment - Try to assign a persistence unit to this provider
+ * 
+ * @see tryassigningPersistenceUnitsInBundle
+ * 
+ * This generally happens before a persistence bundle has been resolved
+ * because weaving requires that transformer be registered and the classes
+ * should not have been loaded yet or the weaver will have missed its chance.
+ * If we find a persistence bundle that has not been assigned, but that has 
+ * already gotten past the resolve stage then we will normally refresh it
+ * in order to reset the bundle to go through the resolve stage again.
+ * 
+ * In general, the following things will occur in this phase:
+ * 
+ *  - look in the persistence descriptors of the bundle and see if provider is specified
+ *  - if none, or if we are explicitly listed then assign the bundle to us
+ *  - call preResolve() on the manager (see GeminiManager.preResolve())
+ * 
+ * 
+ * (2) registration - Register the JPA services as appropriate
+ * 
+ * @see registerPersistenceUnitsInBundle
+ * 
+ * This will happen after the persistence bundle has been resolved. The various
+ * JPA services will be registered as appropriate.
+ *
+ * In general, the following things will occur in this phase:
+ * 
+ *  - call registerPersistenceUnits() on the manager (see GeminiManager.registerPersistenceUnits())
+ *  - See if the necessary data source service is available to support the punit
+ *  - if the data source support is necessary then register an EntityManagerFactory service
+ *  - Register an EntityManagerFactoryServiceBuilder service in any case
+ *
  */
 @SuppressWarnings({"deprecation"})
 public class PersistenceBundleExtender implements SynchronousBundleListener  {
@@ -49,14 +89,17 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     // Stateless utility class
     PersistenceUnitBundleUtil bundleUtil;
     
-    // Persistence units by bundle 
+    // List of all assigned persistence units by bundle
+    // Note: It is a requirement that if one persistence unit is assigned 
+    //       to us then they all must be.
     Map<Bundle, List<PUnitInfo>> unitsByBundle = 
         Collections.synchronizedMap(new HashMap<Bundle, List<PUnitInfo>>());
     
-    // BSNs of persistence bundles that have been examined but 
-    // didn't have descriptors These will be assigned if/when a 
-    // config admin configuration comes along 
-    Set<String> inLimbo = Collections.synchronizedSet(new HashSet<String>());
+    // Map of persistence bundles (keyed by BSN) that have been examined but 
+    // didn't have descriptors. These will be refreshed if/when a config admin 
+    // configuration comes along.
+    Map<String, Bundle> inLimbo = 
+        Collections.synchronizedMap(new HashMap<String, Bundle>());
     
     // Just keep the bundle ids to prevent hard references to the bundles
     Set<Long> lazyBundles = new HashSet<Long>();
@@ -81,7 +124,7 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
      * persistence unit bundles. 
      */
     public void startListening() {
-        debug("GeminiExtender listening");
+        debug("GeminiExtender.startListening");
         mgr.getBundleContext().addBundleListener(this);
     }
 
@@ -89,18 +132,18 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
      * Stop listening to bundle events. 
      */
     public void stopListening() {
-        debug("GeminiExtender no longer listening");
+        debug("GeminiExtender.stopListening");
         mgr.getBundleContext().removeBundleListener(this);
     }
 
     /**
-     * Look for persistence unit bundles that are already installed. 
+     * Look for persistence unit bundles that were already installed when we came along. 
      */
     public void lookForExistingBundles() {
         
         // Look at the bundles that are already installed
         Bundle[] installedBundles = mgr.getBundleContext().getBundles();
-        debug("GeminiExtender looking at existing bundles: ", installedBundles);
+        debug("GeminiExtender.lookForExistingBundles: ", installedBundles);
         
         // Check if any are p-unit bundles
         for (Bundle b : installedBundles) {
@@ -111,13 +154,19 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
                     // so it will go through resolving and we can assign it a provider, etc.
                     //  if ((b.getState() != Bundle.INSTALLED) && (b.getState() != Bundle.UNINSTALLED)) {
                     if (b.getState() == Bundle.ACTIVE) {
-                        refreshBundle(b);
+                        if (isAssigned(b)) {
+                            debug("Found existing installed bundle " + b.getSymbolicName(), " but it was already assigned");
+                        } else {
+                            debug("Found active bundle ", b, " - refreshing to push it back to resolve for processing");
+                            refreshBundle(b);
+                        }
                     }
                 } else {
                     // Refreshing is disabled - go through assigning and registering process w/o events
                     if (b.getState() != Bundle.UNINSTALLED) {
                         // Assign the p-unit
                         // NOTE: With no refresh, assigning may be happening after the bundle has been resolved
+                        warning("Refreshing disabled - entities in bundle " + b.getSymbolicName(), " may not be woven");
                         tryAssigningPersistenceUnitsInBundle(b);
                         // Now if bundle is starting or active then register the p-units in it
                         if ((b.getState() == Bundle.STARTING) || (b.getState() == Bundle.ACTIVE)) {
@@ -129,6 +178,11 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
         }
     }
 
+    /**
+     * Clean up all of our state. 
+     * 
+     * @return The assigned punit Map 
+     */
     public Map<Bundle, List<PUnitInfo>> clearAllPUnitInfos() {
         Map<Bundle, List<PUnitInfo>> pUnitInfos = unitsByBundle;
         unitsByBundle = null;
@@ -149,7 +203,7 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
      */
     public void tryAssigningPersistenceUnitsInBundle(Bundle b) {
         
-        debug("GeminiExtender tryAssigningPersistenceUnitsInBundle: ", b);
+        debug("GeminiExtender.tryAssigningPersistenceUnitsInBundle: ", b);
         // If we have already assigned it then bail
         if (isAssigned(b)) {
             warning("Attempted to assign a bundle that was already assigned: ", b.toString());
@@ -159,10 +213,23 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
         // Look for all of the persistence descriptor files in the bundle
         List<PersistenceDescriptorInfo> descriptorInfos = bundleUtil.persistenceDescriptorInfos(b);
 
-        // If there were no descriptors so we can't assign it just yet. Add to the limbo list
         if (descriptorInfos.isEmpty()) {
-            warning("No persistence descriptors found in persistence bundle " + b.getSymbolicName());
-            inLimbo.add(b.getSymbolicName());
+            // There were no descriptors specified in the manifest - check if there is any config from config admin
+            PersistenceUnitConfiguration config = mgr.getConfigAdminListener().configForBundle(b.getSymbolicName());
+            if (config != null) {
+                // There is a config to go with this bundle. 
+                // Create a special descriptorInfo with the descriptor string right inside it
+                debug("No persistence descriptors, but found a config for bundle ", b);
+                descriptorInfos.add(new InlinedDescriptorInfo(config));
+            } else {
+                // We can't assign it just yet. Add to the limbo list
+                warning("No persistence descriptors found in persistence bundle ", b.getSymbolicName());
+                debug("Putting bundle ", b, " in limbo");
+                inLimbo.put(b.getSymbolicName(), b);
+                // The bundle will be removed from being in limbo by the config admin listener when 
+                // a config comes along that contains the bsn of this bundle. It will then be refreshed.
+                return;
+            }
         }
 
         // Do a partial parse of the descriptors
@@ -170,17 +237,18 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
 
         // Cycle through each p-unit info and see if a provider was specified
         for (PUnitInfo info : pUnitInfos) {
-            if ((info.getProvider() == null) || (mgr.getProvider().getProviderClassName().equals(info.getProvider()))) {
+            if ((info.getProvider() == null) || (EclipseLinkProvider.ECLIPSELINK_PROVIDER_CLASS_NAME.equals(info.getProvider()))) {
                 // We can be the provider; claim the p-unit and add it to our list
                 info.setBundle(b);
                 info.setAssignedProvider(mgr.getProvider());
+                debug("Assigning punit ", info.getUnitName(), " to this provider");
                 addToBundleUnits(unitsByBundle, b, info);
             }
         }
-        // If we found any that were for us then let the provider know
+        // If we found any that were for us then move on to do the preResolve work
         List<PUnitInfo> unitsFound = unitsByBundle.get(b);
         if ((unitsFound != null) && (unitsFound.size() != 0)) {
-            mgr.assignPersistenceUnitsInBundle(b, unitsByBundle.get(b));
+            mgr.preResolve(b, unitsByBundle.get(b));
         }
     }
     
@@ -191,11 +259,10 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
      */
     public void unassignPersistenceUnitsInBundle(Bundle b) { 
         
-        debug("GeminiExtender unassignPersistenceUnitsInBundle: ", b);
+        debug("GeminiExtender.unassignPersistenceUnitsInBundle: ", b);
         List<PUnitInfo> infos = unitsByBundle.get(b);
         unitsByBundle.remove(b);
-        removeFromLazyBundles(b);   
-        mgr.unassignPersistenceUnitsInBundle(b, infos);
+        removeFromLazyBundles(b);
         // Uninitialize the state of the p-unit
         for (PUnitInfo info : infos) {
             info.setAssignedProvider(null);
@@ -210,21 +277,24 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
      */
     public void registerPersistenceUnitsInBundle(Bundle b) {
         
-        debug("GeminiExtender registerPersistenceUnitsInBundle: ", b);
+        debug("GeminiExtender.registerPersistenceUnitsInBundle: ", b);
         if (!isAssigned(b)) {
             warning("Register called on bundle " + b.getSymbolicName(), " but bundle was not assigned");
             return;
         }
         if (areCompatibleBundles(b, mgr.getBundle())) { 
-            debug("GeminiExtender provider compatible with bundle: ", b);            
+            debug("GeminiExtender provider compatible with bundle: ", b);
+            
             mgr.registerPersistenceUnits(unitsByBundle.get(b));
+            
         } else {
             warning("Cannot support bundle " + b.getSymbolicName() +  
-                    " because it is not JPA-compatible with the assigned provider " + 
-                    mgr.getProvider().getProviderClassName() + ". This is because the " +
-                    "persistence unit bundle has resolved to a different javax.persistence " +
-                    "than the provider. \nTo fix this, uninstall one of the javax.persistence " +
-                    "bundles so that both the persistence unit bundle and the provider resolve " +
+                    " because it is not JPA-compatible with the EclipseLink bundles. " + 
+                    "This is because there are multiple bundles exporting javax.persistence " +
+                    "and the persistence unit bundle has resolved to a different one than " +
+                    "the EclipseLink bundles. " +
+                    "\nTo fix this, uninstall one of the bundles containing javax.persistence " +
+                    "so that both the persistence unit bundle and the provider bundles resolve " +
                     "to the same javax.persistence package.");
             unassignPersistenceUnitsInBundle(b);
             // No point in updating or refreshing. 
@@ -239,7 +309,7 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
      */
     public void unregisterPersistenceUnitsInBundle(Bundle b) {
         
-        debug("GeminiExtender unregisterPersistenceUnitsInBundle: ", b);
+        debug("GeminiExtender.unregisterPersistenceUnitsInBundle: ", b);
         if (!isAssigned(b)) {
             warning("Unregister called on bundle " + b.getSymbolicName(), " but bundle was not assigned");
             return;
@@ -249,26 +319,41 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     
     /**
      * Refresh the persistence bundle.
+     * If persistence units have already been registered they 
+     * should have been unregistered before making this refresh call.
      * 
      * @param b the bundle the p-units are in
      */    
     public void refreshBundle(Bundle b) {
+        debug("GeminiExtender.refreshBundle: ", b);
+
         // Add the list of currently refreshing bundles. 
         // (It will be removed when the UNRESOLVED event is fired on it)
         addToRefreshingBundles(b);
+
         // Call refresh on all of the packages
         PackageAdmin admin = getPackageAdmin(mgr.getBundleContext());
-        debug("GeminiExtender refreshing packages of bundle ", b);
         admin.refreshPackages(new Bundle[] { b }); 
 
         /* New 4.3 code to use to refresh bundle */
         /*
-        Bundle systemBundle = osgiJpaProvider.getBundleContext().getBundle(0);
+        Bundle systemBundle = mgr.getBundleContext().getBundle(0);
         FrameworkWiring fw = systemBundle.adapt(FrameworkWiring.class);
         fw.refreshBundles(Arrays.asList(b));
         */
     }
     
+    public boolean isInLimbo(String bsn) {
+        return inLimbo.containsKey(bsn);
+    }
+
+    // Remove and return the specified bundle if it is in limbo
+    // (i.e. previously found but without a persistence descriptor)
+    public Bundle getBundleInLimbo(String bsn) {
+        return inLimbo.remove(bsn);
+    }
+
+
     /*========================*/
     /* BundleListener methods */
     /*========================*/
@@ -277,7 +362,7 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
 
         // Only continue if it is a persistence unit bundle
         Bundle b = event.getBundle();
-        debug("Extender - bundle event, ", event);
+        debug("Extender - bundle event: ", event);
         if (!isPersistenceUnitBundle(b)) return;
 
         // Process each event
@@ -292,6 +377,10 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
                 registerPersistenceUnitsInBundle(b);
             }
         } else if (eventType == BundleEvent.STARTING) {
+            if (!isAssigned(b) && !GeminiSystemProperties.refreshPersistenceBundles()) {
+                warning("Refreshing disabled - Bundle " + b.getSymbolicName(), " starting - entities may not be woven");
+                tryAssigningPersistenceUnitsInBundle(b);
+            }
             if (isAssigned(b)) {
                 if (!isLazy(b)) {
                     registerPersistenceUnitsInBundle(b);
@@ -300,8 +389,16 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
         } else if (eventType == BundleEvent.STARTED) {
             // If not assigned and not in limbo then this must be the fist time we 
             // have seen it. We need to refresh it to get through our system
-            if (!isAssigned(b) && !isInLimbo(b)) {
-                refreshBundle(b);
+            if (!isAssigned(b) && !isInLimbo(b.getSymbolicName())) {
+                if (GeminiSystemProperties.refreshPersistenceBundles()) {
+                    refreshBundle(b);
+                } else {
+                    warning("Refreshing disabled - Bundle " + b.getSymbolicName(), " started - entities may not be woven");
+                    tryAssigningPersistenceUnitsInBundle(b);
+                    if (isAssigned(b) && !isLazy(b)) {
+                        registerPersistenceUnitsInBundle(b);
+                    }
+                }
             }
         } else if (eventType == BundleEvent.STOPPING) {
             if (isAssigned(b)) {
@@ -334,10 +431,6 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     /*================*/
     /* Helper methods */
     /*================*/
-
-    protected boolean isInLimbo(Bundle b) {
-        return inLimbo.contains(b.getSymbolicName());
-    }
 
     protected boolean isAssigned(Bundle b) {
         return unitsByBundle.containsKey(b);

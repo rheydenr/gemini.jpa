@@ -29,9 +29,29 @@ import org.osgi.framework.BundleContext;
 
 import org.eclipse.gemini.jpa.classloader.CompositeClassLoader;
 import org.eclipse.gemini.jpa.datasource.DataSourceUtil;
-import org.eclipse.gemini.jpa.provider.EclipseLinkOSGiProvider;
-import org.eclipse.gemini.jpa.provider.GeminiOSGiInitializer;
+import org.eclipse.gemini.jpa.configadmin.ConfigAdminListener;
+import org.eclipse.gemini.jpa.configadmin.PersistenceUnitConfiguration;
 
+/*
+ * This is the main Gemini JPA class. It contains much of the state 
+ * and subsystem instances that play a role in Gemini JPA. 
+ * Note that although the major players are referenced by this class 
+ * the manager is not really an "actor", except for init and shutdown.
+ * The extender is the primary actor that responds to events and calls the 
+ * manager and other util classes to do stuff.
+ * 
+ * When the extender finds a persistence unit there are two distinct phases:
+ * 
+ * 1) assignment - Try to assign a persistence unit to ourself
+ *          - Our preResolve() method is called by extender
+ * 
+ * 2) registration - Register the JPA services as appropriate
+ *          - Our registerPersistenceUnits() method is called by extender
+ *
+ * See the extender for more information on the life cycle of a persistence unit.
+ * 
+ * @see PersistenceBundleExtender
+ */
 public class GeminiManager {
     
     /*==================*/
@@ -62,8 +82,11 @@ public class GeminiManager {
     /** Anchor class gen utility methods */
     AnchorClassUtil anchorUtil;    
     
-    /** Our wrapper class over the EclipseLink provider */
-    EclipseLinkOSGiProvider provider;
+    /** Config admin integration point */
+    ConfigAdminListener configAdminListener;    
+
+    /** Our wrapper class over the native EclipseLink provider */
+    ProviderWrapper provider;
     
     /*================*/
     /* Getter/setters */
@@ -76,16 +99,19 @@ public class GeminiManager {
     public void setExtender(PersistenceBundleExtender extender) { this.extender = extender; }
 
     public ServicesUtil getServicesUtil() { return servicesUtil; }
-    public void setServicesUtil(ServicesUtil servicesUtil) { this.servicesUtil = servicesUtil; }
+    public void setServicesUtil(ServicesUtil util) { this.servicesUtil = util; }
 
     public DataSourceUtil getDataSourceUtil() { return dataSourceUtil; }
-    public void setDataSourceUtil(DataSourceUtil dataSourceUtil) { this.dataSourceUtil = dataSourceUtil; }
+    public void setDataSourceUtil(DataSourceUtil util) { this.dataSourceUtil = util; }
 
     public AnchorClassUtil getAnchorUtil() { return anchorUtil; }
-    public void setAnchorUtil(AnchorClassUtil anchorUtil) { this.anchorUtil = anchorUtil; }
+    public void setAnchorUtil(AnchorClassUtil util) { this.anchorUtil = util; }
+    
+    public ConfigAdminListener getConfigAdminListener() { return configAdminListener; }
+    public void setConfigAdminListener(ConfigAdminListener listener) { this.configAdminListener = listener; }
 
-    public EclipseLinkOSGiProvider getProvider() { return provider; }
-    public void setProvider(EclipseLinkOSGiProvider provider) { this.provider = provider; }
+    public ProviderWrapper getProvider() { return provider; }
+    public void setProvider(ProviderWrapper provider) { this.provider = provider; }
     
     public Map<String, PUnitInfo> getPUnitsByName() { return pUnitsByName; }
     public void setPUnitsByName(Map<String, PUnitInfo> pUnitsByName) { this.pUnitsByName = pUnitsByName; }
@@ -100,7 +126,7 @@ public class GeminiManager {
         ctx = context;
         pUnitsByName = Collections.synchronizedMap(new HashMap<String, PUnitInfo>());
         
-        provider = new EclipseLinkOSGiProvider();
+        provider = new ProviderWrapper();
         provider.initialize(this);
 
         extender = new PersistenceBundleExtender(this);
@@ -111,16 +137,20 @@ public class GeminiManager {
         // Register as a provider 
         servicesUtil.registerProviderService();
 
+        // Start listening for config admin to see if any punit config is present
+        configAdminListener = new ConfigAdminListener(this);
+        configAdminListener.startListening();
+
         // Kick the extender to go looking for persistence bundles
         extender.startListening();
         extender.lookForExistingBundles();        
-        debug("Gemini JPA started");
     }
     
     /** Shut down Gemini JPA */
     public void shutdown(BundleContext context) throws Exception {
 
-        // Take the extender offline and unregister the provider
+        // Take config admin and extender offline and unregister the provider
+        configAdminListener.stopListening();
         extender.stopListening();
         servicesUtil.unregisterProviderService();
         
@@ -130,12 +160,19 @@ public class GeminiManager {
         unregisterPersistenceUnits(pUnits);
         pUnitsByName = null;
         
-        // Now unassign all of the persistence units that have been assigned to us
-        Map<Bundle,List<PUnitInfo>> pUnitInfos = extender.clearAllPUnitInfos();
-        for (Map.Entry<Bundle,List<PUnitInfo>> entry : pUnitInfos.entrySet()) {
-            unassignPersistenceUnitsInBundle(entry.getKey(), entry.getValue());
-        }
-        debug("Gemini JPA stopped");
+        // Unassign all of the persistence units that have been assigned to us
+        extender.clearAllPUnitInfos();
+        
+        // Clean up any provider resources
+        provider.shutdown(context);
+        
+        // Clear our state
+        provider = null; 
+        extender = null;
+        configAdminListener = null;
+        dataSourceUtil = null; 
+        anchorUtil = null;
+        servicesUtil = null;
     }
     
     /*===========================*/
@@ -143,12 +180,11 @@ public class GeminiManager {
     /*===========================*/
     
     /**
-     * Assignment happens before resolution. This callback offers us a chance to do 
-     * anything that must be done before the bundle is resolved.
+     * This offers us a chance to do anything that must be done 
+     * before the bundle is resolved.
      */
-    public void assignPersistenceUnitsInBundle(Bundle b, Collection<PUnitInfo> pUnits) {
-        //TODO Check state of bundle in assign call
-        debug("Manager.assignPersistenceUnitsInBundle: ", b);
+    public void preResolve(Bundle b, Collection<PUnitInfo> pUnits) {
+        debug("Manager.preResolve, bundle: ", b.getSymbolicName());
         
         if (GeminiSystemProperties.generateFragments()) {
             // Generate a fragment for the p-units
@@ -159,9 +195,8 @@ public class GeminiManager {
         // Create a loader that can load from the persistence bundle as well as from the provider bundle
         ClassLoader compositeLoader = CompositeClassLoader.createCompositeLoader(getBundleContext(), b);
         
-        // Create and run initializer to process PU and register transformers
-        GeminiOSGiInitializer initializer = new GeminiOSGiInitializer();        
-        initializer.initializeFromBundle(getBundleContext(), b, compositeLoader, pUnits);
+        // Process PU and register weaving/transformers
+        provider.initializeForWeaving(compositeLoader, pUnits);        
     }
 
     /**
@@ -177,26 +212,26 @@ public class GeminiManager {
         if (pUnits == null) return;
 
         for (PUnitInfo info : pUnits) {
-            String pUnitName = info.getUnitName();
+            String unitName = info.getUnitName();
             int attempts = 0;
 
-            if (pUnitsByName.containsKey(pUnitName)) {
+            if (pUnitsByName.containsKey(unitName)) {
                 // Shouldn't be in the map. Race condition - 
                 // Either the bundle is already being registered or 
                 // it's being unregistered because of being stopped 
-                PUnitInfo existingInfo = pUnitsByName.get(pUnitName);
+                PUnitInfo existingInfo = pUnitsByName.get(unitName);
                 if ((existingInfo != null) && 
                     (existingInfo.getBundle() == info.getBundle())) {
                     // It is the same bundle - move along and assume it will be registered
                     continue;
                 }
-                while (pUnitsByName.containsKey(pUnitName) && (attempts < MAX_EVENT_COLLISION_TRIES)) {
+                while (pUnitsByName.containsKey(unitName) && (attempts < MAX_EVENT_COLLISION_TRIES)) {
                     // The previous entry just hasn't been removed yet. Take a short
                     // break and give a chance for the unregister to occur.
                     try { Thread.sleep(1000); } catch (InterruptedException iEx) {}
                     attempts++;
                 } 
-                if (pUnitsByName.containsKey(pUnitName)) {
+                if (pUnitsByName.containsKey(unitName)) {
                     // It's still there. Take matters into our own hands and force the unregister
                     warning("Manager forcing unregister of persistence unit: " + info.getUnitName());
                     Collection<PUnitInfo> units = new ArrayList<PUnitInfo>();
@@ -204,9 +239,17 @@ public class GeminiManager {
                     unregisterPersistenceUnits(units);
                 }
             }
-
+            // See if our config admin listener has been notified about any additional config
+            PersistenceUnitConfiguration config = getConfigAdminListener().configForPersistenceUnitName(unitName);
+            if (config != null) {
+                // If we found a config then update the PUnitInfo with it
+                debug("Manager.registerPersistenceUnits found incremental config for punit ", unitName, "\n", config);
+                config.updatePUnitInfo(info);
+            }
+            
             // Keep a local copy of all of the p-units we are registering
-            pUnitsByName.put(pUnitName, info); 
+            pUnitsByName.put(unitName, info);
+                        
             // Do the registering
             servicesUtil.registerEMFServices(info);
         }
@@ -225,15 +268,13 @@ public class GeminiManager {
         if (pUnits == null) return;
         
         for (PUnitInfo info : pUnits) {
+            
+            servicesUtil.unregisterWeavingHookService(info);
             servicesUtil.unregisterEMFServices(info);
 
             // Remove from our local pUnit copy 
             pUnitsByName.remove(info.getUnitName());
         }
-    }
-
-    public void unassignPersistenceUnitsInBundle(Bundle b, Collection<PUnitInfo> pUnits) {
-        debug("Manager.unassignPersistenceUnitsInBundle: ", b.getSymbolicName());
     }
 
     /*================*/

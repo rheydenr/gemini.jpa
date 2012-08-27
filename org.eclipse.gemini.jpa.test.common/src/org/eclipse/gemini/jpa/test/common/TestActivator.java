@@ -78,15 +78,16 @@ public class TestActivator implements BundleActivator, ServiceTrackerCustomizer 
         emfTracker = new ServiceTracker(ctx, EntityManagerFactory.class.getName(), this);
         emfbTracker = new ServiceTracker(ctx, EntityManagerFactoryBuilder.class.getName(), this);
         dsfTracker = new ServiceTracker(ctx, DataSourceFactory.class.getName(), this);
-
+        
         // Register the tests to run if we have not already registered this group
         if (! TestState.isGroupRegistered(this.getTestGroupName())) {
             TestState.registerGroup(this.getTestGroupName());
-            for (String testName : this.getTestClasses())
+            for (String testName : this.getTestClasses()) {
                 TestState.addTest(testName);
+            }
         }
-        // Now [re]load the classes in this bundle since we have just been started (and may have been refreshed)
-        for (String testName : this.getTestClasses()) {
+        // Now [re]load the untested classes in this bundle since we have just been started (and may have been refreshed)
+        for (String testName : TestState.getIncompletedTests()) {
             String fqTestName = this.getTestPackage() + "." + testName;
             try {
                 Class<? extends JpaTest> testClass = (Class<? extends JpaTest>)
@@ -124,7 +125,8 @@ public class TestActivator implements BundleActivator, ServiceTrackerCustomizer 
     boolean shouldRun(Class<? extends JpaTest> testClass, String unitName, boolean isEMFService) {
         JpaTest test = testClasses.get(testClass);
         if (test == null) 
-            return false;
+            return false;        
+        
         return !TestState.isTested(testClass.getSimpleName())
                && test.getTestPersistenceUnitName().equals(unitName)
                && (!(test.needsEmfService() ^ isEMFService));
@@ -142,8 +144,8 @@ public class TestActivator implements BundleActivator, ServiceTrackerCustomizer 
 		// Remove from our local list of classes
 		testClasses.remove(testClass);
 
-        if (!testClasses.isEmpty()) {
-            sdebug(this.getTestGroupName(), "Tests not run yet: " + testClasses.values());
+		if (!(TestState.getIncompletedTests().isEmpty())) {
+            sdebug(this.getTestGroupName(), "Tests not run yet: " + TestState.getIncompletedTests());
         } else {
             // If no more tests to run, print out a summary
             logGroupSummary();

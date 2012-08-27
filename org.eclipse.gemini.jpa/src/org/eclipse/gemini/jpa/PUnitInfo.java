@@ -22,7 +22,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.eclipse.gemini.jpa.provider.EclipseLinkOSGiProvider;
+import org.eclipse.gemini.jpa.ProviderWrapper;
 import org.eclipse.gemini.jpa.proxy.EMFBuilderServiceProxyHandler;
 import org.eclipse.gemini.jpa.proxy.EMFServiceProxyHandler;
 import org.eclipse.gemini.jpa.xml.PersistenceDescriptorHandler;
@@ -31,6 +31,21 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 
+/**
+ * Runtime structure containing the information about a persistence unit.
+ * Two parts of it:
+ * 
+ * 1) Runtime state
+ * This is the state that accumulates as a persistence unit is processed by Gemini.
+ * It includes many of the runtime objects that play a role in the persistence unit
+ * during its lifecycle and regular use.
+ *
+ * 2) Descriptor state
+ * 
+ * This is the configuration state extracted from the persistence descriptor.
+ * Note that only the state that is relevant to the runtime is extracted. The rest
+ * of the configuration state in the persistence descriptor is ignored.
+ */
 @SuppressWarnings({"rawtypes"})
 public class PUnitInfo {
     
@@ -45,10 +60,10 @@ public class PUnitInfo {
     Bundle bundle;
 
     /** 
-     * The provider servicing this p-unit - set by extender
+     * The provider instance servicing this p-unit - set by extender
      * @see PersistenceBundleExtender 
      */
-    EclipseLinkOSGiProvider assignedProvider;
+    ProviderWrapper assignedProvider;
     
     /** 
      * Info about the persistence descriptor this data came from - set by bundleUtil
@@ -64,31 +79,29 @@ public class PUnitInfo {
     
     /** 
      * EMF Service state - set by servicesUtil
-     * @see GeminiServicesUtil
+     * @see ServicesUtil
      */
     EMFServiceProxyHandler emfHandler;
     ServiceRegistration emfService;
 
     /** 
      * EMF Builder Service state - set by servicesUtil
-     * @see GeminiServicesUtil
+     * @see ServicesUtil
      */
     EMFBuilderServiceProxyHandler emfBuilderHandler;
     ServiceRegistration emfBuilderService;
 
     /** 
-     * Shared EMF - set by EMF[Builder]ServiceProxyHandler
-     *              unset by servicesUtil
+     * Shared EMF - set/unset by EMF[Builder]ServiceProxyHandler
      * @see EMFServiceProxyHandler
      * @see EMFBuilderServiceProxyHandler
-     * @see GeminiServicesUtil
      */
     EntityManagerFactory emf;
 
     /** 
      * DataSourceFactory service used to indicate that a data source factory service was found and can be used
      *          - set by services util
-     * @see GeminiServicesUtil
+     * @see ServicesUtil
      */
     ServiceReference dsfService;
 
@@ -101,18 +114,33 @@ public class PUnitInfo {
     boolean emfSetByBuilderService;
 
     /** 
-     * For tracking the data source factory - set by servicesUtil
-     * @see GeminiServicesUtil 
+     * For tracking the data source factory - set by DataSourceUtil
+     * @see DataSourceUtil 
      */
     ServiceTracker tracker;
+    
+    /** 
+     * Weaving hook whiteboard service - set by services util
+     * @see ServicesUtil
+     */
+    ServiceRegistration weavingHookService;
+    
+    /** 
+     * Additional properties from a config object 
+     *      - set by the config when invoked by mgr before registering the punit
+     * @see PersistenceUnitConfiguration 
+     */
+    Map<String, Object> configProperties;
 
     /*==============================*/
     /* Persistence descriptor state */
     /*==============================*/
 
     /**
-     * All of following state is set by the XML parser 
+     * The following state is typically set by the XML parser,
+     * but may end up being written by the config if config admin is used
      * @see PersistenceDescriptorHandler 
+     * @see PersistenceUnitConfiguration
      */
     String unitName;
     String provider;
@@ -130,8 +158,8 @@ public class PUnitInfo {
     public Bundle getBundle() { return bundle; }
     public void setBundle(Bundle b) { this.bundle = b; }
     
-    public EclipseLinkOSGiProvider getAssignedProvider() { return assignedProvider; }
-    public void setAssignedProvider(EclipseLinkOSGiProvider p) { this.assignedProvider = p; }
+    public ProviderWrapper getAssignedProvider() { return assignedProvider; }
+    public void setAssignedProvider(ProviderWrapper p) { this.assignedProvider = p; }
 
     public PersistenceDescriptorInfo getDescriptorInfo() { return descriptorInfo; }
     public void setDescriptorInfo(PersistenceDescriptorInfo info) { this.descriptorInfo = info; }
@@ -162,6 +190,12 @@ public class PUnitInfo {
     
     public ServiceTracker getTracker() { return tracker; }
     public void setTracker(ServiceTracker tracker) { this.tracker = tracker; }
+
+    public ServiceRegistration getWeavingHookService() { return weavingHookService; }
+    public void setWeavingHookService(ServiceRegistration weavingHookService) { this.weavingHookService = weavingHookService; }
+
+    public Map<String, Object> getConfigProperties() { return configProperties; }
+    public void setConfigProperties(Map<String, Object> configProperties) { this.configProperties = configProperties; }
 
     /*============================================*/
     /* Accessors for Persistence descriptor state */
@@ -239,6 +273,7 @@ public class PUnitInfo {
         map.put("assignedProvider", assignedProvider);
         map.put("emfSetByBuilderService", emfSetByBuilderService);
         map.put("descriptorInfo", descriptorInfo);
+        map.put("configProps", configProperties);
         return map;
     }
 }

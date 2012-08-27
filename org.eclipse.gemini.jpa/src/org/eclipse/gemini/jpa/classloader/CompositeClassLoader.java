@@ -11,7 +11,7 @@
  *
  * Contributors: 
  *    ssmith - A ClassLoader that aggregates multiple ClassLoaders
- *    mkeith - Some changes to debugging code
+ *    mkeith - Added support for private resources
  ******************************************************************************/  
 package org.eclipse.gemini.jpa.classloader;
 
@@ -19,16 +19,31 @@ import static org.eclipse.gemini.jpa.GeminiUtil.debugClassLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringBufferInputStream;
+import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+@SuppressWarnings({"deprecation"})
 public class CompositeClassLoader extends ClassLoader {
 
+    // Static Map of private resources keyed by resource name.
+    // Instances should check here first and return them directly if these resources
+    // are being looked up.
+    private static Map<String,String> privateResources = new HashMap<String,String>();
+    
+    // List of classloaders to delegate to for class and resource loading
     private List<ClassLoader> classLoaders = new ArrayList<ClassLoader>();
     
     /**
@@ -48,6 +63,24 @@ public class CompositeClassLoader extends ClassLoader {
         return compositeLoader;
     }
     
+    /**
+     *  Add a private resource 
+     */
+    public static void addPrivateResource(String resourceName, String resource) {
+        synchronized (privateResources) {
+            privateResources.put(resourceName, resource);
+        }
+    }
+
+    /**
+     *  Remove a private resource
+     */
+    public static String removePrivateResource(String resourceName) {
+        synchronized (privateResources) {
+            return privateResources.remove(resourceName);
+        }
+    }
+
     /**
      *  Create a CompositeClassLoader with two class loaders 
      */
@@ -89,6 +122,11 @@ public class CompositeClassLoader extends ClassLoader {
      */
     @Override
     public URL getResource(String name) {
+        if (privateResources.containsKey(name)) {
+            debugClassLoader("getResource()- Found resource ", name, " locally");
+            return newPrivateResourceURL(name);
+            // throw new RuntimeException("Don't know how to create URL for local resource!!! ");
+        }
         for (ClassLoader classLoader : getClassLoaders()) {
             debugClassLoader("Attempting getResource(", name,") on ", classLoader.toString());
             URL resource = classLoader.getResource(name);
@@ -107,11 +145,15 @@ public class CompositeClassLoader extends ClassLoader {
      */ 
     @Override
     public InputStream getResourceAsStream(String name) {
+        if (privateResources.containsKey(name)) {
+            debugClassLoader("getResourceAsStream() - Found resource ", name, " locally");
+            return new StringBufferInputStream(privateResources.get(name));
+        }
         for (ClassLoader classLoader : getClassLoaders()) {
-            debugClassLoader("Attempting getResourceAsStream(", name,") on ", classLoader.toString());
+            debugClassLoader("Attempting getResourceAsStream(", name, ") on ", classLoader.toString());
             InputStream stream = classLoader.getResourceAsStream(name);
             if (stream != null) {
-                debugClassLoader("Found resource(", name,") from ", classLoader.toString());
+                debugClassLoader("Found resource(", name, ")");
                 return stream;
             }
         }
@@ -125,6 +167,10 @@ public class CompositeClassLoader extends ClassLoader {
      */
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
+        if (privateResources.containsKey(name)) {
+            debugClassLoader("getResources()- Found desc resource ", name, " locally");
+            return newPrivateResourceURLEnum(name);
+        }
         List<Enumeration<URL>> enumerations = new ArrayList<Enumeration<URL>>(getClassLoaders().size());
         for (ClassLoader classLoader : getClassLoaders()) {
             debugClassLoader("Attempting getResources(", name,") on ", classLoader.toString());
@@ -186,5 +232,76 @@ public class CompositeClassLoader extends ClassLoader {
         for (ClassLoader classLoader : getClassLoaders()) {
             classLoader.setPackageAssertionStatus(packageName, enabled);
         }
+    }
+
+    URL newPrivateResourceURL(String resourceName) {
+        try {
+            return new URL("privateresource", 
+                    null, // host 
+                    -1, // port
+                    resourceName, // file 
+                    new PrivateResourceURLHandler(this));
+        } catch (MalformedURLException muEx) {
+            muEx.printStackTrace();
+            throw new RuntimeException("MalformedURLException should not happen");
+        }
+
+    }
+
+    Enumeration<URL> newPrivateResourceURLEnum(String resourceName) {
+        
+        URL url = newPrivateResourceURL(resourceName);
+        return new UrlEnumeration<URL>(url);
+    }
+
+    /*=======================================================*/
+    /*  Inner classes to support returning private resources */
+    /*=======================================================*/
+    public class PrivateResourceURLHandler extends URLStreamHandler {
+        CompositeClassLoader cl;
+        
+        PrivateResourceURLHandler(CompositeClassLoader cl) { this.cl = cl; }
+        
+        @Override
+        public URLConnection openConnection(URL u) throws IOException {
+            return cl.new PrivateResourceURLConnection(u, cl);
+        }
+        @Override
+        public URLConnection openConnection(URL u, Proxy p) throws IOException {
+            return openConnection(u);
+        }
+    }
+
+    public class PrivateResourceURLConnection extends URLConnection {
+        CompositeClassLoader cl;
+
+        public PrivateResourceURLConnection(URL u) { super(u); }
+        public PrivateResourceURLConnection(URL u, CompositeClassLoader cl) { 
+            this(u);
+            this.cl = cl; 
+        }
+        @Override public void connect() { 
+            connected = true; 
+        }
+        @Override public InputStream getInputStream() {
+            return cl.getResourceAsStream(this.getURL().getFile());
+        }    
     }    
+
+    @SuppressWarnings("hiding")
+    public class UrlEnumeration<URL> implements Enumeration<URL> {
+        URL url;
+        boolean atEnd = false;
+        
+        public UrlEnumeration(URL url) { this.url = url; }
+        public boolean hasMoreElements() { return !atEnd; }
+        public URL nextElement() {
+            if (atEnd) { 
+                throw new NoSuchElementException();
+            } else {
+                atEnd = true;
+                return url;
+            }
+        }
+    }
 }

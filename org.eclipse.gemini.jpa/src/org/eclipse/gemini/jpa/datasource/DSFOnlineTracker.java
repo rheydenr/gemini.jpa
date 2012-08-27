@@ -52,6 +52,6 @@ public class DSFOnlineTracker implements ServiceTrackerCustomizer {
 
     @Override
     public void removedService(ServiceReference ref, Object service) {
-        GeminiUtil.debug("OnlineTracker.removingService - ignoring service ", ref);
+        GeminiUtil.debug("OnlineTracker.removingService - not concerned with removed service ", ref);
     }
 }

@@ -84,6 +84,8 @@ public class TestMongo extends JpaTest {
     
     public boolean needsEmfService() { return false; }
     
+    public boolean needsDsfService() { return false; }
+    
     public Object newObject() {
         // Assume serialized testing, so no concurrency issues
         if (acct == null) 
@@ -102,14 +104,5 @@ public class TestMongo extends JpaTest {
 
     public String queryString() {
         return "SELECT a FROM Account a";
-    }
-    
-    /* === Helper Methods === */
-
-    public Account getAccount() {
-        // Assume serialized testing, so no concurrency issues
-        if (acct == null) 
-            acct = new Account();
-        return acct;
     }
 }

@@ -27,7 +27,7 @@ import org.eclipse.gemini.jpa.test.common.JpaTest;
  */
 public abstract class AccountTest extends JpaTest {
 
-    /* === Methods that *must* be subclassed === */
+    /* === Methods that have been subclassed === */
 
     public Object newObject() {
         Account a = new Account();
@@ -44,5 +44,5 @@ public abstract class AccountTest extends JpaTest {
 
     public String queryString() {
         return "SELECT a FROM Account a";
-    }    	
+    }
 }

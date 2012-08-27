@@ -12,7 +12,7 @@
  * Contributors:
  *     tware - initial implementation
  ******************************************************************************/
-package org.eclipse.gemini.jpa.provider;
+package org.eclipse.gemini.jpa.eclipselink;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

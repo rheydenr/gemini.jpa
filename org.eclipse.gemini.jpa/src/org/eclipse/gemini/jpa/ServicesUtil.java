@@ -19,6 +19,7 @@ import static org.eclipse.gemini.jpa.GeminiUtil.debug;
 import static org.eclipse.gemini.jpa.GeminiUtil.debugClassLoader;
 import static org.eclipse.gemini.jpa.GeminiUtil.fatalError;
 import static org.eclipse.gemini.jpa.GeminiUtil.warning;
+import static org.eclipse.gemini.jpa.eclipselink.EclipseLinkProvider.ECLIPSELINK_PROVIDER_CLASS_NAME;
 
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -33,8 +34,10 @@ import org.eclipse.gemini.jpa.classloader.BundleProxyClassLoader;
 import org.eclipse.gemini.jpa.classloader.CompositeClassLoader;
 import org.eclipse.gemini.jpa.proxy.EMFBuilderServiceProxyHandler;
 import org.eclipse.gemini.jpa.proxy.EMFServiceProxyHandler;
+import org.eclipse.gemini.jpa.weaving.WeavingHookTransformer;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.hooks.weaving.WeavingHook;
 
 
 /**
@@ -55,7 +58,7 @@ public class ServicesUtil {
     
     public ServicesUtil(GeminiManager mgr) {
         this.mgr = mgr;
-        this.providerClassName = mgr.getProvider().getProviderClassName();
+        this.providerClassName = ECLIPSELINK_PROVIDER_CLASS_NAME;
     }
     
     /*==================*/
@@ -68,12 +71,12 @@ public class ServicesUtil {
      */
     public void registerProviderService() {
         
-        debug("ServicesUtil registering provider service for ", providerClassName);
+        debug("ServicesUtil.RegisterProviderService for ", providerClassName);
 
         // Service strings
         String[] serviceNames = { javax.persistence.spi.PersistenceProvider.class.getName() };
         // Get a provider JPA SPI instance 
-        javax.persistence.spi.PersistenceProvider persistenceProvider = mgr.getProvider().getProviderInstance();
+        javax.persistence.spi.PersistenceProvider persistenceProvider = mgr.getProvider();
 
         // Store the version of the provider as a service property
         String version = bundleVersion(mgr.getBundle());
@@ -93,10 +96,38 @@ public class ServicesUtil {
      */
     public void unregisterProviderService() {
 
-        debug("ServicesUtil un-registering provider service for ", providerClassName);
+        debug("ServicesUtil.unregisterProviderService for ", providerClassName);
         providerService.unregister();
         providerService = null;
         debug("ServicesUtil successfully un-registered provider service for ", providerClassName);
+    }
+
+    /**
+     * Register a weaving hook whiteboard service.
+     * Called by the GeminiOSGiInitializer.registerTransformer method.
+     * The service registration will be stored locally.
+     */
+    public void registerWeavingHookService(WeavingHookTransformer weaver, PUnitInfo pUnitInfo) {
+        
+        GeminiUtil.debugWeaving("ServicesUtil.registerWeavingHookService for punit ", pUnitInfo.getUnitName());
+        ServiceRegistration svcReg = mgr.getBundleContext().registerService(WeavingHook.class.getName(), weaver, 
+                                                                            new Hashtable<String,Object>(0));  
+        pUnitInfo.setWeavingHookService(svcReg);
+        debug("ServicesUtil successfully registered weaving hook for ", pUnitInfo.getUnitName());
+    }    
+
+    /**
+     * Unregister the weaving hook whiteboard service.
+     */
+    public void unregisterWeavingHookService(PUnitInfo pUnitInfo) {
+
+        debug("ServicesUtil.unregisterWeavingHookService for ", pUnitInfo.getUnitName());
+        ServiceRegistration svcReg = pUnitInfo.getWeavingHookService();
+        if (svcReg != null) {
+            svcReg.unregister();
+            pUnitInfo.setWeavingHookService(null);
+            debug("ServicesUtil successfully un-registered weaving hook for ", pUnitInfo.getUnitName());
+        }
     }
 
     /**
@@ -104,7 +135,7 @@ public class ServicesUtil {
      */
     public void registerEMFServices(PUnitInfo pUnitInfo) {
 
-        debug("ServicesUtil registerEMFServices for ", pUnitInfo.getUnitName());
+        debug("ServicesUtil.registerEMFServices for ", pUnitInfo.getUnitName());
 
         // Map of generated anchor classes keyed by class name
         Map<String, Class<?>> anchorClasses; 
@@ -139,7 +170,7 @@ public class ServicesUtil {
      */
     public void unregisterEMFService(PUnitInfo pUnitInfo) {
 
-        debug("ServicesUtil un-registerEMFService for ", pUnitInfo.getUnitName());
+        debug("ServicesUtil.unregisterEMFService for ", pUnitInfo.getUnitName());
 
         // If the tracking service is going, stop it
         // Note: By stopping the tracker now we will not be able to handle a 
@@ -177,7 +208,7 @@ public class ServicesUtil {
      */
     public void unregisterEMFBuilderService(PUnitInfo pUnitInfo) {
 
-        debug("ServicesUtil un-registerEMFBuilderService for ", pUnitInfo.getUnitName());
+        debug("ServicesUtil.unregisterEMFBuilderService for ", pUnitInfo.getUnitName());
 
         // Unregister the service
         ServiceRegistration emfBuilderService = pUnitInfo.getEmfBuilderService();
@@ -310,7 +341,7 @@ public class ServicesUtil {
     }
     
     /** 
-     * build the list of service properties for the service.
+     * Build the list of service properties for the service.
      */
     Dictionary<String,String> buildServiceProperties(PUnitInfo pUnitInfo) {
 
@@ -323,7 +354,7 @@ public class ServicesUtil {
         // For now, only support punits composed of one bundle
         String bundleId = pUnitBundle.getSymbolicName() + "_" + bundleVersion(pUnitBundle);
         props.put("osgi.managed.bundles", bundleId);
-        debug("ServicesUtil JPA services props: ", props);
+        debug("ServicesUtil.buildServiceProps: ", props);
         return props;
     }
 
@@ -334,11 +365,11 @@ public class ServicesUtil {
                                         Map<String,Class<?>> anchorClasses,
                                         Dictionary<String,String> props) {
 
-        debug("ServicesUtil tryToregister EMF service for ", pUnitInfo.getUnitName());
+        debug("ServicesUtil.tryToRegisterEMF service for ", pUnitInfo.getUnitName());
         // Array of classes being proxied by EMF proxy
         Collection<Class<?>> proxiedClasses = new ArrayList<Class<?>>();
 
-        // Load the EMF class. TODO Make this the pUnit loader?
+        // Load the EMF class
         Class<?> emfClass = GeminiUtil.loadClassFromBundle("javax.persistence.EntityManagerFactory",
                                                            mgr.getBundle());
         
@@ -357,7 +388,7 @@ public class ServicesUtil {
         // Do we create an EMF service?
         String driverClassName = pUnitInfo.getDriverClassName();
         if (driverClassName == null) {
-            debug("ServicesUtil No driver class specified so no factory service created");            
+            debug("ServicesUtil No driver class specified so no EMF service created");            
         } else {
             if (!mgr.getDataSourceUtil().trackDataSourceFactory(pUnitInfo)) {
                 // DSF service was not found.
@@ -402,7 +433,7 @@ public class ServicesUtil {
                                           Map<String,Class<?>> anchorClasses,
                                           Dictionary<String,String> props) {
     
-        debug("ServicesUtil register EMFBuilder service for ", pUnitInfo.getUnitName());
+        debug("ServicesUtil.registerEMFBuilder service for ", pUnitInfo.getUnitName());
         // Array of classes being proxied by EMFBuilder proxy
         Collection<Class<?>> proxiedClasses = new ArrayList<Class<?>>();
 

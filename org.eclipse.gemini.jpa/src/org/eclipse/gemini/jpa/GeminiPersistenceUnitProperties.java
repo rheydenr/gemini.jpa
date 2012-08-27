@@ -14,22 +14,67 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa;
 
-/**
- * Gemini-specific persistence unit properties that can be configured 
- * in the persistence descriptor or passed into an EMF creation method.
- */
 public class GeminiPersistenceUnitProperties {
-    
-    /*==================*/
-    /* Static constants */
-    /*==================*/
 
-    // The presence of this property will imply that Gemini JPA will *not* look for the data source, but 
-    // assume that the provider will connect to it directly. (Note that no property value is required or processed.)
-    // This property should only be used if the provider can access/load the data source [driver] classes,
-    // or the data source is natively supported by the provider and can be connected to without having to load 
-    // additional classes. The connection properties needed by the provider must be supplied either in the
-    // persistence descriptor or passed at runtime. (JDBC properties not required)
+    /*======================================================================*/
+    /* Gemini-specific persistence unit properties that can be configured   */
+    /* in the persistence descriptor or passed into an EMF creation method. */
+    /*======================================================================*/
+
+    /** 
+     * The presence of this property will imply that Gemini JPA will *not* look for
+     * the data source, but assume that the provider will connect to it directly. 
+     * (Note that no property value is required or processed.)
+     * This property should only be used if the provider can access/load the data 
+     * source [driver] classes, or the data source is natively supported by the 
+     * provider and can be connected to without having to load additional classes. 
+     * The connection properties needed by the provider must be supplied either in
+     * the persistence descriptor or passed at runtime.(JDBC properties not required)
+     */
     public static String PROVIDER_CONNECTED_DATA_SOURCE = "gemini.jpa.providerConnectedDataSource";
+
+    /*===================================================================*/
+    /* Gemini-specific persistence unit properties that can be set in an */
+    /* OSGi Configuration object.                                        */
+    /*===================================================================*/
+
+    /** 
+     * Property specifying the name of the persistence unit.
+     * This property MUST be specified when a persistence unit config admin 
+     * configuration is being used. The name of the persistence unit must match 
+     * the name included in a persistence descriptor in the persistence bundle
+     * (where the entity classes are located) if a persistence descriptor exists.
+     */
+    public static String PUNIT_NAME = "gemini.jpa.punit.name";
+    
+    /** 
+     * Property specifying the Bundle-SymbolicName of the persistence bundle.
+     * This property MUST be specified when a persistence unit config admin 
+     * configuration is being used and the persistence bundle that contains the 
+     * entity classes for this persistence unit does NOT include a persistence 
+     * descriptor. It MUST NOT be specified if a persistence descriptor is 
+     * included in the persistence bundle.
+     */
+    public static String PUNIT_BSN = "gemini.jpa.punit.bsn";
+
+    /** 
+     * Property that, when set to false, specifies that managed classes (e.g. 
+     * entities) of the punit are to be discovered by scanning the persistence bundle.
+     * This property may only be specified when a persistence unit config admin 
+     * configuration is used and when no persistence descriptor exists in the 
+     * persistence bundle (i.e. when PUNIT_BSN has also been specified).
+     * It should not be specified if PUNIT_CLASSES has been specified.
+     */
+    public static String PUNIT_EXCLUDE_UNLISTED_CLASSES = "gemini.jpa.punit.excludeUnlistedClasses";
+
+    /** 
+     * Property that specifies the managed classes (e.g. entities) of the punit.
+     * The value of the property should be a List of fully-qualified class name Strings.
+     * This property may be specified when a persistence unit config admin 
+     * configuration is used and when no persistence descriptor exists in the 
+     * persistence bundle (i.e. when PUNIT_BSN has also been specified).
+     * It should not be specified if PUNIT_EXCLUDE_UNLISTED_CLASSES has been specified.
+     */
+    public static String PUNIT_CLASSES = "gemini.jpa.punit.classes";
 
 }

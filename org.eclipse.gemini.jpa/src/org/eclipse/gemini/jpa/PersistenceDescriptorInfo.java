@@ -30,8 +30,8 @@ public class PersistenceDescriptorInfo {
     // If embedded in a JAR then this is the url of the JAR.
     URL url;
     
-    // If embedded in a JAR then this the path of the JAR
-    // Should be null if not an embedded descriptor
+    // If embedded in a JAR then this is the path of the JAR.
+    // Should be null if not an embedded descriptor.
     String jarPath;
     
     // Path to the descriptor 

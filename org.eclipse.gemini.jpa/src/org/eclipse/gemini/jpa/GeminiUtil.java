@@ -14,8 +14,12 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.PrintWriter;
 import java.lang.reflect.Array;
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -116,9 +120,13 @@ public class GeminiUtil {
     
     // Function to throw a runtime exception (throws exception)
     public static void fatalError(String s, Throwable t) { 
-        System.out.println("*** FATAL ERROR *** " + s);
-        if (t != null) 
-            t.printStackTrace(System.out);
+        if (t == null) {
+            privateDebug("*** FATAL ERROR *** ", s);
+        } else {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            t.printStackTrace(new PrintWriter(baos));
+            privateDebug("*** FATAL ERROR *** ", s, baos.toString());
+        }
         throw new RuntimeException(s,t); 
     }
 
@@ -135,8 +143,7 @@ public class GeminiUtil {
 
     // Function to indicate a warning condition (non-terminating)
     public static void warning(String msg, String msg2) {
-        String outputMsg = "WARNING: " + msg + msg2;  
-        System.out.println(outputMsg);
+        privateDebug("WARNING: ", msg, msg2);
     }
 
     /*=====================*/
@@ -160,10 +167,10 @@ public class GeminiUtil {
     // Function to print out debug string and classloader info for classloading debugging
     public static void debugClassLoader(String s, ClassLoader cl) { 
         if (GeminiSystemProperties.debugClassloader()) {
-            System.out.println(s + String.valueOf(cl));
+            privateDebug(s, String.valueOf(cl));
             ClassLoader p = cl;
             while (p.getParent() != null) {
-                System.out.println("  Parent loader: " + p.getParent());
+                privateDebug("  Parent loader: ", p.getParent());
                 p = p.getParent();
             }
         }
@@ -195,28 +202,35 @@ public class GeminiUtil {
     public static void debug(String msg, Object obj) { 
         if (GeminiSystemProperties.debug()) {
             if (obj == null) {
-                System.out.println(msg + String.valueOf(obj));
+                privateDebug(msg, String.valueOf(obj));
             } else if ((ClassLoader.class.isAssignableFrom(obj.getClass())) &&
                        (GeminiSystemProperties.debugXml())) {
                 debugClassLoader(msg, (ClassLoader)obj);
             } else if (Bundle.class.isAssignableFrom(obj.getClass())) {
                 Bundle b = (Bundle) obj;
-                System.out.println(msg + " bundle=" + b.getSymbolicName() + 
-                                         " id=" + b.getBundleId()+ 
-                                         " state=" + stringBundleStateFromInt(b.getState()));
+                privateDebug(msg, " bundle=", b.getSymbolicName(),
+                                   " id=", b.getBundleId(),
+                                   " state=", stringBundleStateFromInt(b.getState()));
             } else if (BundleEvent.class.isAssignableFrom(obj.getClass())) {
                 BundleEvent event = (BundleEvent) obj;
-                System.out.println(msg + " bundle=" + event.getBundle().getSymbolicName() + 
-                        ", event=" + stringBundleEventFromInt(event.getType())); 
+                privateDebug(msg, stringBundleEventFromInt(event.getType()), 
+                        "  bundle=", event.getBundle().getSymbolicName()); 
             } else if (obj.getClass().isArray()) {
-                System.out.println(msg);
+                privateDebug(msg);
                 int len = ((Object[])obj).length;
                 for (int i=0; i<len; i++) {
-                    System.out.print("  ");
-                    System.out.println(String.valueOf(Array.get(obj, i)));                    
+                    privateDebug("  ", String.valueOf(Array.get(obj, i)));                    
+                }
+            } else if (Dictionary.class.isAssignableFrom(obj.getClass())) {
+                privateDebug(msg);
+                Dictionary dict = (Dictionary)obj; 
+                Enumeration keysEnum = dict.keys();
+                Enumeration valsEnum = dict.elements();
+                while (keysEnum.hasMoreElements()) { 
+                    privateDebug("  key: ", keysEnum.nextElement(), " value: ", valsEnum.nextElement());
                 }
             } else {
-                System.out.println(msg + String.valueOf(obj));
+                privateDebug(msg, String.valueOf(obj));
             }
         }
     }
@@ -257,7 +271,8 @@ public class GeminiUtil {
     public static void privateDebug(String... msgs) { 
         StringBuilder sb = new StringBuilder();
         for (String msg : msgs) sb.append(msg);
-        System.out.println(sb.toString()); 
+        System.out.println(sb.toString());
+        System.out.flush();
     }
 
     // Private function to print out series of debug objects

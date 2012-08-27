@@ -13,13 +13,15 @@
  *     ssmith - EclipseLink integration
  *     mkeith - rework to use weaving hooks
  ******************************************************************************/
-package org.eclipse.gemini.jpa.provider;
+package org.eclipse.gemini.jpa.eclipselink;
+
+import static org.eclipse.gemini.jpa.GeminiUtil.debug;
+import static org.eclipse.gemini.jpa.GeminiUtil.fatalError;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +29,7 @@ import java.util.Set;
 import javax.persistence.spi.ClassTransformer;
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import org.eclipse.gemini.jpa.GeminiManager;
 import org.eclipse.gemini.jpa.GeminiUtil;
 import org.eclipse.gemini.jpa.PUnitInfo;
 import org.eclipse.gemini.jpa.weaving.WeavingHookTransformer;
@@ -36,23 +39,17 @@ import org.eclipse.persistence.jpa.Archive;
 import org.eclipse.persistence.logging.AbstractSessionLog;
 import org.eclipse.persistence.logging.SessionLog;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-
-import org.osgi.framework.hooks.weaving.WeavingHook;
 
 @SuppressWarnings("rawtypes")
 public class GeminiOSGiInitializer extends JPAInitializer {
-    
-    public static final String OSGI_BUNDLE = "org.eclipse.gemini.jpa.bundle";
-    private static final String OSGI_CONTEXT = "org.eclipse.gemini.jpa.context";
-
-    private boolean weavingSupported = true; 
+   
+    static GeminiManager mgr;
+    Collection<PUnitInfo> pUnits;
    
     /**
      * Constructor used when registering bundles.
      */
-    public GeminiOSGiInitializer() {
-    }
+    public GeminiOSGiInitializer() {}
 
     /** 
      * Constructor used by PersistenceProvider$PersistenceInitializationHelper
@@ -61,6 +58,58 @@ public class GeminiOSGiInitializer extends JPAInitializer {
     GeminiOSGiInitializer(ClassLoader loader) {
         this.initializationClassloader = loader;
     }
+
+    /*=============*/
+    /* New methods */
+    /*=============*/
+
+    /**
+     * Set the manager so transform method can access pUnitInfo state.
+     */
+    static void setManager(GeminiManager manager) {
+        mgr =  manager;
+    }
+    
+    /**
+     * Initialize the p-units in the bundle passed in (there may be multiple p-units).
+	 * This is called by the manager during preResolve.
+     * 
+     * @param mgr Main GeminiManager
+     * @param bundleLoader Used to load resources and classes from provider and p-unit bundle
+     * @param pUnits Collection of p-units found in the bundle
+     */
+    public void initializeFromBundle(ClassLoader bundleLoader, 
+                                     Collection<PUnitInfo> pUnits) {
+        this.initializationClassloader = bundleLoader;
+        this.pUnits = pUnits;
+        
+        // Get all the unique archives in which the p-units are stored
+        List<Archive> pars = new ArrayList<Archive>();
+        Set<String> archivePaths = new HashSet<String>();
+        for (PUnitInfo pUnitInfo : pUnits) {
+            String pUnitDescPath = pUnitInfo.getDescriptorInfo().fullDescriptorPath();
+            if (!archivePaths.contains(pUnitDescPath)){
+                pars.addAll(PersistenceUnitProcessor.findPersistenceArchives(bundleLoader, pUnitDescPath));
+                archivePaths.add(pUnitDescPath);
+            }
+        }        
+        // Initialize all of the archives
+        try {
+            for (Archive archive: pars) {
+                AbstractSessionLog.getLog().log(SessionLog.FINER, "cmp_init_initialize", archive);
+                // This will call us back via #registerTransformer() method
+                initPersistenceUnits(archive, new HashMap<String, Object>());
+            }
+        } finally {
+            for (Archive archive: pars) {
+                archive.close();
+            }
+        }
+    }
+
+    /*====================*/
+    /* Overridden methods */
+    /*====================*/
 
     /**
      * Indicates whether puName uniquely defines the persistence unit.
@@ -73,60 +122,6 @@ public class GeminiOSGiInitializer extends JPAInitializer {
     }
     
     /**
-     * A bundle is being stopped or becoming in some way unavailable.
-     * Undeploy the bundle's persistence units and remove all references
-     * to it.
-     * @param bundle
-     */
-    public void unregisterBundle(Bundle bundle, Collection<PUnitInfo> pUnits) {
-        //TODO: unregisterBundle(Bundle bundle, Collection<PUnitInfo> pUnits)
-    }
-    
-    /**
-     * Initialize the p-units in the bundle passed in (there may be multiple p-units).
-     * 
-     * @param context Provider bundle context
-     * @param bundle The pUnit bundle
-     * @param bundleLoader Used to load resources and classes
-     * @param pUnits Collection of pUnits found in the bundle
-     */
-    public void initializeFromBundle(BundleContext context, 
-                                     Bundle bundle, 
-                                     ClassLoader bundleLoader, 
-                                     Collection<PUnitInfo> pUnits) {
-        this.initializationClassloader = bundleLoader;
-        
-        // Get all the unique archives in which the p-units are stored
-        List<Archive> pars = new ArrayList<Archive>();
-        Set<String> archivePaths = new HashSet<String>();
-        for (PUnitInfo pUnitInfo : pUnits) {
-            String pUnitDescPath = pUnitInfo.getDescriptorInfo().fullDescriptorPath();
-            if (!archivePaths.contains(pUnitDescPath)){
-                pars.addAll(PersistenceUnitProcessor.findPersistenceArchives(bundleLoader, pUnitDescPath));
-                archivePaths.add(pUnitDescPath);
-            }
-        }
-        // Create a properties map with the bundle and context so they
-        // are available when defining a transformer.
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(OSGI_BUNDLE, bundle);
-        properties.put(OSGI_CONTEXT, context);
-        
-        // Initialize all of the archives
-        try {
-            for (Archive archive: pars) {
-                AbstractSessionLog.getLog().log(SessionLog.FINER, "cmp_init_initialize", archive);
-                // This will call us back via #registerTransformer() method
-                initPersistenceUnits(archive, properties);
-            }
-        } finally {
-            for (Archive archive: pars) {
-                archive.close();
-            }
-        }
-    }
-
-    /**
      * Check whether weaving is possible and update the properties and variable as appropriate
      * 
      * @param properties The list of properties to check for weaving and update if weaving is not needed
@@ -137,6 +132,7 @@ public class GeminiOSGiInitializer extends JPAInitializer {
     /**
      * This should not be used in OSGi
      */
+    @Override
     protected ClassLoader createTempLoader(Collection col, boolean shouldOverrideLoadClassForCollectionMembers) {
         return Thread.currentThread().getContextClassLoader();
     }
@@ -148,18 +144,11 @@ public class GeminiOSGiInitializer extends JPAInitializer {
 	protected ClassLoader createTempLoader(Collection col) {
 	    return this.initializationClassloader;
 	}
-
-    /**
-     * Return the classloader of the bundle
-     */
-    public ClassLoader getBundleClassLoader(){
-        return initializationClassloader;
-    }
     
     /**
      * Override the parent impl to do nothing since in Gemini the initialization 
      * happens in the #initializeFromBundle() above, called from 
-     * EclipseLinkOSGiProvider#assignPersistenceUnitsInBundle()
+     * EclipseLinkOSGiProvider#preResolve()
      */
     @Override    
     public void initialize(Map m) {}
@@ -177,29 +166,36 @@ public class GeminiOSGiInitializer extends JPAInitializer {
      */
     @Override
     public void registerTransformer(ClassTransformer transformer, PersistenceUnitInfo persistenceUnitInfo, Map properties) {
-        GeminiUtil.debugWeaving("GeminiInitializer.registerTransformer - ", persistenceUnitInfo.getPersistenceUnitName());
-        if (weavingSupported) {
-            // Get the persistence bundle containing the p-unit we are registering the transformer for
-            Bundle bundle = (Bundle) properties.get(OSGI_BUNDLE);
-            if (bundle == null){
-                GeminiUtil.debugWeaving("No Bundle property, not registering Weaving Hook");
-                return;
-            }
-            // Get the bundle context that we should use when registering the weaving hook
-            BundleContext context = (BundleContext) properties.get(OSGI_CONTEXT);
-            if (context == null){
-                GeminiUtil.debugWeaving("No BundleContext property, not registering Weaving Hook");
-                return;
-            }
-            if (transformer != null) {
-                WeavingHook weaver = new WeavingHookTransformer(transformer, bundle.getSymbolicName(), bundle.getVersion());
-                GeminiUtil.debugWeaving("Registering Weaving Hook for p-unit ", persistenceUnitInfo.getPersistenceUnitName());
-                context.registerService(WeavingHook.class.getName(), weaver, new Hashtable<String,Object>(0));
+        String unitName = persistenceUnitInfo.getPersistenceUnitName();
+        GeminiUtil.debugWeaving("GeminiInitializer.registerTransformer for - ", unitName);
+
+        if (transformer != null) {
+            // Get the p-unit we are registering the transformer for
+            PUnitInfo pUnitInfo = null;
+            // We may get called during preResolve... when our pUnits state will be set
+            if (pUnits != null) {
+                for (PUnitInfo info : pUnits) {
+                    if (info.getUnitName().equals(unitName)) {
+                        pUnitInfo = info;
+                        debug("RegisterTransformer found unitInfo in punits for ", unitName);
+                        break;
+                    }
+                }
+            // Or we may get instantiated later on with punits state 
             } else {
-                GeminiUtil.debugWeaving("Null Transformer passed into registerTransformer");
+                pUnitInfo = mgr.getPUnitsByName().get(unitName);
+                debug("RegisterTransformer looked in manager to find unitInfo for ", unitName);
             }
+            if (pUnitInfo == null) {
+                fatalError("RegisterTransformer could not find unitInfo for " + unitName, null);
+            }
+            
+            Bundle b = pUnitInfo.getBundle();
+            // Create the weaver and pass it to be registered as a service
+            WeavingHookTransformer weaver = new WeavingHookTransformer(transformer, b.getSymbolicName(), b.getVersion());
+            mgr.getServicesUtil().registerWeavingHookService(weaver, pUnitInfo);
         } else {
-            GeminiUtil.fatalError("Attempt to create a transformer when weaving not supported!", null);
+            GeminiUtil.debugWeaving("Null Transformer passed into registerTransformer for punit ", unitName);
         }
     }
 }

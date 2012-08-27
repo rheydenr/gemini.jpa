@@ -123,7 +123,7 @@ public class GeminiSystemProperties {
 
     /*
      * Return whether persistence unit bundles that were found to be already installed 
-     * should be refreshed. This should only be enabled when the provider does not need 
+     * should be refreshed. This should only be disabled when the provider does not need 
      * to do anything pre-resolve time (such as weaving).
      */
     public static boolean refreshPersistenceBundles() { 

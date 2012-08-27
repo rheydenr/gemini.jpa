@@ -33,11 +33,13 @@ public class Activator implements BundleActivator {
         debug("Gemini JPA starting...");
         mgr = new GeminiManager();
         mgr.startup(context);
+        debug("Gemini JPA started");
     }
     
     @Override
     public void stop(BundleContext context) throws Exception {
         debug("Gemini JPA stopping...");
         mgr.shutdown(context);
+        debug("Gemini JPA stopped");
 	}
 }

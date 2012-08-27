@@ -13,7 +13,7 @@
  *     tware - initial implementation
  *     ssmith - support for user specified Eclipse project bin path
  ******************************************************************************/
-package org.eclipse.gemini.jpa.provider;
+package org.eclipse.gemini.jpa.eclipselink;
 
 import java.io.IOException;
 import java.io.InputStream;
