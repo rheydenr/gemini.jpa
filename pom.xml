@@ -65,6 +65,10 @@
 				<module>org.eclipse.gemini.jpa.test.mongo.pu</module>
 				<module>org.eclipse.gemini.jpa.test.temploader</module>
 				<module>org.eclipse.gemini.jpa.test.temploader.pu</module>
+				<module>org.eclipse.gemini.jpa.test.configadmin.gen</module>
+				<module>org.eclipse.gemini.jpa.test.configadmin</module>
+				<module>org.eclipse.gemini.jpa.test.configadmin.pu</module>
+				<module>org.eclipse.gemini.jpa.test.configadmin.pu2</module>
 -->				<module>org.eclipse.gemini.jpa.feature</module>
 				<module>org.eclipse.gemini.jpa.source.feature</module>
 				<module>org.eclipse.gemini.jpa.updatesite</module>
