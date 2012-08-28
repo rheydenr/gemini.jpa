@@ -63,7 +63,7 @@ public class Activator implements BundleActivator {
                         catch (Exception e) {}
                 } while (configAdmin == null);
                 JpaTest.sdebug("Config Admin service acquired");
-                createSingleConfig();
+                createStandaloneConfig();
                 createIncrementalConfig();
             }
         }).start();
@@ -73,7 +73,7 @@ public class Activator implements BundleActivator {
         configAdminTracker.close();
     }
 	
-    protected void createSingleConfig() {
+    protected void createStandaloneConfig() {
         try {
             Configuration[] c = configAdmin.listConfigurations("(service.factoryPid=gemini.jpa.punit)");
             sdebug("ConfigGen: Existing configs: " + ((c != null) ? c.length : ""));

@@ -162,6 +162,120 @@ public class ServicesUtil {
         unregisterEMFBuilderService(pUnitInfo);
     }
 
+    /** 
+     * Register the EMF service.
+     */
+    public void tryToRegisterEMFService(PUnitInfo pUnitInfo,
+                                        Map<String,Class<?>> anchorClasses,
+                                        Dictionary<String,String> props) {
+
+        debug("ServicesUtil.tryToRegisterEMF service for ", pUnitInfo.getUnitName());
+        // Array of classes being proxied by EMF proxy
+        Collection<Class<?>> proxiedClasses = new ArrayList<Class<?>>();
+
+        // Load the EMF class
+        Class<?> emfClass = GeminiUtil.loadClassFromBundle("javax.persistence.EntityManagerFactory",
+                                                           mgr.getBundle());
+        
+        // Add EMF class and anchor classes to the proxied class collection for EMF proxy
+        proxiedClasses.addAll(anchorClasses.values());
+        proxiedClasses.add(emfClass);
+        Class<?>[] classArray = proxiedClasses.toArray(new Class[0]);
+        debug("ServicesUtil EMF proxy class array: ", classArray);
+        
+        // Get a loader to load the proxy classes
+        ClassLoader loader = proxyLoader(pUnitInfo, anchorClasses, emfClass);
+
+        // Create proxy impl object for EMF service
+        Object emfServiceProxy = createEMFProxy(pUnitInfo, loader, classArray);
+
+        // Do we create an EMF service?
+        String driverClassName = pUnitInfo.getDriverClassName();
+        if (driverClassName == null) {
+            debug("ServicesUtil No driver class specified so no EMF service created");            
+        } else {
+            if (!mgr.getDataSourceUtil().trackDataSourceFactory(pUnitInfo)) {
+                // DSF service was not found.
+                debug("DataSourceFactory service for " + driverClassName + " not found.");
+                // Driver may be packaged in with the p-unit -- try loading it from there
+                try {
+                    pUnitInfo.getBundle().loadClass(driverClassName);
+                    debug("JDBC driver " + driverClassName + " found locally.");
+                    // We found the driver in the punit. Stop tracking DBAccess service and revert to direct access
+                    mgr.getDataSourceUtil().stopTrackingDataSourceFactory(pUnitInfo);
+                } catch (ClassNotFoundException cnfEx) {
+                    // Driver not local, bail and wait for the tracker to detect DBAccess service
+                    debug("JDBC driver " + driverClassName + " was not found locally.");
+                    warning("DataSourceFactory service for " + driverClassName + " was not found. EMF service not registered.");
+                    return;
+                }
+            }
+            // Either a DBAccess service exists for the driver or the driver is local
+
+            // Convert array of classes to class name strings
+            String[] classNameArray = new String[classArray.length];
+            for (int i=0; i<classArray.length; i++)
+                classNameArray[i] = classArray[i].getName();
+
+            // Register the EMF service (using p-unit context) and set registration in PUnitInfo
+            ServiceRegistration emfService = null;
+            try {
+                emfService = pUnitInfo.getBundle().getBundleContext()
+                               .registerService(classNameArray, emfServiceProxy, props);
+                debug("ServicesUtil EMF service: ", emfService);
+            } catch (Exception e) {
+                fatalError("ServicesUtil could not register EMF service for " + pUnitInfo.getUnitName(), e);
+            }
+            pUnitInfo.setEmfService(emfService);
+        }
+    }
+    
+    /** 
+     * Register the EMFBuilder service.
+     */
+    public void registerEMFBuilderService(PUnitInfo pUnitInfo,
+                                          Map<String,Class<?>> anchorClasses,
+                                          Dictionary<String,String> props) {
+    
+        debug("ServicesUtil.registerEMFBuilder service for ", pUnitInfo.getUnitName());
+        // Array of classes being proxied by EMFBuilder proxy
+        Collection<Class<?>> proxiedClasses = new ArrayList<Class<?>>();
+
+        // Load the EMFB class
+        Class<?> emfBuilderClass = GeminiUtil.loadClassFromBundle("org.osgi.service.jpa.EntityManagerFactoryBuilder",
+                                                                  mgr.getBundle());
+
+        // Add EMF class and anchor classes to the proxied class collection for EMF proxy
+        proxiedClasses.addAll(anchorClasses.values());
+        proxiedClasses.add(emfBuilderClass);
+        debug("ServicesUtil EMFBuilder proxied classes: ", proxiedClasses);
+        Class<?>[] classArray = proxiedClasses.toArray(new Class[0]);
+        
+        // Get a loader to load the proxy classes
+        ClassLoader loader = proxyLoader(pUnitInfo, anchorClasses, emfBuilderClass);
+
+        // Create proxy impl object for EMF service
+        Object emfBuilderServiceProxy = createEMFBuilderProxy(pUnitInfo, loader, classArray);
+
+        // Convert array of classes to class name strings
+        String[] classNameArray = new String[classArray.length];
+        for (int i=0; i<classArray.length; i++)
+            classNameArray[i] = classArray[i].getName();
+    
+        //Register the EMFBuilder service and set it in the PUnitInfo
+        ServiceRegistration emfBuilderService = null;
+        try {
+            // TODO Should be registered by p-unit context, not provider context
+            // emfBuilderService = pUnitInfo.getBundle().getBundleContext()
+            emfBuilderService = mgr.getBundleContext()
+                    .registerService(classNameArray, emfBuilderServiceProxy, props);
+            debug("ServicesUtil EMFBuilder service: ", emfBuilderService);
+        } catch (Exception e) {
+            fatalError("ServicesUtil could not register EMFBuilder service for " + pUnitInfo.getUnitName(), e);
+        }
+        pUnitInfo.setEmfBuilderService(emfBuilderService);
+    }    
+
     /**
      * Unregister the EMF service if there was an EMF service registered.
      * Clean up any resources the service may have allocated.
@@ -343,7 +457,7 @@ public class ServicesUtil {
     /** 
      * Build the list of service properties for the service.
      */
-    Dictionary<String,String> buildServiceProperties(PUnitInfo pUnitInfo) {
+    public Dictionary<String,String> buildServiceProperties(PUnitInfo pUnitInfo) {
 
         Bundle pUnitBundle = pUnitInfo.getBundle();
         // Assemble the properties
@@ -357,118 +471,4 @@ public class ServicesUtil {
         debug("ServicesUtil.buildServiceProps: ", props);
         return props;
     }
-
-    /** 
-     * Register the EMF service.
-     */
-    void tryToRegisterEMFService(PUnitInfo pUnitInfo,
-                                        Map<String,Class<?>> anchorClasses,
-                                        Dictionary<String,String> props) {
-
-        debug("ServicesUtil.tryToRegisterEMF service for ", pUnitInfo.getUnitName());
-        // Array of classes being proxied by EMF proxy
-        Collection<Class<?>> proxiedClasses = new ArrayList<Class<?>>();
-
-        // Load the EMF class
-        Class<?> emfClass = GeminiUtil.loadClassFromBundle("javax.persistence.EntityManagerFactory",
-                                                           mgr.getBundle());
-        
-        // Add EMF class and anchor classes to the proxied class collection for EMF proxy
-        proxiedClasses.addAll(anchorClasses.values());
-        proxiedClasses.add(emfClass);
-        Class<?>[] classArray = proxiedClasses.toArray(new Class[0]);
-        debug("ServicesUtil EMF proxy class array: ", classArray);
-        
-        // Get a loader to load the proxy classes
-        ClassLoader loader = proxyLoader(pUnitInfo, anchorClasses, emfClass);
-
-        // Create proxy impl object for EMF service
-        Object emfServiceProxy = createEMFProxy(pUnitInfo, loader, classArray);
-
-        // Do we create an EMF service?
-        String driverClassName = pUnitInfo.getDriverClassName();
-        if (driverClassName == null) {
-            debug("ServicesUtil No driver class specified so no EMF service created");            
-        } else {
-            if (!mgr.getDataSourceUtil().trackDataSourceFactory(pUnitInfo)) {
-                // DSF service was not found.
-                debug("DataSourceFactory service for " + driverClassName + " not found.");
-                // Driver may be packaged in with the p-unit -- try loading it from there
-                try {
-                    pUnitInfo.getBundle().loadClass(driverClassName);
-                    debug("JDBC driver " + driverClassName + " found locally.");
-                    // We found the driver in the punit. Stop tracking DBAccess service and revert to direct access
-                    mgr.getDataSourceUtil().stopTrackingDataSourceFactory(pUnitInfo);
-                } catch (ClassNotFoundException cnfEx) {
-                    // Driver not local, bail and wait for the tracker to detect DBAccess service
-                    debug("JDBC driver " + driverClassName + " was not found locally.");
-                    warning("DataSourceFactory service for " + driverClassName + " was not found. EMF service not registered.");
-                    return;
-                }
-            }
-            // Either a DBAccess service exists for the driver or the driver is local
-
-            // Convert array of classes to class name strings
-            String[] classNameArray = new String[classArray.length];
-            for (int i=0; i<classArray.length; i++)
-                classNameArray[i] = classArray[i].getName();
-
-            // Register the EMF service (using p-unit context) and set registration in PUnitInfo
-            ServiceRegistration emfService = null;
-            try {
-                emfService = pUnitInfo.getBundle().getBundleContext()
-                               .registerService(classNameArray, emfServiceProxy, props);
-                debug("ServicesUtil EMF service: ", emfService);
-            } catch (Exception e) {
-                fatalError("ServicesUtil could not register EMF service for " + pUnitInfo.getUnitName(), e);
-            }
-            pUnitInfo.setEmfService(emfService);
-        }
-    }
-    
-    /** 
-     * Register the EMFBuilder service.
-     */
-    void registerEMFBuilderService(PUnitInfo pUnitInfo,
-                                          Map<String,Class<?>> anchorClasses,
-                                          Dictionary<String,String> props) {
-    
-        debug("ServicesUtil.registerEMFBuilder service for ", pUnitInfo.getUnitName());
-        // Array of classes being proxied by EMFBuilder proxy
-        Collection<Class<?>> proxiedClasses = new ArrayList<Class<?>>();
-
-        // Load the EMFB class. TODO Make this the pUnit loader?
-        Class<?> emfBuilderClass = GeminiUtil.loadClassFromBundle("org.osgi.service.jpa.EntityManagerFactoryBuilder",
-                                                                  mgr.getBundle());
-
-        // Add EMF class and anchor classes to the proxied class collection for EMF proxy
-        proxiedClasses.addAll(anchorClasses.values());
-        proxiedClasses.add(emfBuilderClass);
-        debug("ServicesUtil EMFBuilder proxied classes: ", proxiedClasses);
-        Class<?>[] classArray = proxiedClasses.toArray(new Class[0]);
-        
-        // Get a loader to load the proxy classes
-        ClassLoader loader = proxyLoader(pUnitInfo, anchorClasses, emfBuilderClass);
-
-        // Create proxy impl object for EMF service
-        Object emfBuilderServiceProxy = createEMFBuilderProxy(pUnitInfo, loader, classArray);
-
-        // Convert array of classes to class name strings
-        String[] classNameArray = new String[classArray.length];
-        for (int i=0; i<classArray.length; i++)
-            classNameArray[i] = classArray[i].getName();
-    
-        //Register the EMFBuilder service and set it in the PUnitInfo
-        ServiceRegistration emfBuilderService = null;
-        try {
-            // TODO Should be registered by p-unit context, not provider context
-            // emfBuilderService = pUnitInfo.getBundle().getBundleContext()
-            emfBuilderService = mgr.getBundleContext()
-                    .registerService(classNameArray, emfBuilderServiceProxy, props);
-            debug("ServicesUtil EMFBuilder service: ", emfBuilderService);
-        } catch (Exception e) {
-            fatalError("ServicesUtil could not register EMFBuilder service for " + pUnitInfo.getUnitName(), e);
-        }
-        pUnitInfo.setEmfBuilderService(emfBuilderService);
-    }    
 }

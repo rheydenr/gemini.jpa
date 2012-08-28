@@ -30,6 +30,7 @@ public class GeminiPersistenceUnitProperties {
      * provider and can be connected to without having to load additional classes. 
      * The connection properties needed by the provider must be supplied either in
      * the persistence descriptor or passed at runtime.(JDBC properties not required)
+     * These properties may also be specified in an OSGi Configuration.
      */
     public static String PROVIDER_CONNECTED_DATA_SOURCE = "gemini.jpa.providerConnectedDataSource";
 
@@ -77,4 +78,19 @@ public class GeminiPersistenceUnitProperties {
      */
     public static String PUNIT_CLASSES = "gemini.jpa.punit.classes";
 
+    /** 
+     * Property that, when set to true, indicates to Gemini JPA that it must 
+     * perform a refresh of the persistence unit bundle to apply incremental config.
+     * This property may be specified when a persistence unit config admin 
+     * configuration is used and when a persistence descriptor exists in the 
+     * persistence bundle (i.e. PUNIT_BSN property has not been specified).
+     * This is useful if a property is specified in the configuration 
+     * that requires EclipseLink processing at preResolve time, such as if 
+     * weaving is enabled (i.e. eclipselink.weaving property is set to true)
+     * in the configuration but was not enabled in the persistence descriptor.
+     * The default value of this property is false, (i.e. no refreshing).
+     * Setting this property to false will have no effect under any circumstances.
+     */
+    public static String PUNIT_REFRESH = "gemini.jpa.punit.refresh";
+    
 }

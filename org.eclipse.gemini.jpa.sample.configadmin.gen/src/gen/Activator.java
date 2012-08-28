@@ -84,7 +84,6 @@ public class Activator implements BundleActivator {
             props.put("eclipselink.jdbc.read-connections.min", "1");
             props.put("eclipselink.jdbc.write-connections.min", "1");
             props.put("eclipselink.ddl-generation", "drop-and-create-tables");
-            props.put("eclipselink.weaving", "true");
             
             config.update(props);
             System.out.println("Gemini JPA Sample Configuration Generator created configuration.");

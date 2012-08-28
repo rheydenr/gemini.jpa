@@ -40,6 +40,7 @@ public class PersistenceUnitConfiguration {
     String bsn;
     Collection<String> classes;
     String excludeUnlistedClasses;
+    Boolean refreshBundle;
     Map<String,Object> properties;
     
     // Internal state (not really part of the config info)
@@ -61,7 +62,10 @@ public class PersistenceUnitConfiguration {
     protected void setClasses(Collection<String> classes) { this.classes = classes; }
 
     public String getExcludeUnlistedClasses() { return excludeUnlistedClasses; }
-    protected void setExcludeUnlistedClasses(String classes) { this.excludeUnlistedClasses = classes; }
+    protected void setExcludeUnlistedClasses(String flag) { this.excludeUnlistedClasses = flag; }
+
+    public boolean getRefreshBundle() { return (refreshBundle==null) ? false : refreshBundle; }
+    protected void setRefreshBundle(boolean flag) { this.refreshBundle = flag; }
 
     public Map<String, Object> getProperties() { return properties; }
     protected void setProperties(Map<String, Object> props) { this.properties = props;}
@@ -119,6 +123,20 @@ public class PersistenceUnitConfiguration {
                         " must be of type String or Boolean");
             }
         }
+        // Allow refreshBundle to be of type String or Boolean
+        Object refresh = config.get(GeminiPersistenceUnitProperties.PUNIT_REFRESH);
+        if (refresh != null) {
+            if (refresh instanceof Boolean) { 
+                refreshBundle = (Boolean)refresh;
+            } else if (refresh instanceof String) {
+                refreshBundle = Boolean.parseBoolean((String)refresh);
+            } else {
+                GeminiUtil.warning("Configuration property " +
+                        GeminiPersistenceUnitProperties.PUNIT_REFRESH,
+                        " must be of type String or Boolean");
+            }
+        }
+
         // All of the rest of the configuration goes in the properties section
         properties = pUnitProperties(config);
     }
@@ -168,11 +186,12 @@ public class PersistenceUnitConfiguration {
             String key = (String)keysEnum.nextElement();
             props.put(key, dict.get(key));
         }
-        // Now remove all the ones we know are not actual <properties>
+        // Now remove all the ones we know are not actual persistence "<properties>"
         props.remove(GeminiPersistenceUnitProperties.PUNIT_NAME);
         props.remove(GeminiPersistenceUnitProperties.PUNIT_BSN);
         props.remove(GeminiPersistenceUnitProperties.PUNIT_CLASSES);
         props.remove(GeminiPersistenceUnitProperties.PUNIT_EXCLUDE_UNLISTED_CLASSES);
+        props.remove(GeminiPersistenceUnitProperties.PUNIT_REFRESH);
         props.remove(GeminiUtil.JPA_PROVIDER_PROPERTY); // Don't expect this, but remove if present 
         props.remove(Constants.SERVICE_PID);
         props.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
@@ -182,17 +201,18 @@ public class PersistenceUnitConfiguration {
     
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("PUnitConfig[servicePid=").append(getServicePid())
-          .append(", unitName=" + getUnitName())
-          .append((getBsn()!=null) ? ", bsn=" + getBsn() : "")
-          .append((getExcludeUnlistedClasses()!=null) ? ", excludeUnlistedClasses=" + getExcludeUnlistedClasses() : "");
-        if (getClasses() != null) {
+        sb.append("PUnitConfig[servicePid=").append(servicePid)
+          .append(", unitName=" + unitName)
+          .append((bsn!=null) ? ", bsn=" + bsn : "")
+          .append((excludeUnlistedClasses!=null) ? ", excludeUnlistedClasses=" + excludeUnlistedClasses : "")
+          .append((refreshBundle!=null) ? ", refresh=" + refreshBundle : "");
+        if (classes != null) {
             sb.append(", classes={");
-            for (String cls : getClasses())
+            for (String cls : classes)
                 sb.append(" ").append(cls);
             sb.append(" }");
         }
-        sb.append(", props=").append(getProperties())
+        sb.append(", props=").append(properties)
           .append("]");
        return sb.toString();
     }

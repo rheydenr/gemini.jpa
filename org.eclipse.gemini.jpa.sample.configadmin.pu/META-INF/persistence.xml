@@ -12,8 +12,5 @@
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
-        <properties>
-            <property name="eclipselink.logging.level" value="FINEST"/>
-        </properties>
     </persistence-unit>
 </persistence>
