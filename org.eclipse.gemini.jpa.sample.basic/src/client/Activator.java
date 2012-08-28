@@ -12,7 +12,7 @@
  * Contributors:
  *     mkeith - Gemini JPA sample 
  ******************************************************************************/
-package sample;
+package client;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -20,9 +20,10 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
+
+import org.osgi.service.jpa.EntityManagerFactoryBuilder;
 
 /**
  * Gemini JPA sample activator class
@@ -34,12 +35,10 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
     BundleContext ctx;
     ServiceTracker emfTracker;
-    Client client;
 
     public void start(BundleContext context) throws Exception {
         ctx = context;
-        client = new Client();
-        System.out.println("Gemini JPA Sample started");
+        System.out.println("Gemini JPA Basic Sample started");
 
         /* We are in the same bundle as the persistence unit so the services should be 
          * available when we start up (if nothing bad happened) and the tracker is really 
@@ -52,8 +51,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
     public void stop(BundleContext context) throws Exception {
         emfTracker.close();
-        client = null;
-        System.out.println("Gemini JPA Sample stopped");
+        System.out.println("Gemini JPA Basic Sample stopped");
     }
     
     /*========================*/
@@ -64,8 +62,9 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
         Bundle b = ref.getBundle();
         Object service = b.getBundleContext().getService(ref);
         String unitName = (String)ref.getProperty(EntityManagerFactoryBuilder.JPA_UNIT_NAME);
+
         if (unitName.equals("Accounts")) {
-            client.run((EntityManagerFactory)service);
+            new AccountClient().run((EntityManagerFactory)service);
         }
         return service;
     }

@@ -12,7 +12,7 @@
  * Contributors:
  *     mkeith - Gemini JPA sample 
  ******************************************************************************/
-package sample;
+package client;
 
 import java.util.List;
 
@@ -20,34 +20,37 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
 
-import model.samples.account.Account;
-import model.samples.account.Customer;
+import model.configadmin.Library;
+import model.configadmin.Book;
 
 /**
  * Gemini JPA sample client class
  * 
  * @author mkeith
  */
-public class Client {
+public class LibraryClient {
     
     public void run(EntityManagerFactory emf) {
+        System.out.println("Gemini JPA Sample Library client - creating library...");
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         
-        Customer c = new Customer("Chan", "Jackie", "1034 KingFu Lane, Los Angeles, CA");
-        em.persist(c);
-        Account a = new Account(c);
-        a.setBalance(100.0);
-        em.persist(a);
+        Library lib = new Library("Springfield Memorial Library");
+        Book b1 = new Book("978-1-59059-645-6","Pro EJB 3", "Mike Keith");
+        lib.addBook(b1);
+        Book b2 = new Book("978-1-4302-1956-9","Pro JPA 2", "Mike Keith");
+        lib.addBook(b2);
+        em.persist(lib);
 
         em.getTransaction().commit();
 
-        TypedQuery<Account> q = em.createQuery("SELECT a FROM Account a", Account.class);
-        List<Account> results = q.getResultList();
-        System.out.println("\n*** Account Report ***");
-        for (Account acct : results) {
-            System.out.println("Account: " + acct);
-        }
+        System.out.println("\nLibrary: " + em.find(Library.class, lib.getId()));
+        System.out.println("\nList of books: ");
+
+        TypedQuery<Book> q = em.createQuery("SELECT b FROM Book b", Book.class);
+        List<Book> results = q.getResultList();
+        for (Book b : results)
+            System.out.println(" " + b.toString());
         em.close();
     }
 }

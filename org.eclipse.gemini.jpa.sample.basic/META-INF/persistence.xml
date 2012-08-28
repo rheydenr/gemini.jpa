@@ -7,9 +7,10 @@
     <persistence-unit name="Accounts" transaction-type="RESOURCE_LOCAL">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 
-        <class>model.samples.account.Account</class>
-        <class>model.samples.account.Customer</class>
-        <class>model.samples.account.Transaction</class>
+        <class>model.account.Account</class>
+        <class>model.account.Customer</class>
+        <class>model.account.Transaction</class>
+        <class>model.account.TxOperation</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -28,7 +29,7 @@
             <property name="eclipselink.jdbc.read-connections.min" value="1"/>
             <property name="eclipselink.jdbc.write-connections.min" value="1"/>                        
             <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
-            <property name="eclipselink.weaving" value="false"/>
+            <property name="eclipselink.weaving" value="true"/>
 
         </properties>
     </persistence-unit>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2011 SAP AG.
+    Copyright (c) 2011 SAP AG, Oracle Corp.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
    
     Contributors:
-        ktsvetkov - initial implementation
+        ktsvetkov, mkeith
  -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -20,6 +20,6 @@
 		<version>1.1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>org.eclipse.gemini.jpa.samples</artifactId>
+	<artifactId>org.eclipse.gemini.jpa.sample.basic</artifactId>
 	<packaging>eclipse-plugin</packaging>
 </project>
