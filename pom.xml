@@ -23,7 +23,7 @@
 
 	<groupId>org.eclipse</groupId>
 	<artifactId>gemini.jpa.parent</artifactId>
-	<version>1.1.0-SNAPSHOT</version>
+	<version>1.1.0.M2</version>
 	<packaging>pom</packaging>
 
 	<name>Gemini JPA Parent</name>
@@ -45,7 +45,10 @@
 			<modules>
 				<module>org.eclipse.gemini.jpa.targetdef</module>
 				<module>org.eclipse.gemini.jpa</module>
-				<module>org.eclipse.gemini.jpa.samples</module>
+				<module>org.eclipse.gemini.jpa.sample.basic</module>
+				<module>org.eclipse.gemini.jpa.sample.configadmin.gen</module>
+				<module>org.eclipse.gemini.jpa.sample.configadmin.pu</module>
+				<module>org.eclipse.gemini.jpa.sample.configadmin</module>
 <!--				<module>org.eclipse.gemini.jpa.test.common</module>
 				<module>org.eclipse.gemini.jpa.test.basic</module>
 				<module>org.eclipse.gemini.jpa.test.basic.pu</module>

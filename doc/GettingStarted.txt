@@ -15,15 +15,16 @@ or on its own in standalone mode. Felix 4.0 has also been tested.
 
 2. OSGi Enterprise API bundle
 
-Gemini JPA implements some of the OSGi Enterprise APIs so the osgi.enterprise bundle must be resident.
+Gemini JPA implements some of the OSGi Enterprise APIs so the "osgi.enterprise" bundle must be resident.
 This bundle includes both the source and the class files so it can be used for both execution and debugging.
 The Gemini DBAccess download includes this bundle as part of its download, or it can be downloaded from
 the OSGi web site: http://www.osgi.org/Download/Release4V43. It is also in Maven Central.
 
 3. Gemini DBAccess (Optional)
 
-While you don't strictly require Gemini DBAccess to run Gemini JPA it is highly recommended. It renders 
-your application much more modular. The actual bundles you need depend upon the database you are using. 
+While you don't strictly require Gemini DBAccess to run Gemini JPA it is strongly recommended. It renders 
+your application much more modular and allows the driver to be in a separate bundle from the persistence 
+provider. The actual bundles you need depend upon the database you are using. 
 If DBAccess is not present you will need to package the JDBC driver JAR in the persistence unit bundle and 
 set the bundle classpath of the bundle to include the JAR.
 
@@ -36,17 +37,18 @@ The following EclipseLink bundles are required:
 - org.eclipse.persistence.antlr
 - org.eclipse.persistence.core
 - org.eclipse.persistence.jpa
+- org.eclipse.persistence.jpa.jpql
 
-These bundles must be from EclipseLink 2.3.0 GA or later. 
+These bundles must be from EclipseLink 2.4.0 GA or later. 
 
-Note: Do *NOT* use the org.eclipse.persistence.jpa.osgi or any of the weaving bundles shipped with EclipseLink.
+Note: Do *NOT* use "org.eclipse.persistence.jpa.osgi" or any of the weaving bundles shipped with EclipseLink.
 
 5. Gemini JPA bundles
 
-Gemini JPA is composed of a single bundle: org.elipse.gemini.jpa. 
+Gemini JPA is composed of a single bundle: "org.elipse.gemini.jpa". 
 This bundle contains all of the Gemini JPA supporting classes.
 
-An additional samples bundle is also part of the distribution. 
+Additional sample bundles are also part of the distribution. 
 
 Installation
 ------------
@@ -54,12 +56,44 @@ Installation
 If running in PDE then unzip the files into a directory and import the various projects into your workspace, 
 or even better, create a target platform with all of the bundles in it.
 If you are using the framework directly then unzip the distribution files and follow the documentation of
-the framework for installing the bundles described above. Note that the osgi.enterprise bundle has an
-optional dependency on the javax.persistence package (exported by the EclipseLink bundle of that name), which 
+the framework for installing the bundles described above. Note that the "osgi.enterprise" bundle has an
+optional dependency on the "javax.persistence" package (exported by the EclipseLink bundle of that name), which 
 is not optional when using the JPA classes.
 
 Configuration
 -------------
 
-Gemini JPA does not require any special environment configuration, however, ensure that the javax.persistence 
-and DBAccess bundles have been started before any applications.
+Gemini JPA does not require any special environment configuration, however, if you ensure that the javax.persistence 
+and DBAccess bundles have been started before any applications, then Gemini JPA will not have to do as much refreshing 
+of bundles during startup.
+
+Running the Samples
+-------------------
+
+[Basic Sample]
+
+The basic sample is a persistence unit and client combined within a single bundle: "org.eclipse.gemini.jpa.sample.basic".
+Once Gemini JPA is installed and running you need only install and run this bundle to see the sample persistence unit 
+and client interact. Although the client is contained within the same bundle as the persistence unit, it still uses the 
+EntityManagerFactory (EMF) service exported by Gemini JPA. Take a look at the Activator class to see how a client
+typically accesses the EMF service.
+
+[Config Admin Sample]
+
+The config admin sample is composed of three bundles: 
+
+  1) org.eclipse.gemini.jpa.sample.configadmin.pu - persistence unit bundle
+        * Contains a Library persistence unit with a persistence.xml descriptor
+          but no database connection property information in the descriptor.
+		  
+  2) org.eclipse.gemini.jpa.sample.configadmin.gen - Configuration generator bundle
+        * Creates an OSGi Configuration object containing the database connection 
+		  properties used by the persistence unit.
+		  
+  3) org.eclipse.gemini.jpa.sample.configadmin - client
+        * Client code that imports the entity packages of the persistence unit
+		  and operates on the entities.
+
+All three bundles must be installed and started for the sample to work.
+In addition, the relevant configuration admin bundle for your OSGi framework must be installed
+(e.g. "org.eclipse.equinox.cm" for Equinox and "org.apache.felix.configadmin" for Felix).

@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.gemini.jpa.feature"
       label="Gemini JPA"
-      version="1.1.0.qualifier"
+      version="1.1.0.M2"
       provider-name="Oracle Corp."
       plugin="org.eclipse.gemini.jpa">
 
@@ -23,11 +23,12 @@
    </url>
 
    <requires>
-      <import plugin="org.eclipse.persistence.asm" version="2.3.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.persistence.antlr" version="2.3.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.persistence.core" version="2.3.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.persistence.jpa" version="2.3.0" match="greaterOrEqual"/>
-      <import plugin="javax.persistence" version="2.0.3" match="compatible"/>
+      <import plugin="org.eclipse.persistence.asm" version="3.3.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.persistence.antlr" version="3.2.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.persistence.core" version="2.4.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.persistence.jpa" version="2.4.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.persistence.jpa.jpql" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="javax.persistence" version="2.0.4" match="compatible"/>
       <import plugin="osgi.enterprise"/>
       <import plugin="org.eclipse.osgi"/>
    </requires>
@@ -38,8 +39,23 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.gemini.jpa.samples"
+         id="org.eclipse.gemini.jpa.sample.basic"
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="org.eclipse.gemini.jpa.sample.configadmin.gen"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.gemini.jpa.sample.configadmin.pu"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.gemini.jpa.sample.configadmin"
+         version="0.0.0"
+         unpack="false"/>
+		 
 </feature>
