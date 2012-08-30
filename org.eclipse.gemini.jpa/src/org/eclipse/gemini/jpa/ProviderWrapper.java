@@ -17,6 +17,7 @@ package org.eclipse.gemini.jpa;
 
 import static org.eclipse.gemini.jpa.GeminiUtil.debug;
 import static org.eclipse.gemini.jpa.GeminiUtil.fatalError;
+import static org.eclipse.gemini.jpa.GeminiUtil.PUNIT_INFO_PROPERTY;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -85,15 +86,15 @@ public class ProviderWrapper implements PersistenceProvider {
         
         debug("ProviderWrapper createEMF invoked for p-unit: ", emName, " props: ", properties);
 
-        PUnitInfo pUnitInfo = mgr.getPUnitsByName().get(emName);
-        if (pUnitInfo == null)
+        PUnitInfo unitInfo = mgr.getPUnitsByName().get(emName);
+        if (unitInfo == null)
             fatalError("createEntityManagerFactory() called on provider, but punit has not been registered: ", null);
 
         // Create a new properties map and put all of the properties in it
         Map<String,Object> props = new HashMap<String,Object>();
         // First the props from config admin if any are there
-        if (pUnitInfo.getConfigProperties() != null) {
-            props.putAll(pUnitInfo.getConfigProperties());
+        if (unitInfo.getConfigProperties() != null) {
+            props.putAll(unitInfo.getConfigProperties());
         }
         // Now the props passed into this createEMF call (may overwrite config admin props)
         if (properties != null) {
@@ -103,7 +104,7 @@ public class ProviderWrapper implements PersistenceProvider {
         // Create a composite loader that loads from the punit bundle and the provider bundle
         CompositeClassLoader compositeLoader = CompositeClassLoader.createCompositeLoader(
                 mgr.getBundleContext(), 
-                pUnitInfo.getBundle());
+                unitInfo.getBundle());
         // Bug 385170 - If user supplies a classloader then tack it on the front
         if (props.containsKey(PersistenceUnitProperties.CLASSLOADER)) {
             ClassLoader userLoader = (ClassLoader) props.get(PersistenceUnitProperties.CLASSLOADER);
@@ -112,12 +113,15 @@ public class ProviderWrapper implements PersistenceProvider {
         props.put(PersistenceUnitProperties.CLASSLOADER, compositeLoader);
 
         // Pass in the data source as a property
-        DataSource ds = mgr.getDataSourceUtil().acquireDataSource(pUnitInfo, properties);
+        DataSource ds = mgr.getDataSourceUtil().acquireDataSource(unitInfo, properties);
         if (ds != null) 
             props.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, ds);
         
         // Specify the name and location of the persistence descriptor
-        props.put(PersistenceUnitProperties.ECLIPSELINK_PERSISTENCE_XML, fullDescriptorPath(pUnitInfo));
+        props.put(PersistenceUnitProperties.ECLIPSELINK_PERSISTENCE_XML, fullDescriptorPath(unitInfo));
+
+        // Put in a private property that we can use later on in the call stack to get the punit info
+        props.put(PUNIT_INFO_PROPERTY, unitInfo);
 
         // Now make the call
         EntityManagerFactory emf = nativeProvider.createEntityManagerFactory(emName, props);

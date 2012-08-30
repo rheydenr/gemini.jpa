@@ -12,8 +12,11 @@
  * Contributors:
  *     tware - initial implementation
  *     ssmith - support for user specified Eclipse project bin path
+ *     mkeith - adapted to new property, changed to use gemini debugging
  ******************************************************************************/
 package org.eclipse.gemini.jpa.eclipselink;
+
+import static org.eclipse.gemini.jpa.GeminiUtil.debugClassLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,9 +27,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.gemini.jpa.classloader.EclipseDotClasspathHelper;
 import org.eclipse.persistence.internal.jpa.deployment.ArchiveBase;
@@ -36,18 +36,12 @@ import org.osgi.framework.Bundle;
 /**
  * A bundle archive subclasses from EclipseLink's Bundle framework in order 
  * to allow use of the Bundle API to look inside persistence units.
- * @author tware
- *
  */
-@SuppressWarnings({"rawtypes","deprecation"})
 public class BundleArchive extends ArchiveBase implements Archive {
 
     protected Bundle bundle = null;
     protected EclipseDotClasspathHelper pdeClasspathHelper = new EclipseDotClasspathHelper();
-    
-    @SuppressWarnings("unused")
-    private Logger logger;
-    
+        
     /** 
      * This is used for Eclipse PDE support.  PDE does not always store entries
      * at the root of the bundle.  We store the size of the path prefix in the bundle when
@@ -56,20 +50,10 @@ public class BundleArchive extends ArchiveBase implements Archive {
      */
     protected Integer pathPrefixSize = null;
 
-    public BundleArchive(URL rootUrl, Map properties, String descriptorLocation) throws MalformedURLException {
-        this(rootUrl, properties, descriptorLocation, Logger.global);
-    }
-
-    public BundleArchive(URL rootUrl, Map properties, String descriptorLocation, Logger logger)
+    public BundleArchive(URL rootUrl, String descriptorLocation, Bundle b)
             throws MalformedURLException {
         super(rootUrl, descriptorLocation);
-        this.bundle = (Bundle)properties.get("org.eclipse.gemini.jpa.bundle");
-        logger.entering("BundleArchive", "BundleArchive " + rootUrl);
-        this.logger = logger;
-
-        this.descriptorLocation = descriptorLocation;
-        logger.logp(Level.FINER, "BundleArchive", "BundleArchive", // NOI18N
-                "rootURL = {0}", rootURL); // NOI18N
+        this.bundle = b;
     }
 
     public Iterator<String> getEntries() {
@@ -93,9 +77,9 @@ public class BundleArchive extends ArchiveBase implements Archive {
                 e.printStackTrace();
             }
         }
+        debugClassLoader("BundleArchive.getEntries() found entries: ",result);
         return result.iterator();
     }
-
     
     protected String trimClassName(String path){
         return path.substring(pathPrefixSize);
@@ -115,6 +99,5 @@ public class BundleArchive extends ArchiveBase implements Archive {
         return bundle.getEntry(entryPath);
     }
 
-    public void close() {     
-    }
+    public void close() {}
 }

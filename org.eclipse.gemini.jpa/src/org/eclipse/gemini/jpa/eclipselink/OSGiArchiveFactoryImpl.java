@@ -11,42 +11,50 @@
  *
  * Contributors:
  *     tware - initial implementation
+ *     mkeith - cleaned up, added debugging
  ******************************************************************************/
 package org.eclipse.gemini.jpa.eclipselink;
+
+import static org.eclipse.gemini.jpa.GeminiUtil.debugClassLoader;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
-import java.util.logging.Level;
 
+import org.eclipse.gemini.jpa.GeminiUtil;
+import org.eclipse.gemini.jpa.PUnitInfo;
 import org.eclipse.persistence.internal.jpa.deployment.ArchiveFactoryImpl;
 import org.eclipse.persistence.internal.jpa.deployment.JarInputStreamURLArchive;
 import org.eclipse.persistence.jpa.Archive;
 
 /**
- * Subclass of EclipseLink's ArchiveFactoryImpl
+ * Subclass of EclipseLink's ArchiveFactoryImpl.
  * This subclass allows construction of a BundleArchive which can use the Bundle API
- * to extract information out of a persistence unit
- * @author tware
- *
+ * to extract information out of a persistence unit.
  */
 @SuppressWarnings({"rawtypes"})
 public class OSGiArchiveFactoryImpl extends ArchiveFactoryImpl{
 
     @Override
     public Archive createArchive(URL rootUrl, String descriptorLocation, Map properties) throws URISyntaxException, IOException {
-        logger.entering("ArchiveFactoryImpl", "createArchive", new Object[]{rootUrl, descriptorLocation});
-        String protocol = rootUrl.getProtocol();
-        logger.logp(Level.FINER, "ArchiveFactoryImpl", "createArchive", "protocol = {0}", protocol);
-        
-        if (properties != null && properties.get("org.eclipse.gemini.jpa.bundle") != null){
-            if (isJarInputStream(rootUrl)){
-                return new JarInputStreamURLArchive(rootUrl, descriptorLocation);
-            } else {
-                return new BundleArchive(rootUrl,properties, descriptorLocation, logger);
+        debugClassLoader("ArchiveFactoryImpl.createArchive, url=",rootUrl," descLocation=",descriptorLocation," props=",properties);
+
+        // Pull the bundle out from the PUnitInfo property (set by ProviderWrapper in createEMF call) 
+        if (properties != null) {
+            PUnitInfo unitInfo = (PUnitInfo)properties.get(GeminiUtil.PUNIT_INFO_PROPERTY);
+            if (unitInfo != null) {
+                if (isJarInputStream(rootUrl)){
+                    debugClassLoader("  returning JarInputStreamURLArchive");
+                    return new JarInputStreamURLArchive(rootUrl, descriptorLocation);
+                } else {
+                    debugClassLoader("  returning BundleArchive, bundle=",unitInfo.getBundle());
+                    return new BundleArchive(rootUrl, descriptorLocation, unitInfo.getBundle());
+                }
             }
         }
+        // If none of that worked out then the call must have been through a different route
+        debugClassLoader("  returning default parent archive");
         return super.createArchive(rootUrl, descriptorLocation, properties);
     }
 }

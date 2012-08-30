@@ -51,6 +51,9 @@ public class GeminiUtil {
     public static String OSGI_JDBC_DRIVER_VERSION_PROPERTY = "osgi.jdbc.driver.version";
     public static String OSGI_JPA_PROVIDER_VERSION_PROPERTY = "osgi.jpa.provider.version";
     
+    // Private property used to pass punit info through to provider as a property
+    public static String PUNIT_INFO_PROPERTY = "gemini.jpa.punitInfo";
+    
     /*============================*/
     /* Helper and Utility methods */
     /*============================*/
@@ -161,6 +164,13 @@ public class GeminiUtil {
     public static void debugClassLoader(String... msgs) { 
         if (GeminiSystemProperties.debugClassloader()) {
             privateDebug(msgs);
+        }
+    }
+
+    // Function to print out series of objects for classloading purposes
+    public static void debugClassLoader(Object... args) { 
+        if (GeminiSystemProperties.debugClassloader()) {
+            privateDebug(args);
         }
     }
 

@@ -15,7 +15,7 @@
 package org.eclipse.gemini.jpa.classloader;
 
 import static org.eclipse.gemini.jpa.GeminiUtil.close;
-import static org.eclipse.gemini.jpa.GeminiUtil.debug;
+import static org.eclipse.gemini.jpa.GeminiUtil.debugClassLoader;
 import static org.eclipse.gemini.jpa.GeminiUtil.fatalError;
 
 import java.io.InputStream;
@@ -53,11 +53,11 @@ public class EclipseDotClasspathHelper {
         InputStream in = null;
         try { 
             in = resource.openStream();
-            debug("Parsing Eclipse .classpath");
+            debugClassLoader("Parsing Eclipse .classpath");
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
             parser.parse(in, handler);
             String binPath = handler.getBinPath();
-            debug("Finished parsing Eclipse .classpath: ", binPath);
+            debugClassLoader("Finished parsing Eclipse .classpath: ", binPath);
             return binPath;
         } catch(Throwable ex) {
             fatalError("Could not parse .classpath ", ex);
