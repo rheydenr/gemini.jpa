@@ -16,7 +16,7 @@ package org.eclipse.gemini.jpa.test.basic;
 
 import javax.persistence.*;
 
-import model.account.Account;
+import model.basic.Account;
 
 import org.eclipse.gemini.jpa.test.common.JpaTest;
 

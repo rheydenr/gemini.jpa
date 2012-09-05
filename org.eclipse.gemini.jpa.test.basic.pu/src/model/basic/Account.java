@@ -12,7 +12,7 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package model.account;
+package model.basic;
 
 import javax.persistence.*;
 

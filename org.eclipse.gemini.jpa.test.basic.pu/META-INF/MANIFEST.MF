@@ -9,7 +9,7 @@ Import-Package: javax.persistence;version="1.1.0";jpa="2.0",
  javax.persistence.criteria;version="1.1.0";jpa="2.0",
  javax.persistence.metamodel;version="1.1.0";jpa="2.0",
  org.osgi.framework;version="1.6.0"
-Export-Package: model.account;version="1.1.0"
+Export-Package: model.basic;version="1.1.0"
 ZZZ-Require-Capability: osgi.extender;
  filter:="(&(osgi.extender=osgi.jpa)(version>=1.0))"
 
