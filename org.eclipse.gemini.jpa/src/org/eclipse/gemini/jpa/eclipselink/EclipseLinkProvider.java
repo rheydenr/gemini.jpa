@@ -120,19 +120,19 @@ public class EclipseLinkProvider extends org.eclipse.persistence.jpa.Persistence
 
     /**
      * Return JPAInitializer corresponding to the passed classLoader.
-     * @param classLoader
-     * @param m
-     * @return
      */
     @Override
     public JPAInitializer getInitializer(String emName, Map m){
         final ClassLoader classLoader = getClassLoader(emName, m);
         return new GeminiOSGiInitializer(classLoader);
-//        return createInitializer(classLoader, m);
     }
+    
+    /*================*/
+    /* Helper methods */
+    /*================*/
 
-//  public JPAInitializer createInitializer(final ClassLoader classLoader, Map m) {
-//  return new GeminiOSGiInitializer(classLoader);
-//}
-
+    // Function to return whether the EclipseLink session-name property is set
+    public static boolean containsSessionName(Map<?,?> props) {
+        return props.containsKey(PersistenceUnitProperties.SESSION_NAME);
+    }
 }

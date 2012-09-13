@@ -44,7 +44,7 @@ public abstract class JpaTest {
 
     // Put the JDBC access config in the default props
     public static Map<String,Object> defaultProps() {
-        Map<String,Object> props = new HashMap<String,Object>();        
+        Map<String,Object> props = new HashMap<String,Object>();
         props.put("javax.persistence.jdbc.driver", JDBC_TEST_DRIVER);
         props.put("javax.persistence.jdbc.url", JDBC_TEST_URL);
         props.put("javax.persistence.jdbc.user", JDBC_TEST_USER);

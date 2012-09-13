@@ -12,11 +12,10 @@
  * Contributors:
  *     mkeith - Gemini JPA tests 
  ******************************************************************************/
-package model.mongo;
+package model.multiemf;
 
-import javax.persistence.*;
-
-import org.eclipse.persistence.nosql.annotations.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 /**
  * Test JPA model class
@@ -24,28 +23,16 @@ import org.eclipse.persistence.nosql.annotations.*;
  * @author mkeith
  */
 @Entity
-@NoSql(dataFormat=DataFormatType.MAPPED)
-public class Account {
+public class Entity1 {
 
-    @Id @GeneratedValue 
-	@Field(name="_id")
-	String id;
+    @Id
+    int id;
     
-    double balance;
-    
-    /* Constructors */
-    public Account() { 
-        balance = 5;
-    }
+    String data;
 
-    /* Getters and setters */
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-    
-    public double getBalance() { return balance; }
-    public void setBalance(double balance) { this.balance = balance; }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public String toString() {
-        return "Account(" + id + ", Balance: $" + balance + ")";
-    }
+    public String getData() { return data; }
+    public void setData(String data) { this.data = data; }
 }

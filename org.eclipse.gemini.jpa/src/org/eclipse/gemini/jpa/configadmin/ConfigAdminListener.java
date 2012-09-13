@@ -146,14 +146,14 @@ public class ConfigAdminListener implements ManagedServiceFactory {
         // If it has a BSN then store it against its bsn, otherwise store it against its name
         if (config.getBsn() != null) {
             synchronized (configsByBsn) { configsByBsn.put(config.getBsn(), config); }
-            // If it has a bsn then it is for a persistence bundle with no existing descriptor.
-            // If this is the case then create one and store it in classloader
+            // If it has a bsn then it is a standalone config (persistence bundle has no persistence descriptor).
+            // If this is the case then synthesize a descriptor and squirrel it away in the classloader
             generateAndStashPersistenceDescriptor(config);
         } else {
-            // No bsn, so it must have an existing descriptor in the bundle
+            // No bsn. Must be an incremental config - persistence bundle will have an existing descriptor
             synchronized (configsByName) { configsByName.put(config.getUnitName(), config); }
         }
-        // Determine if we need to refresh the bundle and refresh it if necessary
+        // Determine if we need to refresh the bundle and then refresh it if necessary
         refreshPersistenceUnitIfNecessary(config, false);
     }
     
@@ -261,7 +261,7 @@ public class ConfigAdminListener implements ManagedServiceFactory {
      */
     protected void refreshPersistenceUnitIfNecessary(PersistenceUnitConfiguration config, boolean force) {
         Bundle b;
-        boolean needsRefresh = force; // Never explicitly set to false in this method
+        boolean needsRefresh = false;
         String unitName = config.getUnitName();
         debug("ConfigAdminListener checking if necessary to refresh bundle for punit ", unitName, ", force=", force);
 
@@ -271,7 +271,7 @@ public class ConfigAdminListener implements ManagedServiceFactory {
             b = unitInfo.getBundle();
             
             // If an existing EMF service is already registered or refresh property specified then we need to refresh
-            if ((unitInfo.getEmfService() != null) || config.getRefreshBundle()) {
+            if (force || (unitInfo.getEmfService() != null) || config.getRefreshBundle()) {
                 needsRefresh = true;
             }
 
@@ -281,7 +281,7 @@ public class ConfigAdminListener implements ManagedServiceFactory {
                 mgr.getExtender().unregisterPersistenceUnitsInBundle(b);
                 mgr.getExtender().unassignPersistenceUnitsInBundle(b);
             } else {
-                // Existing punit (with an existing EMFBuilder service) and no refreshing. 
+                // Don't refresh. Existing punit (with only EMFBuilder service) 
                 // Go ahead and update the unitInfo from the config and then register the EMF service
                 config.updatePUnitInfo(unitInfo);
                 mgr.getServicesUtil().tryToRegisterEMFService(
@@ -292,8 +292,8 @@ public class ConfigAdminListener implements ManagedServiceFactory {
         } else {
             // Try looking at the bundles that are in limbo (did not have existing descriptor)
             b = mgr.getExtender().getBundleInLimbo(config.getBsn());
-            needsRefresh = true;
             if (b != null) {
+                needsRefresh = true;
                 debug("ConfigAdminListener found punit bundle ", unitName, " in limbo");
             }
         }

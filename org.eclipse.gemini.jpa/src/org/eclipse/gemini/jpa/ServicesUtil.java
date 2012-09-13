@@ -38,6 +38,7 @@ import org.eclipse.gemini.jpa.weaving.WeavingHookTransformer;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.hooks.weaving.WeavingHook;
+import org.osgi.framework.wiring.BundleWiring;
 
 
 /**
@@ -110,8 +111,10 @@ public class ServicesUtil {
     public void registerWeavingHookService(WeavingHookTransformer weaver, PUnitInfo pUnitInfo) {
         
         GeminiUtil.debugWeaving("ServicesUtil.registerWeavingHookService for punit ", pUnitInfo.getUnitName());
-        ServiceRegistration svcReg = mgr.getBundleContext().registerService(WeavingHook.class.getName(), weaver, 
-                                                                            new Hashtable<String,Object>(0));  
+        Hashtable<String,Object> props = new Hashtable<String,Object>(); 
+        props.put("osgi.unit.name", pUnitInfo.getUnitName());
+        
+        ServiceRegistration svcReg = mgr.getBundleContext().registerService(WeavingHook.class.getName(), weaver, props);  
         pUnitInfo.setWeavingHookService(svcReg);
         debug("ServicesUtil successfully registered weaving hook for ", pUnitInfo.getUnitName());
     }    
@@ -399,10 +402,14 @@ public class ServicesUtil {
         } else {
             try {
                 // We have domain classes, but no anchor classes were generated.
-                // Load a domain class and get a loader from it. Combine it with the provider loader.
-                ClassLoader pUnitLoader = 
-                    pUnitInfo.getBundle().loadClass((String)(pUnitInfo.getClasses().toArray()[0])).getClassLoader();
+                BundleWiring bw = pUnitInfo.getBundle().adapt(BundleWiring.class);
+                // Get the punit loader
+                ClassLoader pUnitLoader = (bw != null) 
+                        ? bw.getClassLoader()
+                        // Last ditch effort - load a domain class and get its loader        
+                        : pUnitInfo.getBundle().loadClass((String)(pUnitInfo.getClasses().toArray()[0])).getClassLoader();
                 ClassLoader jpaClassLoader = jpaClass.getClassLoader();
+                // Combine the punit loader with the provider loader.
                 cl = (pUnitLoader == jpaClassLoader) 
                     ? jpaClassLoader 
                     : new CompositeClassLoader(pUnitLoader, jpaClassLoader);

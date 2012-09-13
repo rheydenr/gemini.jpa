@@ -86,7 +86,7 @@ public class DataSourceUtil {
 
         // Try using a DSF service if we have one stored away and the one asked for is the same
         ServiceReference dsfRef = pUnitInfo.getDsfService();
-        if ((dsfRef != null) && (driverName.equals(pUnitInfo.getDriverClassName()))) {
+        if ((dsfRef != null) && (specifiesSameDriver(driverName, driverVersion, pUnitInfo))) {
             debug("DataSourceUtil - Using existing DSF service ref from punit ", pUnitInfo.getUnitName());
             DataSourceFactory dsf = (DataSourceFactory) mgr.getBundleContext().getService(dsfRef);
             try {
@@ -127,6 +127,18 @@ public class DataSourceUtil {
         Properties props = getJdbcProperties(pUnitInfo, properties);
         
         return new PlainDriverDataSource(driver, props);
+    }
+    
+    // Return whether the same driver is specified as in the PUnitInfo.
+    // Driver names can both be assumed to be non-null and must be equal.
+    // One, or both, of the versions may be null, but if neither are null then they must match.
+    protected boolean specifiesSameDriver(String driverName, String driverVersion, PUnitInfo unitInfo) {
+        String infoDriverName = unitInfo.getDriverClassName();
+        String infoDriverVersion = unitInfo.getDriverVersion();
+        return (driverName.equals(infoDriverName)) &&
+                 ((driverVersion == null) || 
+                  (infoDriverVersion == null) || 
+                  (driverVersion.equals(infoDriverVersion)));
     }
     
     /*

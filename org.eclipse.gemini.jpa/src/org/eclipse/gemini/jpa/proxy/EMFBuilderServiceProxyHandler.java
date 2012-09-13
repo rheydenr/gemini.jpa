@@ -26,9 +26,8 @@ import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.eclipse.persistence.config.PersistenceUnitProperties;
-
 import org.eclipse.gemini.jpa.PUnitInfo;
+import org.eclipse.gemini.jpa.eclipselink.EclipseLinkProvider;
 
 /**
  * Dynamic proxy class to proxy the EMFBuilder service
@@ -62,7 +61,7 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
         if (method.getName().equals("toString"))
             return this.toString();
 
-        // Must be a createEntityManagerFactory(String, Map) call
+        // Must be a createEntityManagerFactory(Map) call
 
         // The first arg should be the properties Map
         Map<String,Object> props = null;
@@ -77,9 +76,9 @@ public class EMFBuilderServiceProxyHandler extends EMFServiceProxyHandler
         // If EclipseLink SESSION_NAME property specified then just create and return an EMF
         // NOTE: This will return an EMF that is not managed by Gemini.
         //       The caller will be responsible for managing it.
-        if (props.get(PersistenceUnitProperties.SESSION_NAME) != null) {
+        if (EclipseLinkProvider.containsSessionName(props)) {
                 // Let EclipseLink do its thing and create an EMF. Just return it.
-                debug("EMFBuilder found eclipselink.session-name - returning unmanaged EMF for props ", props);
+                debug("EMFBuilder found Eclipselink session name property - returning unmanaged EMF for props ", props);
                 return super.createEMF(props);
         }
         

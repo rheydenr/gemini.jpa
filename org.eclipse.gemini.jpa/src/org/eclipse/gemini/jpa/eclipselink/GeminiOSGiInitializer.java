@@ -181,7 +181,7 @@ public class GeminiOSGiInitializer extends JPAInitializer {
                         break;
                     }
                 }
-            // Or we may get instantiated later on with punits state 
+            // Or we may get instantiated later on and need to get the state from the mgr
             } else {
                 pUnitInfo = mgr.getPUnitsByName().get(unitName);
                 debug("RegisterTransformer looked in manager to find unitInfo for ", unitName);
@@ -191,9 +191,14 @@ public class GeminiOSGiInitializer extends JPAInitializer {
             }
             
             Bundle b = pUnitInfo.getBundle();
-            // Create the weaver and pass it to be registered as a service
-            WeavingHookTransformer weaver = new WeavingHookTransformer(transformer, b.getSymbolicName(), b.getVersion());
-            mgr.getServicesUtil().registerWeavingHookService(weaver, pUnitInfo);
+            // Create the weaver and pass it to be registered as a service if no service exists for it yet
+            if (pUnitInfo.getWeavingHookService() == null) {
+                debug("RegisterTransformer - no weaving service exists yet for ", unitName);                
+                WeavingHookTransformer weaver = new WeavingHookTransformer(transformer, b.getSymbolicName(), b.getVersion());
+                mgr.getServicesUtil().registerWeavingHookService(weaver, pUnitInfo);
+            } else {
+                debug("RegisterTransformer - weaving service already existed for ", unitName);                
+            }
         } else {
             GeminiUtil.debugWeaving("Null Transformer passed into registerTransformer for punit ", unitName);
         }

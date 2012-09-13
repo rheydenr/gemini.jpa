@@ -1,12 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Meta-Persistence: META-INF/jpa.xml
-Bundle-Name: Gemini JPA Test Weaved Persistence Unit
-Bundle-SymbolicName: org.eclipse.gemini.jpa.test.weaved.pu
+Bundle-Name: Gemini JPA Test MultiEMF Persistence Unit
+Bundle-SymbolicName: org.eclipse.gemini.jpa.test.multiemf.pu
 Bundle-Version: 1.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.osgi.framework;version="1.6.0",
  javax.persistence;jpa="2.0";version="1.1.0"
-Export-Package: model.weaved;version="1.0.0"
+Export-Package: model.multiemf;version="1.0.0"
 ZZZ-Require-Capability: osgi.extender;
  filter:="(&(osgi.extender=osgi.jpa)(version>=1.0))"
