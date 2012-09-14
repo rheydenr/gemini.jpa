@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.eclipse.gemini.jpa.feature"
-      label="Gemini JPA"
+      id="org.eclipse.gemini.jpa.samples.feature"
+      label="Gemini JPA Samples"
       version="1.1.0.RC1"
       provider-name="Oracle Corp."
-      plugin="org.eclipse.gemini.jpa">
+      plugin="org.eclipse.gemini.jpa.samples">
 
    <description>
       %description
@@ -23,6 +23,7 @@
    </url>
 
    <requires>
+      <import plugin="org.eclipse.gemini.jpa" version="1.1.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.persistence.asm" version="3.3.1" match="greaterOrEqual"/>
       <import plugin="org.eclipse.persistence.antlr" version="3.2.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.persistence.core" version="2.4.0" match="greaterOrEqual"/>
@@ -34,7 +35,23 @@
    </requires>
 
    <plugin
-         id="org.eclipse.gemini.jpa"
+         id="org.eclipse.gemini.jpa.sample.basic"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+         id="org.eclipse.gemini.jpa.sample.configadmin.gen"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.gemini.jpa.sample.configadmin.pu"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.gemini.jpa.sample.configadmin"
+         version="0.0.0"
+         unpack="false"/>
+		 
 </feature>

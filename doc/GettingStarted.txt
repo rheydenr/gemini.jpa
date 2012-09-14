@@ -48,13 +48,13 @@ Note: Do *NOT* use "org.eclipse.persistence.jpa.osgi" or any of the weaving bund
 Gemini JPA is composed of a single bundle: "org.elipse.gemini.jpa". 
 This bundle contains all of the Gemini JPA supporting classes.
 
-Additional sample bundles are also part of the distribution. 
+Additional sample bundles are also part of the distribution.
 
 Installation
 ------------
 
 If running in PDE then unzip the files into a directory and import the various projects into your workspace, 
-or even better, create a target platform with all of the bundles in it.
+or even better, create a target platform with all of the bundles in it, or install from a P2 repository.
 If you are using the framework directly then unzip the distribution files and follow the documentation of
 the framework for installing the bundles described above. Note that the "osgi.enterprise" bundle has an
 optional dependency on the "javax.persistence" package (exported by the EclipseLink bundle of that name), which 

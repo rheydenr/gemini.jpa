@@ -3,8 +3,13 @@
    <feature url="features/org.eclipse.gemini.jpa.feature_1.1.0.qualifier.jar" id="org.eclipse.gemini.jpa.feature" version="1.1.0.qualifier">
       <category name="category_gemini_jpa"/>
    </feature>
+   <feature url="features/org.eclipse.gemini.jpa.samples.feature_1.1.0.qualifier.jar" id="org.eclipse.gemini.jpa.samples.feature" version="1.1.0.qualifier">
+      <category name="category_gemini_jpa"/>
+   </feature>
+<!--
    <feature url="features/org.eclipse.gemini.jpa.source.feature_1.1.0.qualifier.jar" id="org.eclipse.gemini.jpa.source.feature" version="1.1.0.qualifier">
       <category name="category_gemini_jpa"/>
    </feature>
+-->
    <category-def name="category_gemini_jpa" label="Gemini JPA"/>
 </site>

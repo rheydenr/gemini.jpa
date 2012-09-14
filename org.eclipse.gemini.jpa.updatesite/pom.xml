@@ -9,6 +9,7 @@
     Contributors:
         ktsvetkov - initial implementation
         cvgaviao - updated to eclipse-repository
+		mkeith - updated to include samples feature, no source feature
  -->
 
 <project
@@ -18,7 +19,7 @@
 	<parent>
 		<groupId>org.eclipse</groupId>
 		<artifactId>gemini.jpa.parent</artifactId>
-		<version>1.1.0.M2</version>
+		<version>1.1.0.RC1</version>
 	</parent>
 
 	<artifactId>org.eclipse.gemini.jpa.updatesite</artifactId>
@@ -80,13 +81,20 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse</groupId>
+			<artifactId>org.eclipse.gemini.jpa.samples.feature</artifactId>
+			<version>${project.version}</version>
+			<type>eclipse-feature</type>
+		</dependency>
+<!--
+		<dependency>
+			<groupId>org.eclipse</groupId>
 			<artifactId>
 				org.eclipse.gemini.jpa.source.feature
 			</artifactId>
 			<version>${project.version}</version>
 			<type>eclipse-feature</type>
 		</dependency>
-		
+-->		
 		<!-- this dep is needed to ensure that p2 will be created only if tests are ok ! -->
 <!--
 		<dependency>
