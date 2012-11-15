@@ -41,7 +41,7 @@ The following EclipseLink bundles are required:
 
 These bundles must be from EclipseLink 2.4.0 GA or later. 
 
-Note: Do *NOT* use "org.eclipse.persistence.jpa.osgi" or any of the weaving bundles shipped with EclipseLink.
+Note: Do *NOT* use "org.eclipse.persistence.jpa.osgi" or any of the equinox or weaving bundles shipped with EclipseLink.
 
 5. Gemini JPA bundles
 
@@ -73,10 +73,10 @@ Running the Samples
 [Basic Sample]
 
 The basic sample is a persistence unit and client combined within a single bundle: "org.eclipse.gemini.jpa.sample.basic".
-Once Gemini JPA is installed and running you need only install and run this bundle to see the sample persistence unit 
-and client interact. Although the client is contained within the same bundle as the persistence unit, it still uses the 
-EntityManagerFactory (EMF) service exported by Gemini JPA. Take a look at the Activator class to see how a client
-typically accesses the EMF service.
+Once Gemini JPA and Gemini DBAccess are installed and running you need only install and run this bundle to see the sample 
+persistence unit and client interact. Although the client is contained within the same bundle as the persistence unit, it 
+still uses the EntityManagerFactory (EMF) service exported by Gemini JPA. Take a look at the Activator class to see how a 
+client typically accesses the EMF service.
 
 [Config Admin Sample]
 

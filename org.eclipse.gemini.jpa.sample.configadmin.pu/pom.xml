@@ -18,7 +18,7 @@
 	<parent>
 		<groupId>org.eclipse</groupId>
 		<artifactId>gemini.jpa.parent</artifactId>
-		<version>1.1.0.RC1</version>
+		<version>1.1.0.RELEASE</version>
 	</parent>
 
 	<artifactId>org.eclipse.gemini.jpa.sample.configadmin.pu</artifactId>
