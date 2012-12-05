@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gemini JPA Configuration Generator
 Bundle-SymbolicName: org.eclipse.gemini.jpa.sample.configadmin.gen
-Bundle-Version: 1.1.0.RELEASE
+Bundle-Version: 1.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.osgi.framework;version="1.4.0",
  org.osgi.util.tracker,

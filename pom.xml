@@ -13,6 +13,12 @@
 		cvgaviao - update building artifacts to work with Tycho 0.14.0
 		mkeith - added samples feature
  -->
+ <!--
+To update poms, manifests, and feature.xml files
+ mvn -Dtycho.mode=maven 
+     org.eclipse.tycho:tycho-versions-plugin:set-version 
+     -DnewVersion=<NEW_VERSION>
+ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -22,16 +28,16 @@
 		<maven>3.0</maven>
 	</prerequisites>
 
-	<groupId>org.eclipse</groupId>
-	<artifactId>gemini.jpa.parent</artifactId>
-	<version>1.1.0.RELEASE</version>
+	<groupId>org.eclipse.gemini</groupId>
+	<artifactId>org.eclipse.gemini.jpa.parent</artifactId>
+	<version>1.2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Gemini JPA Parent</name>
 
 	<properties>
 		<tycho-version>0.14.0</tycho-version>
-		<next-release>1.1.0-SNAPSHOT</next-release>
+		<next-release>1.2.0-SNAPSHOT</next-release>
 	</properties>
 
 	<profiles>
@@ -127,7 +133,7 @@
 					<resolver>p2</resolver>
 					<target>
 						<artifact>
-							<groupId>org.eclipse</groupId>
+							<groupId>org.eclipse.gemini</groupId>
 							<artifactId>org.eclipse.gemini.jpa.targetdef</artifactId>
 							<version>${project.version}</version>
 							<classifier>org.eclipse.gemini.jpa</classifier>

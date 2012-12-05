@@ -17,9 +17,9 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.eclipse</groupId>
-		<artifactId>gemini.jpa.parent</artifactId>
-		<version>1.1.0.RELEASE</version>
+		<groupId>org.eclipse.gemini</groupId>
+		<artifactId>org.eclipse.gemini.jpa.parent</artifactId>
+		<version>1.2.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>org.eclipse.gemini.jpa.updatesite</artifactId>
@@ -74,20 +74,20 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>org.eclipse</groupId>
+			<groupId>org.eclipse.gemini</groupId>
 			<artifactId>org.eclipse.gemini.jpa.feature</artifactId>
 			<version>${project.version}</version>
 			<type>eclipse-feature</type>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse</groupId>
+			<groupId>org.eclipse.gemini</groupId>
 			<artifactId>org.eclipse.gemini.jpa.samples.feature</artifactId>
 			<version>${project.version}</version>
 			<type>eclipse-feature</type>
 		</dependency>
 <!--
 		<dependency>
-			<groupId>org.eclipse</groupId>
+			<groupId>org.eclipse.gemini</groupId>
 			<artifactId>
 				org.eclipse.gemini.jpa.source.feature
 			</artifactId>
@@ -98,7 +98,7 @@
 		<!-- this dep is needed to ensure that p2 will be created only if tests are ok ! -->
 <!--
 		<dependency>
-			<groupId>org.eclipse</groupId>
+			<groupId>org.eclipse.gemini</groupId>
 			<artifactId>org.eclipse.gemini.jpa.tests</artifactId>
 			<version>${project.version}</version>
 			<type>eclipse-test-plugin</type>
