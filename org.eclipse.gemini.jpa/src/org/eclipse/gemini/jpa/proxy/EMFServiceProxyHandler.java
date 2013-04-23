@@ -15,6 +15,7 @@
 package org.eclipse.gemini.jpa.proxy;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,8 +87,13 @@ public class EMFServiceProxyHandler implements InvocationHandler, ServiceFactory
             if (!emf.isOpen()) {
                 syncUnsetEMF();
             }
+        // Bug #401944 Catch InvocationTargetEx and get cause. Rethrow exception.
+        } catch(InvocationTargetException itEx) {
+            warning("EMFProxy invocation on target method " + method.getName() + " failed with cause: ", itEx.getCause());
+            throw itEx.getCause();
         } catch (Throwable t) {
-            t.printStackTrace();
+            warning("EMFProxy invocation on method " + method.getName() + " failed: ", t);
+            throw t;
         }
         return result;
     }
