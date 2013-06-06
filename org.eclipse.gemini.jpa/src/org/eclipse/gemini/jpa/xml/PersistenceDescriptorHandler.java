@@ -113,6 +113,12 @@ public class PersistenceDescriptorHandler extends DefaultHandler {
         if (currentElement.equals("provider")) {
             currentPUnit.setProvider(contentFromChars(ch, start, length));
             debugXml("provider: ", currentPUnit.getProvider());
+        } else if (currentElement.equals("non-jta-data-source")) {
+                currentPUnit.setNonJtaDataSource(contentFromChars(ch, start, length));
+                debugXml("nonJtaDataSource: ", currentPUnit.getNonJtaDataSource());
+        } else if (currentElement.equals("jta-data-source")) {
+            currentPUnit.setJtaDataSource(contentFromChars(ch, start, length));
+            debugXml("jtaDataSource: ", currentPUnit.getJtaDataSource());
         } else if (currentElement.equals("class")) {
             String classString = contentFromChars(ch, start, length);
             currentPUnit.addClass(classString);

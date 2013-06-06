@@ -147,8 +147,8 @@ To update poms, manifests, and feature.xml files
 			<!-- Bundle the source in the binary bundles -->
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
-        		<artifactId>tycho-source-plugin</artifactId>				
-        		<version>${tycho-version}</version>
+				<artifactId>tycho-source-plugin</artifactId>				
+				<version>${tycho-version}</version>
 				<executions>
 					<execution>
 						<id>attach-source</id>

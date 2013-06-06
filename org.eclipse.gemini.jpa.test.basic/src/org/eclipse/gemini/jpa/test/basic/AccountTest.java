@@ -21,7 +21,7 @@ import model.basic.Account;
 import org.eclipse.gemini.jpa.test.common.JpaTest;
 
 /**
- * Abstract Test class to for Account entity
+ * Abstract Test class for Account entity tests
  * 
  * @author mkeith
  */

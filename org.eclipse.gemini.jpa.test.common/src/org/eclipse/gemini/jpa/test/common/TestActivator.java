@@ -81,6 +81,7 @@ public class TestActivator implements BundleActivator, ServiceTrackerCustomizer 
         
         // Register the tests to run if we have not already registered this group
         if (! TestState.isGroupRegistered(this.getTestGroupName())) {
+
             TestState.registerGroup(this.getTestGroupName());
             for (String testName : this.getTestClasses()) {
                 TestState.addTest(testName);

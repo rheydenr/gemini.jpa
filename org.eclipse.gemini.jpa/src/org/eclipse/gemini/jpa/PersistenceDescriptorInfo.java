@@ -24,9 +24,14 @@ import java.net.URL;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
+/**
+ * Stores metadata about a specific persistence descriptor
+ * (e.g. persistence.xml) and its location in the persistence bundle.
+ * Also provide some basic operations on the descriptor.
+ */
 public class PersistenceDescriptorInfo {
 
-    // Url in the bundle of the descriptor.
+    // Url of the descriptor.
     // If embedded in a JAR then this is the url of the JAR.
     URL url;
     
@@ -78,7 +83,7 @@ public class PersistenceDescriptorInfo {
      * the descriptor could not be found.
      */
     public InputStream getDescriptorStream() {
-        debug("getDescriptorStream - url=", url, 
+        debug("PersistenceDescriptorInfo.getDescriptorStream - url=", url, 
               " descPath=", descriptorPath, " jarPath=", jarPath);
         InputStream inStream = null;
         try { inStream = url.openStream(); }
@@ -95,12 +100,12 @@ public class PersistenceDescriptorInfo {
         JarEntry jarEntry = null;
         try {
             jarStream = new JarInputStream(new BufferedInputStream(inStream));
-            debug("getDescriptorStream - Looking in jar for embedded descriptor: ", descriptorPath);
+            debug("PersistenceDescriptorInfo.getDescriptorStream - Looking in jar for embedded descriptor: ", descriptorPath);
             do {
                 jarEntry = jarStream.getNextJarEntry();
                 if (jarEntry != null) {
                     if (jarEntry.getName().equalsIgnoreCase(descriptorPath)) {
-                        debug("getDescriptorStream - Found jar entry: ", jarEntry.getName());
+                        debug("PersistenceDescriptorInfo.getDescriptorStream - Found jar entry: ", jarEntry.getName());
                         break;
                     } 
                 }
@@ -113,6 +118,9 @@ public class PersistenceDescriptorInfo {
         return jarStream;
     }
 
+    /**
+     * Simple string representation of the descriptor info
+     */
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Descriptor: ").append(getDescriptorPath());

@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 
 import org.eclipse.gemini.jpa.ProviderWrapper;
 import org.eclipse.gemini.jpa.proxy.EMFBuilderServiceProxyHandler;
@@ -36,7 +37,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * Two parts of it:
  * 
  * 1) Runtime state
- * This is the state that accumulates as a persistence unit is processed by Gemini.
+ * This is the state that accumulates as a persistence unit is processed by Gemini JPA.
  * It includes many of the runtime objects that play a role in the persistence unit
  * during its lifecycle and regular use.
  *
@@ -45,6 +46,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * This is the configuration state extracted from the persistence descriptor.
  * Note that only the state that is relevant to the runtime is extracted. The rest
  * of the configuration state in the persistence descriptor is ignored.
+ * 
  */
 @SuppressWarnings({"rawtypes"})
 public class PUnitInfo {
@@ -85,7 +87,7 @@ public class PUnitInfo {
     ServiceRegistration emfService;
 
     /** 
-     * EMF Builder Service state - set by servicesUtil
+     * EMF Builder Service state - set by ServicesUtil
      * @see ServicesUtil
      */
     EMFBuilderServiceProxyHandler emfBuilderHandler;
@@ -99,13 +101,6 @@ public class PUnitInfo {
     EntityManagerFactory emf;
 
     /** 
-     * DataSourceFactory service used to indicate that a data source factory service was found and can be used
-     *          - set by services util
-     * @see ServicesUtil
-     */
-    ServiceReference dsfService;
-
-    /** 
      * Flag to indicate whether the EMF was set by the Builder or not
      *      - set by EMFServiceProxyHandler or EMFBuilderServiceProxyHandler
      * @see EMFServiceProxyHandler
@@ -114,13 +109,26 @@ public class PUnitInfo {
     boolean emfSetByBuilderService;
 
     /** 
+     * DataSourceFactory service used to indicate that a data source factory service was found and can be used
+     *          - set by ServicesUtil
+     * @see ServicesUtil
+     */
+    ServiceReference dsfService;
+
+    /** 
      * For tracking the data source factory - set by DataSourceUtil
      * @see DataSourceUtil 
      */
-    ServiceTracker tracker;
+    ServiceTracker dsfTracker;
     
     /** 
-     * Weaving hook whiteboard service - set by services util
+     * Data source looked up from JNDI. Alternative to the DSF - set by ServicesUtil
+     * @see ServicesUtil 
+     */
+    DataSource jndiDataSource;
+    
+    /** 
+     * Weaving hook whiteboard service - set by ServicesUtil
      * @see ServicesUtil
      */
     ServiceRegistration weavingHookService;
@@ -144,6 +152,8 @@ public class PUnitInfo {
      */
     String unitName;
     String provider;
+    String nonJtaDataSource;
+    String jtaDataSource; // not currently used
     Set<String> classes = new HashSet<String>();
     String driverClassName;
     String driverUrl;
@@ -182,14 +192,18 @@ public class PUnitInfo {
     public EntityManagerFactory getEmf() { return emf; }
     public void setEmf(EntityManagerFactory emf) { this.emf = emf; }
     
-    public ServiceReference getDsfService() { return dsfService; }
-    public void setDsfService(ServiceReference dsfService) { this.dsfService = dsfService; }
-
     public boolean isEmfSetByBuilderService() { return emfSetByBuilderService; }
     public void setEmfSetByBuilderService(boolean flag) { emfSetByBuilderService = flag; }
     
-    public ServiceTracker getTracker() { return tracker; }
-    public void setTracker(ServiceTracker tracker) { this.tracker = tracker; }
+    public ServiceReference getDsfService() { return dsfService; }
+    public void setDsfService(ServiceReference dsfService) { this.dsfService = dsfService; }
+
+    public ServiceTracker getTracker() { return dsfTracker; }
+    public ServiceTracker getDsfTracker() { return dsfTracker; }
+    public void setDsfTracker(ServiceTracker dsfTracker) { this.dsfTracker = dsfTracker; }
+
+    public DataSource getJndiDataSource() { return jndiDataSource; }
+    public void setJndiDataSource(DataSource jndiDataSource) { this.jndiDataSource = jndiDataSource; }
 
     public ServiceRegistration getWeavingHookService() { return weavingHookService; }
     public void setWeavingHookService(ServiceRegistration weavingHookService) { this.weavingHookService = weavingHookService; }
@@ -206,6 +220,12 @@ public class PUnitInfo {
 
     public String getProvider() { return provider; }
     public void setProvider(String s) { this.provider = s; }
+
+    public String getNonJtaDataSource() { return nonJtaDataSource; }
+    public void setNonJtaDataSource(String s) { this.nonJtaDataSource = s; }
+
+    public String getJtaDataSource() { return jtaDataSource; }
+    public void setJtaDataSource(String s) { this.jtaDataSource = s; }
 
     public Set<String> getClasses() { return classes; }
     public void addClass(String s) { this.classes.add(s); }
@@ -244,6 +264,8 @@ public class PUnitInfo {
         sb.append("\nPUnit: ").append(getUnitName())
           .append("\n  --- XML Data ---")
           .append((getProvider()!=null) ? "\n  provider: " + getProvider() : "")
+          .append((getNonJtaDataSource()!=null) ? "\n  nonJtaDataSource: " + getNonJtaDataSource() : "")
+          .append((getJtaDataSource()!=null) ? "\n  jtaDataSource: " + getJtaDataSource() : "")
           .append((getClasses()!=null) ? "\n  classes: " + getClasses() : "")
           .append((getDriverClassName()!=null) ? "\n  driverClassName: " + getDriverClassName() : "")
           .append((getDriverUrl()!=null) ? "\n  driverUrl: " + getDriverUrl() : "")
@@ -254,7 +276,8 @@ public class PUnitInfo {
           .append((getBundle()!=null) ? "\n  bundle: " + getBundle().getSymbolicName() : "")
           .append((getAssignedProvider()!=null) ? "\n  assignedProvider: " + getAssignedProvider() : "")
           .append((getDescriptorInfo()!=null) ? "\n  descriptorInfo: " + getDescriptorInfo() : "")
-          .append((getTracker()!=null) ? "\n  DSF tracker: " + getTracker() : "");
+          .append((getDsfTracker()!=null) ? "\n  DSF tracker: " + getDsfTracker() : "")
+          .append((getJndiDataSource()!=null) ? "\n  Data source: " + getJndiDataSource() : "");
        return sb.toString();
     }
     
@@ -262,6 +285,8 @@ public class PUnitInfo {
         Map<String,Object> map = new HashMap<String,Object>();
         map.put("unitName", unitName);
         map.put("provider", provider);
+        map.put("nonJtaDataSource", nonJtaDataSource);
+        map.put("jtaDataSource", jtaDataSource);
         map.put("classes", classes);
         map.put("driverClassName", driverClassName);
         map.put("driverUrl", driverUrl);
@@ -274,6 +299,7 @@ public class PUnitInfo {
         map.put("emfSetByBuilderService", emfSetByBuilderService);
         map.put("descriptorInfo", descriptorInfo);
         map.put("configProps", configProperties);
+        map.put("dataSource", jndiDataSource);
         return map;
     }
 }

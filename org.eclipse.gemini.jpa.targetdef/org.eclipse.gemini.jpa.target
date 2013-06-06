@@ -1,27 +1,372 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.6"?>
-
-<target name="Gemini JPA Target Platform" sequenceNumber="1">
+<?pde version="3.8"?><target name="Gemini JPA Target Platform" sequenceNumber="29">
 <locations>
-<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.equinox.sdk.feature.group" version="3.8.0.v20120522-1841-7M7fA78g5_y-g-jtHxcd5k8q8lFR"/>
+<repository location="http://download.eclipse.org/releases/juno"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.gemini.dbaccess.feature.feature.group" version="1.0.0.RELEASE"/>
 <repository location="http://download.eclipse.org/gemini/dbaccess/updates/1.0/"/>
 </location>
-<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.persistence.jpa.feature.group" version="2.4.0.v20120608-r11652"/>
 <repository location="http://download.eclipse.org/rt/eclipselink/updates/"/>
 </location>
-<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.persistence.nosql.feature.group" version="2.4.0.v20120608-r11652"/>
-<repository location="http://download.eclipse.org/rt/eclipselink/updates/"/>
-</location>
-<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.equinox.sdk.feature.group" version="3.7.1.R37x_v20110907-7M7W8h8eNV4Vrz-hz01A7SL_MhZP"/>
-<repository location="http://download.eclipse.org/releases/indigo/"/>
-</location>
-<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.junit" version="4.8.2.v4_8_2_v20110321-1705"/>
-<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20120526062928/repository/"/>
-</location>
 </locations>
+<includeBundles>
+<plugin id="org.eclipse.osgi.util.source" version="3.2.300.v20120522-1822"/>
+<plugin id="org.eclipse.equinox.device.source"/>
+<plugin id="javax.inject.source"/>
+<plugin id="org.sat4j.pb"/>
+<plugin id="org.eclipse.equinox.p2.installer.source"/>
+<plugin id="org.eclipse.persistence.core"/>
+<plugin id="org.eclipse.equinox.p2.garbagecollector.source"/>
+<plugin id="org.eclipse.equinox.http.servlet"/>
+<plugin id="org.eclipse.equinox.servletbridge.extensionbundle" version="1.2.100.v20120522-2049"/>
+<plugin id="org.eclipse.equinox.p2.console"/>
+<plugin id="org.eclipse.jface.source"/>
+<plugin id="org.eclipse.e4.core.di"/>
+<plugin id="org.eclipse.equinox.region.source"/>
+<plugin id="org.eclipse.emf.ecore"/>
+<plugin id="org.eclipse.ecf.provider.filetransfer.httpclient.ssl.source"/>
+<plugin id="com.ibm.icu.base.source"/>
+<plugin id="org.eclipse.jetty.security.source"/>
+<plugin id="org.eclipse.equinox.preferences.source"/>
+<plugin id="org.eclipse.equinox.cm"/>
+<plugin id="org.eclipse.equinox.p2.updatechecker"/>
+<plugin id="org.eclipse.equinox.p2.ui.source"/>
+<plugin id="org.eclipse.equinox.p2.transport.ecf.source"/>
+<plugin id="org.apache.batik.util.gui"/>
+<plugin id="org.eclipse.equinox.util"/>
+<plugin id="org.eclipse.persistence.jpa.equinox.source"/>
+<plugin id="org.eclipse.equinox.security.source"/>
+<plugin id="org.eclipse.ui.workbench.source"/>
+<plugin id="org.eclipse.equinox.metatype"/>
+<plugin id="org.apache.sshd.core.source"/>
+<plugin id="org.eclipse.core.databinding.property.source"/>
+<plugin id="org.eclipse.equinox.http.servlet.source"/>
+<plugin id="org.eclipse.equinox.bidi.source"/>
+<plugin id="org.eclipse.equinox.p2.engine.source"/>
+<plugin id="org.eclipse.equinox.p2.ui.admin.rcp.source"/>
+<plugin id="org.eclipse.gemini.dbaccess.derby"/>
+<plugin id="org.eclipse.equinox.p2.operations.source"/>
+<plugin id="org.eclipse.equinox.p2.ui.admin.source"/>
+<plugin id="org.eclipse.e4.ui.css.core.source"/>
+<plugin id="org.eclipse.persistence.jpa.equinox.weaving.source"/>
+<plugin id="org.eclipse.e4.ui.widgets.source"/>
+<plugin id="javax.annotation"/>
+<plugin id="org.junit"/>
+<plugin id="org.eclipse.equinox.p2.core.source"/>
+<plugin id="javax.el.source"/>
+<plugin id="org.eclipse.persistence.antlr.source"/>
+<plugin id="org.eclipse.equinox.weaving.caching.j9"/>
+<plugin id="org.eclipse.equinox.security.win32.x86_64"/>
+<plugin id="org.eclipse.equinox.transforms.hook"/>
+<plugin id="org.eclipse.equinox.weaving.hook.source"/>
+<plugin id="org.apache.jasper.glassfish"/>
+<plugin id="org.eclipse.ecf.provider.filetransfer"/>
+<plugin id="org.eclipse.persistence.oracle.source"/>
+<plugin id="org.eclipse.emf.ecore.xmi"/>
+<plugin id="org.eclipse.jetty.security"/>
+<plugin id="org.eclipse.ui.browser.source"/>
+<plugin id="org.apache.felix.gogo.shell"/>
+<plugin id="org.eclipse.osgi" version="3.8.1.v20120830-144521"/>
+<plugin id="org.hamcrest.core.source"/>
+<plugin id="org.eclipse.e4.ui.di"/>
+<plugin id="org.eclipse.jface.databinding.source"/>
+<plugin id="org.eclipse.equinox.frameworkadmin.source"/>
+<plugin id="org.eclipse.equinox.p2.metadata"/>
+<plugin id="org.apache.felix.gogo.shell.source"/>
+<plugin id="org.eclipse.equinox.metatype.source"/>
+<plugin id="org.eclipse.emf.ecore.xmi.source"/>
+<plugin id="javax.inject"/>
+<plugin id="org.eclipse.e4.ui.workbench.swt"/>
+<plugin id="org.eclipse.persistence.jpa.osgi.source"/>
+<plugin id="org.eclipse.core.net.source"/>
+<plugin id="org.eclipse.equinox.weaving.caching"/>
+<plugin id="org.eclipse.e4.ui.workbench.renderers.swt"/>
+<plugin id="org.eclipse.e4.ui.bindings"/>
+<plugin id="org.apache.commons.httpclient.source"/>
+<plugin id="org.eclipse.e4.ui.workbench.renderers.swt.source"/>
+<plugin id="org.eclipse.ecf.provider.filetransfer.httpclient.ssl"/>
+<plugin id="org.eclipse.equinox.p2.ui.sdk"/>
+<plugin id="org.eclipse.equinox.weaving.aspectj"/>
+<plugin id="javax.xml.stream"/>
+<plugin id="org.eclipse.equinox.useradmin"/>
+<plugin id="org.eclipse.equinox.p2.touchpoint.natives.source"/>
+<plugin id="org.eclipse.persistence.antlr"/>
+<plugin id="org.eclipse.swt"/>
+<plugin id="org.eclipse.emf.common"/>
+<plugin id="org.sat4j.core"/>
+<plugin id="org.eclipse.ecf.provider.filetransfer.httpclient.source"/>
+<plugin id="org.eclipse.e4.ui.services"/>
+<plugin id="org.eclipse.equinox.console.jaas.fragment.source"/>
+<plugin id="org.eclipse.ecf.filetransfer"/>
+<plugin id="org.eclipse.core.jobs.source"/>
+<plugin id="org.eclipse.equinox.http.servletbridge"/>
+<plugin id="org.apache.derby"/>
+<plugin id="javax.activation"/>
+<plugin id="org.eclipse.equinox.p2.touchpoint.natives"/>
+<plugin id="org.eclipse.equinox.p2.director"/>
+<plugin id="org.eclipse.jetty.io"/>
+<plugin id="org.eclipse.equinox.console.ssh.source"/>
+<plugin id="org.eclipse.equinox.p2.operations"/>
+<plugin id="org.eclipse.equinox.p2.publisher"/>
+<plugin id="org.eclipse.equinox.jsp.jasper.registry"/>
+<plugin id="org.eclipse.equinox.weaving.caching.source"/>
+<plugin id="org.w3c.dom.events"/>
+<plugin id="org.eclipse.equinox.ip.source"/>
+<plugin id="org.eclipse.equinox.p2.ui.admin"/>
+<plugin id="org.eclipse.equinox.coordinator.source"/>
+<plugin id="org.eclipse.equinox.p2.touchpoint.eclipse"/>
+<plugin id="org.eclipse.ui.forms.source"/>
+<plugin id="org.eclipse.equinox.p2.metadata.repository.source"/>
+<plugin id="org.eclipse.equinox.coordinator"/>
+<plugin id="org.eclipse.core.jobs"/>
+<plugin id="org.eclipse.equinox.frameworkadmin.equinox"/>
+<plugin id="org.eclipse.equinox.log"/>
+<plugin id="org.apache.sshd.core"/>
+<plugin id="org.eclipse.equinox.p2.ui.sdk.scheduler.source"/>
+<plugin id="org.eclipse.ecf.provider.filetransfer.ssl.source"/>
+<plugin id="org.eclipse.core.contenttype.source"/>
+<plugin id="org.eclipse.core.resources.source"/>
+<plugin id="org.eclipse.e4.ui.workbench"/>
+<plugin id="org.eclipse.jetty.servlet.source"/>
+<plugin id="org.eclipse.core.filesystem.source"/>
+<plugin id="org.eclipse.jetty.continuation"/>
+<plugin id="org.eclipse.e4.core.di.extensions"/>
+<plugin id="org.eclipse.equinox.p2.director.app"/>
+<plugin id="org.apache.mina.core.source"/>
+<plugin id="org.eclipse.equinox.p2.ui.discovery"/>
+<plugin id="org.eclipse.jetty.http"/>
+<plugin id="org.apache.batik.util.gui.source"/>
+<plugin id="org.eclipse.equinox.p2.garbagecollector"/>
+<plugin id="org.eclipse.equinox.p2.ui.importexport"/>
+<plugin id="org.eclipse.core.variables.source"/>
+<plugin id="org.eclipse.equinox.p2.transport.ecf"/>
+<plugin id="org.apache.batik.util.source"/>
+<plugin id="org.eclipse.jetty.server"/>
+<plugin id="org.slf4j.api"/>
+<plugin id="org.eclipse.equinox.app.source"/>
+<plugin id="org.eclipse.core.databinding.observable"/>
+<plugin id="org.eclipse.equinox.p2.extensionlocation"/>
+<plugin id="org.eclipse.equinox.cm.source"/>
+<plugin id="org.eclipse.e4.ui.model.workbench"/>
+<plugin id="org.eclipse.jetty.server.source"/>
+<plugin id="org.eclipse.osgi.util" version="3.2.300.v20120522-1822"/>
+<plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
+<plugin id="org.eclipse.equinox.http.servletbridge.source"/>
+<plugin id="org.eclipse.e4.core.di.extensions.source"/>
+<plugin id="org.eclipse.persistence.jpa.equinox.weaving"/>
+<plugin id="org.eclipse.equinox.frameworkadmin.equinox.source"/>
+<plugin id="org.eclipse.equinox.p2.updatechecker.source"/>
+<plugin id="org.eclipse.equinox.ds"/>
+<plugin id="org.eclipse.equinox.p2.extensionlocation.source"/>
+<plugin id="org.eclipse.equinox.p2.artifact.repository.source"/>
+<plugin id="org.eclipse.jetty.util"/>
+<plugin id="org.eclipse.emf.common.source"/>
+<plugin id="org.eclipse.equinox.p2.ui"/>
+<plugin id="org.eclipse.e4.core.commands"/>
+<plugin id="org.eclipse.e4.ui.bindings.source"/>
+<plugin id="org.eclipse.equinox.weaving.hook"/>
+<plugin id="org.eclipse.gemini.dbaccess.samples"/>
+<plugin id="org.eclipse.equinox.security.ui.source"/>
+<plugin id="org.eclipse.equinox.p2.directorywatcher"/>
+<plugin id="org.eclipse.equinox.p2.ql"/>
+<plugin id="org.apache.felix.gogo.runtime" version="0.8.0.v201108120515"/>
+<plugin id="org.eclipse.equinox.ds.source"/>
+<plugin id="org.eclipse.equinox.transforms.xslt"/>
+<plugin id="javax.servlet" version="3.0.0.v201112011016"/>
+<plugin id="org.eclipse.e4.core.services.source"/>
+<plugin id="org.eclipse.e4.ui.workbench3.source"/>
+<plugin id="org.eclipse.equinox.servletbridge"/>
+<plugin id="javax.annotation.source"/>
+<plugin id="org.eclipse.ui.workbench"/>
+<plugin id="org.eclipse.e4.ui.css.swt"/>
+<plugin id="org.eclipse.equinox.p2.director.app.source"/>
+<plugin id="org.eclipse.equinox.security.win32.x86_64.source"/>
+<plugin id="org.w3c.css.sac"/>
+<plugin id="org.apache.batik.css"/>
+<plugin id="org.eclipse.persistence.asm.source"/>
+<plugin id="org.eclipse.equinox.simpleconfigurator.manipulator.source"/>
+<plugin id="org.eclipse.equinox.io.source"/>
+<plugin id="org.eclipse.persistence.core.source"/>
+<plugin id="org.eclipse.equinox.p2.discovery"/>
+<plugin id="org.eclipse.equinox.http.registry"/>
+<plugin id="org.eclipse.e4.ui.css.swt.theme.source"/>
+<plugin id="org.eclipse.core.runtime"/>
+<plugin id="javax.persistence" version="2.0.4.v201112161009"/>
+<plugin id="org.eclipse.help.source"/>
+<plugin id="org.eclipse.equinox.servletbridge.source"/>
+<plugin id="org.eclipse.e4.core.commands.source"/>
+<plugin id="org.eclipse.equinox.launcher.win32.win32.x86_64"/>
+<plugin id="org.eclipse.equinox.launcher"/>
+<plugin id="org.eclipse.core.runtime.source"/>
+<plugin id="org.eclipse.equinox.frameworkadmin"/>
+<plugin id="org.eclipse.equinox.p2.jarprocessor"/>
+<plugin id="org.eclipse.jface.databinding"/>
+<plugin id="org.eclipse.equinox.wireadmin"/>
+<plugin id="org.apache.batik.css.source"/>
+<plugin id="org.eclipse.equinox.p2.metadata.source"/>
+<plugin id="org.eclipse.core.commands.source"/>
+<plugin id="org.eclipse.e4.core.di.source"/>
+<plugin id="org.eclipse.equinox.p2.ui.admin.rcp"/>
+<plugin id="org.w3c.dom.events.source"/>
+<plugin id="org.eclipse.core.expressions"/>
+<plugin id="org.eclipse.e4.core.contexts.source"/>
+<plugin id="org.eclipse.equinox.common"/>
+<plugin id="org.eclipse.jetty.continuation.source"/>
+<plugin id="org.eclipse.equinox.p2.touchpoint.eclipse.source"/>
+<plugin id="org.apache.commons.logging.source"/>
+<plugin id="org.eclipse.equinox.security"/>
+<plugin id="org.eclipse.equinox.launcher.source"/>
+<plugin id="org.eclipse.equinox.simpleconfigurator.source"/>
+<plugin id="org.eclipse.equinox.io"/>
+<plugin id="org.w3c.dom.smil.source"/>
+<plugin id="org.eclipse.equinox.registry"/>
+<plugin id="org.eclipse.core.resources"/>
+<plugin id="org.eclipse.equinox.weaving.aspectj.source"/>
+<plugin id="org.eclipse.equinox.console"/>
+<plugin id="javax.xml" version="1.3.4.v201005080400"/>
+<plugin id="org.eclipse.equinox.supplement.source"/>
+<plugin id="org.apache.commons.httpclient"/>
+<plugin id="org.eclipse.e4.core.contexts"/>
+<plugin id="org.eclipse.ecf.identity"/>
+<plugin id="org.eclipse.core.filesystem"/>
+<plugin id="org.eclipse.emf.ecore.source"/>
+<plugin id="org.eclipse.equinox.registry.source"/>
+<plugin id="org.eclipse.jetty.io.source"/>
+<plugin id="org.eclipse.equinox.preferences"/>
+<plugin id="org.apache.commons.codec.source"/>
+<plugin id="org.eclipse.jetty.servlet"/>
+<plugin id="org.eclipse.persistence.jpa.source"/>
+<plugin id="org.eclipse.persistence.asm"/>
+<plugin id="org.eclipse.equinox.p2.metadata.repository"/>
+<plugin id="org.eclipse.e4.ui.workbench.source"/>
+<plugin id="org.eclipse.equinox.log.source"/>
+<plugin id="org.eclipse.equinox.http.jetty"/>
+<plugin id="org.eclipse.equinox.p2.ui.importexport.source"/>
+<plugin id="org.eclipse.e4.ui.di.source"/>
+<plugin id="org.eclipse.equinox.p2.ui.sdk.source"/>
+<plugin id="org.eclipse.ecf"/>
+<plugin id="org.eclipse.core.variables"/>
+<plugin id="org.eclipse.equinox.common.source"/>
+<plugin id="org.eclipse.ecf.provider.filetransfer.ssl"/>
+<plugin id="org.eclipse.e4.ui.model.workbench.source"/>
+<plugin id="org.eclipse.persistence.jpa"/>
+<plugin id="org.eclipse.core.commands"/>
+<plugin id="org.eclipse.e4.ui.css.core"/>
+<plugin id="org.eclipse.equinox.app"/>
+<plugin id="org.eclipse.equinox.region"/>
+<plugin id="org.apache.felix.gogo.command.source" version="0.8.0.v201108120515"/>
+<plugin id="org.eclipse.equinox.http.registry.source"/>
+<plugin id="org.eclipse.equinox.jsp.jasper.registry.source"/>
+<plugin id="org.eclipse.equinox.p2.engine"/>
+<plugin id="osgi.enterprise" version="4.2.0.201003190513"/>
+<plugin id="org.eclipse.ecf.filetransfer.source"/>
+<plugin id="org.eclipse.core.contenttype"/>
+<plugin id="org.eclipse.osgi.services" version="3.3.100.v20120522-1822"/>
+<plugin id="org.eclipse.e4.ui.css.swt.source"/>
+<plugin id="org.eclipse.equinox.p2.repository.tools"/>
+<plugin id="org.eclipse.equinox.transforms.hook.source"/>
+<plugin id="org.eclipse.equinox.p2.ui.sdk.scheduler"/>
+<plugin id="org.eclipse.equinox.event.source"/>
+<plugin id="org.eclipse.equinox.http.jetty.source"/>
+<plugin id="javax.servlet.jsp.source"/>
+<plugin id="org.eclipse.core.databinding.source"/>
+<plugin id="org.eclipse.equinox.p2.artifact.repository"/>
+<plugin id="org.eclipse.equinox.console.ssh"/>
+<plugin id="org.eclipse.equinox.console.source"/>
+<plugin id="org.eclipse.core.net"/>
+<plugin id="javax.mail"/>
+<plugin id="javax.servlet.jsp"/>
+<plugin id="org.eclipse.equinox.security.ui"/>
+<plugin id="org.apache.felix.gogo.command" version="0.8.0.v201108120515"/>
+<plugin id="org.eclipse.ecf.ssl.source"/>
+<plugin id="org.apache.batik.util"/>
+<plugin id="org.eclipse.e4.ui.workbench.swt.source"/>
+<plugin id="org.eclipse.ecf.provider.filetransfer.httpclient"/>
+<plugin id="org.slf4j.api.source"/>
+<plugin id="org.eclipse.equinox.p2.core"/>
+<plugin id="org.eclipse.equinox.device"/>
+<plugin id="org.apache.jasper.glassfish.source"/>
+<plugin id="org.eclipse.e4.core.services"/>
+<plugin id="org.eclipse.persistence.jpa.jpql"/>
+<plugin id="org.eclipse.e4.ui.workbench3"/>
+<plugin id="javax.servlet.source" version="3.0.0.v201112011016"/>
+<plugin id="org.w3c.dom.svg.source"/>
+<plugin id="org.eclipse.e4.ui.css.swt.theme"/>
+<plugin id="org.eclipse.ecf.ssl"/>
+<plugin id="org.eclipse.equinox.p2.publisher.eclipse.source"/>
+<plugin id="org.eclipse.equinox.jsp.jasper"/>
+<plugin id="org.eclipse.ui.source"/>
+<plugin id="org.eclipse.equinox.concurrent"/>
+<plugin id="org.eclipse.equinox.util.source"/>
+<plugin id="javax.persistence.source" version="2.0.4.v201112161009"/>
+<plugin id="org.eclipse.equinox.p2.director.source"/>
+<plugin id="org.hamcrest.core"/>
+<plugin id="org.eclipse.equinox.weaving.caching.j9.source"/>
+<plugin id="org.eclipse.equinox.console.jaas.fragment"/>
+<plugin id="org.apache.commons.logging"/>
+<plugin id="org.eclipse.equinox.p2.ql.source"/>
+<plugin id="org.eclipse.equinox.p2.updatesite.source"/>
+<plugin id="org.eclipse.jetty.util.source"/>
+<plugin id="org.eclipse.equinox.p2.repository.source"/>
+<plugin id="org.eclipse.osgi.services.source" version="3.3.100.v20120522-1822"/>
+<plugin id="org.eclipse.jetty.http.source"/>
+<plugin id="org.eclipse.e4.ui.services.source"/>
+<plugin id="org.eclipse.equinox.wireadmin.source"/>
+<plugin id="org.eclipse.equinox.p2.discovery.compatibility"/>
+<plugin id="org.eclipse.equinox.ip"/>
+<plugin id="org.eclipse.equinox.p2.publisher.source"/>
+<plugin id="org.eclipse.persistence.jpa.equinox"/>
+<plugin id="org.eclipse.equinox.p2.console.source"/>
+<plugin id="org.apache.felix.gogo.runtime.source" version="0.8.0.v201108120515"/>
+<plugin id="org.eclipse.core.databinding.property"/>
+<plugin id="org.eclipse.equinox.p2.reconciler.dropins.source"/>
+<plugin id="org.eclipse.core.databinding.observable.source"/>
+<plugin id="com.ibm.icu.base"/>
+<plugin id="org.eclipse.emf.ecore.change"/>
+<plugin id="org.eclipse.ui"/>
+<plugin id="org.eclipse.ecf.identity.source"/>
+<plugin id="org.eclipse.persistence.jpa.osgi"/>
+<plugin id="org.eclipse.equinox.p2.directorywatcher.source"/>
+<plugin id="org.eclipse.jface"/>
+<plugin id="org.eclipse.equinox.supplement"/>
+<plugin id="org.apache.commons.codec"/>
+<plugin id="org.eclipse.equinox.jsp.jasper.source"/>
+<plugin id="org.eclipse.equinox.event"/>
+<plugin id="org.eclipse.ecf.source"/>
+<plugin id="org.eclipse.equinox.concurrent.source"/>
+<plugin id="org.eclipse.equinox.p2.repository.tools.source"/>
+<plugin id="org.eclipse.ecf.provider.filetransfer.source"/>
+<plugin id="org.w3c.dom.svg"/>
+<plugin id="org.eclipse.ui.browser"/>
+<plugin id="org.eclipse.equinox.simpleconfigurator"/>
+<plugin id="org.eclipse.equinox.bidi"/>
+<plugin id="javax.activation.source"/>
+<plugin id="org.eclipse.equinox.p2.reconciler.dropins"/>
+<plugin id="org.eclipse.equinox.p2.publisher.eclipse"/>
+<plugin id="org.eclipse.equinox.p2.installer"/>
+<plugin id="org.eclipse.equinox.transforms.xslt.source"/>
+<plugin id="org.eclipse.equinox.p2.jarprocessor.source"/>
+<plugin id="org.eclipse.equinox.useradmin.source"/>
+<plugin id="org.w3c.dom.smil"/>
+<plugin id="org.apache.mina.core"/>
+<plugin id="org.eclipse.equinox.p2.updatesite"/>
+<plugin id="org.eclipse.equinox.p2.repository"/>
+<plugin id="org.eclipse.e4.ui.widgets"/>
+<plugin id="org.eclipse.core.expressions.source"/>
+<plugin id="org.junit.source"/>
+<plugin id="org.eclipse.osgi.source" version="3.8.1.v20120830-144521"/>
+<plugin id="javax.el"/>
+<plugin id="org.w3c.css.sac.source"/>
+<plugin id="org.eclipse.help"/>
+<plugin id="org.eclipse.persistence.jpa.jpql.source"/>
+<plugin id="org.eclipse.persistence.oracle"/>
+<plugin id="org.eclipse.ui.forms"/>
+<plugin id="org.eclipse.emf.ecore.change.source"/>
+<plugin id="org.eclipse.core.databinding"/>
+</includeBundles>
 </target>

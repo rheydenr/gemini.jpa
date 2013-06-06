@@ -18,6 +18,7 @@ import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.sql.DataSource;
 
 import org.eclipse.gemini.jpa.GeminiManager;
@@ -37,7 +38,7 @@ import static org.eclipse.gemini.jpa.GeminiUtil.warning;
 import static org.osgi.service.jdbc.DataSourceFactory.*;
 
 /** 
- * Utility class with datasource helper methods.
+ * Utility class with data source helper methods.
  */
 @SuppressWarnings({"unchecked","rawtypes"})
 public class DataSourceUtil {
@@ -49,15 +50,41 @@ public class DataSourceUtil {
         this.mgr = mgr;
     }
     
+    /**
+     * This method is used to get a data source for an EMF when an EMF is about to be created
+     * in one of a few cases:
+     * 
+     *     a) The registered EMF service (EMFServiceProxyHandler) was invoked by a client 
+     *        and no EMF existed yet
+     *     b) The registered EMFBuilder service (EMFBuilderServiceProxyHandler) 
+     *        createEntityManagerFactory method was invoked by a client and no EMF existed
+     *        yet for that named persistence unit 
+     *     c) The client invoked Persistence.createEntityManagerFactory()
+     *     
+     * We can acquire a data source in a number of different ways:
+     * 
+     *     1) A data source may already be associated with a punit if a non-jta data source 
+     *        property containing a JNDI lookup string was specified in the persistence descriptor
+     *     2) A non-jta data source property can be passed to the createEMF call
+     *         a) may refer to actual data source to use, or String to use to look up
+     *     3) A special property may be specified to indicate that the provider will obtain the 
+     *        data source on its own using its own properties
+     *     4) A data source factory may have already been found and is being tracked, from which 
+     *        we can obtain a data source
+     *     5) Try looking up the DSF to see if it appears after it potentially already disappeared 
+     *     6) Try to load the driver from the persistence unit bundle
+     * 
+     * Return null if we did not obtain it, but are expecting it to be obtained by the provider.
+     * Throw an exception if we tried to obtain it but did not succeed for other reasons. 
+     */
     public DataSource acquireDataSource(PUnitInfo pUnitInfo, Map<?,?> properties) {
 
         debug("DataSourceUtil.acquireDataSource - for punit ", pUnitInfo.getUnitName());
-        // If an actual data source object was passed in then just return it and 
-        // let it be re-added to the properties map by the caller  
-        // ### Enhancement for bug 335983 - Contributed by Eduard Bartsch ###
-        Object ds = properties.get(PersistenceUnitProperties.NON_JTA_DATASOURCE);
-        if (ds instanceof DataSource) {
-            return (DataSource) ds;
+
+        // See if we have a data source instead of JDBC props
+        DataSource ds = checkForNonJtaDataSource(pUnitInfo, properties);
+        if (ds != null) { 
+            return ds;
         }
         
         // Support the case of a provider-connected data source. In this case the provider
@@ -67,8 +94,9 @@ public class DataSourceUtil {
             return null;
         }
         
+        // Go through the JDBC properties to get the driver/data source
         Driver driver = null;
-
+        
         // Sort out which named driver we are dealing with
         String driverName = (String)properties.get(GeminiUtil.JPA_JDBC_DRIVER_PROPERTY);
         String driverVersion = (String)properties.get(GeminiUtil.OSGI_JDBC_DRIVER_VERSION_PROPERTY);
@@ -107,6 +135,7 @@ public class DataSourceUtil {
                 debug("DataSourceUtil - Found DSF, props: ", GeminiUtil.serviceProperties(dsfRefs[0]));
                 DataSourceFactory dsf = (DataSourceFactory) mgr.getBundleContext().getService(dsfRefs[0]);
                 try {
+                    // Just get the vanilla driver and we'll wrap it later with a DS
                     driver = dsf.createDriver(null);
                 } catch (SQLException sqlEx) {
                     fatalError("Could not create data source for " + driverName, sqlEx);
@@ -128,10 +157,48 @@ public class DataSourceUtil {
         
         return new PlainDriverDataSource(driver, props);
     }
+
+    /* 
+     * Return a data source if a non-JTA data source was specified either 
+     * directly in the properties or as a string to look up. 
+     * Return null if none of this applies.
+     */
+    protected DataSource checkForNonJtaDataSource(PUnitInfo pUnitInfo, Map<?,?> props) {
+        // If an actual data source object was passed in then just return it and 
+        // let it be re-added to the properties map by the caller  
+        // ### Enhancement for bug 335983 - Contributed by Eduard Bartsch ###
+        Object dsValue = props.get(PersistenceUnitProperties.NON_JTA_DATASOURCE);
+        if (dsValue instanceof DataSource) {
+            debug("DataSourceUtil.checkForNonJtaDataSource - using data source passed in as property");
+            return (DataSource) dsValue;
+        }
+        // If a data source already exists in the punit then use that one
+        if (pUnitInfo.getJndiDataSource() != null) {
+            debug("DataSourceUtil.checkForNonJtaDataSource - using pre-looked up JNDI data source");            
+            return pUnitInfo.getJndiDataSource();
+        }
+        // Check to see if the property was a string to use for lookup or if a DS was
+        // specified in the non-jta-data-source element in the persistence descriptor 
+        String nonJtaDS = (dsValue instanceof String) 
+                ? (String)dsValue 
+                : pUnitInfo.getNonJtaDataSource();
+        // If we have a lookup string then do the lookup in JNDI to get the DS
+        if (nonJtaDS != null) {
+            debug("DataSourceUtil.checkForNonJtaDataSource - looking up data source ", nonJtaDS, " in JNDI");
+            DataSource jndiDS = mgr.getJndiUtil().lookupDataSource(nonJtaDS);
+            pUnitInfo.setJndiDataSource(jndiDS);
+            return jndiDS;
+        }
+        // Otherwise none of this applies so just return null
+        debug("DataSourceUtil.checkForNonJtaDataSource - no data source");
+        return null;
+    }
     
-    // Return whether the same driver is specified as in the PUnitInfo.
-    // Driver names can both be assumed to be non-null and must be equal.
-    // One, or both, of the versions may be null, but if neither are null then they must match.
+    /* 
+     * Return whether the same driver is specified as in the PUnitInfo.
+     * Driver names can both be assumed to be non-null and must be equal.
+     * One, or both, of the versions may be null, but if neither are null then they must match.
+     */
     protected boolean specifiesSameDriver(String driverName, String driverVersion, PUnitInfo unitInfo) {
         String infoDriverName = unitInfo.getDriverClassName();
         String infoDriverVersion = unitInfo.getDriverVersion();
@@ -225,7 +292,7 @@ public class DataSourceUtil {
         } catch (Exception ex) {
             fatalError("Unexpected failure creating DSF service tracker", ex);
         }
-        pUnitInfo.setTracker(tracker);
+        pUnitInfo.setDsfTracker(tracker);
         tracker.open();
         return dsfRefs != null;
     }
@@ -237,11 +304,11 @@ public class DataSourceUtil {
         // Clean up the tracker
         debug("ServicesUtil stopTrackingDataSourceFactory", 
               " for p-unit ", pUnitInfo.getUnitName());
-        if (pUnitInfo.getTracker() != null) {
+        if (pUnitInfo.getDsfTracker() != null) {
             debug("ServicesUtil stopping tracker for p-unit ", 
                     pUnitInfo.getUnitName());
-            pUnitInfo.getTracker().close();
-            pUnitInfo.setTracker(null);
+            pUnitInfo.getDsfTracker().close();
+            pUnitInfo.setDsfTracker(null);
         }
     }
 

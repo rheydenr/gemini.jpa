@@ -29,6 +29,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 
 import org.eclipse.gemini.jpa.classloader.BundleProxyClassLoader;
 import org.eclipse.gemini.jpa.classloader.CompositeClassLoader;
@@ -166,11 +167,15 @@ public class ServicesUtil {
     }
 
     /** 
-     * Register the EMF service.
+     * Register the EMF service if we have a hope of connecting to the DB 
+     * 
+     * @param pUnitInfo The metadata info for the persistence unit
+     * @param anchorClasses Set of classes to be proxied and the service is to be registered against 
+     * @param serviceProps Service properties to use when registering the service
      */
     public void tryToRegisterEMFService(PUnitInfo pUnitInfo,
                                         Map<String,Class<?>> anchorClasses,
-                                        Dictionary<String,String> props) {
+                                        Dictionary<String,String> serviceProps) {
 
         debug("ServicesUtil.tryToRegisterEMF service for ", pUnitInfo.getUnitName());
         // Array of classes being proxied by EMF proxy
@@ -194,13 +199,31 @@ public class ServicesUtil {
 
         // Do we create an EMF service?
         String driverClassName = pUnitInfo.getDriverClassName();
-        if (driverClassName == null) {
-            debug("ServicesUtil No driver class specified so no EMF service created");            
+        String nonJtaDataSource = pUnitInfo.getNonJtaDataSource();
+        
+        if ((driverClassName == null) && (nonJtaDataSource == null)) {
+            debug("ServicesUtil - No driver class or data source specified so no EMF service created");
+            return;
+        } 
+        // Either a driver class or a data source was specified
+        // (If both then non-jta data source overrides)
+        
+        if (nonJtaDataSource != null) {
+            // We must have a non-jta data source string
+            DataSource ds = mgr.getJndiUtil().lookupDataSource(nonJtaDataSource);
+            if (ds == null) {
+                warning("Non-JTA data source " + nonJtaDataSource + " was not found. EMF service not registered.");
+                return;
+            } else {
+                pUnitInfo.setJndiDataSource(ds);
+            }
         } else {
+            // We must have a driver class. 
+            // Either a DSF service exists for the driver or the driver is local
             if (!mgr.getDataSourceUtil().trackDataSourceFactory(pUnitInfo)) {
                 // DSF service was not found.
                 debug("DataSourceFactory service for " + driverClassName + " not found.");
-                // Driver may be packaged in with the p-unit -- try loading it from there
+                // Driver may be local (packaged in with the p-unit) -- try loading it
                 try {
                     pUnitInfo.getBundle().loadClass(driverClassName);
                     debug("JDBC driver " + driverClassName + " found locally.");
@@ -213,24 +236,26 @@ public class ServicesUtil {
                     return;
                 }
             }
-            // Either a DBAccess service exists for the driver or the driver is local
-
-            // Convert array of classes to class name strings
-            String[] classNameArray = new String[classArray.length];
-            for (int i=0; i<classArray.length; i++)
-                classNameArray[i] = classArray[i].getName();
-
-            // Register the EMF service (using p-unit context) and set registration in PUnitInfo
-            ServiceRegistration emfService = null;
-            try {
-                emfService = pUnitInfo.getBundle().getBundleContext()
-                               .registerService(classNameArray, emfServiceProxy, props);
-                debug("ServicesUtil EMF service: ", emfService);
-            } catch (Exception e) {
-                fatalError("ServicesUtil could not register EMF service for " + pUnitInfo.getUnitName(), e);
-            }
-            pUnitInfo.setEmfService(emfService);
         }
+        
+        /* === We have some kind of data source or factory. === */ 
+        /* === Go ahead and register the EMF service.       === */
+        
+        // Convert array of classes to class name strings
+        String[] classNameArray = new String[classArray.length];
+        for (int i=0; i<classArray.length; i++)
+            classNameArray[i] = classArray[i].getName();
+
+        // Register the EMF service (using p-unit context) and set registration in PUnitInfo
+        ServiceRegistration emfService = null;
+        try {
+            emfService = pUnitInfo.getBundle().getBundleContext()
+                           .registerService(classNameArray, emfServiceProxy, serviceProps);
+            debug("ServicesUtil EMF service: ", emfService);
+        } catch (Exception e) {
+            fatalError("ServicesUtil could not register EMF service for " + pUnitInfo.getUnitName(), e);
+        }
+        pUnitInfo.setEmfService(emfService);
     }
     
     /** 
@@ -315,6 +340,7 @@ public class ServicesUtil {
             debug("ServicesUtil EMF service removed EMF: ", emf);
         }
         pUnitInfo.setEmfHandler(null);
+        pUnitInfo.setJndiDataSource(null);
     }
 
     /**
@@ -348,7 +374,6 @@ public class ServicesUtil {
             debug("ServicesUtil EMFBuilder service removed emf: ", emf);
         }
         pUnitInfo.setEmfBuilderHandler(null);
-
     }    
     
     /*================*/

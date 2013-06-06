@@ -29,6 +29,7 @@ import org.osgi.framework.BundleContext;
 
 import org.eclipse.gemini.jpa.classloader.CompositeClassLoader;
 import org.eclipse.gemini.jpa.datasource.DataSourceUtil;
+import org.eclipse.gemini.jpa.jndi.JndiUtil;
 import org.eclipse.gemini.jpa.configadmin.ConfigAdminListener;
 import org.eclipse.gemini.jpa.configadmin.PersistenceUnitConfiguration;
 
@@ -79,6 +80,9 @@ public class GeminiManager {
     /** DataSource and JDBC utility methods */
     DataSourceUtil dataSourceUtil;
     
+    /** JNDI utility methods */
+    JndiUtil jndiUtil;
+    
     /** Anchor class gen utility methods */
     AnchorClassUtil anchorUtil;    
     
@@ -103,6 +107,9 @@ public class GeminiManager {
 
     public DataSourceUtil getDataSourceUtil() { return dataSourceUtil; }
     public void setDataSourceUtil(DataSourceUtil util) { this.dataSourceUtil = util; }
+
+    public JndiUtil getJndiUtil() { return jndiUtil; }
+    public void setJndiUtil(JndiUtil jndiUtil) { this.jndiUtil = jndiUtil; }
 
     public AnchorClassUtil getAnchorUtil() { return anchorUtil; }
     public void setAnchorUtil(AnchorClassUtil util) { this.anchorUtil = util; }
@@ -131,6 +138,7 @@ public class GeminiManager {
 
         extender = new PersistenceBundleExtender(this);
         dataSourceUtil = new DataSourceUtil(this);
+        jndiUtil = new JndiUtil(this);
         anchorUtil = new AnchorClassUtil(GeminiSystemProperties.generateAnchorClasses());
         servicesUtil = new ServicesUtil(this);
         
@@ -213,7 +221,6 @@ public class GeminiManager {
 
         for (PUnitInfo info : pUnits) {
             String unitName = info.getUnitName();
-            int attempts = 0;
 
             if (pUnitsByName.containsKey(unitName)) {
                 // Shouldn't be in the map. Race condition - 
@@ -225,6 +232,7 @@ public class GeminiManager {
                     // It is the same bundle - move along and assume it will be registered
                     continue;
                 }
+                int attempts = 0;
                 while (pUnitsByName.containsKey(unitName) && (attempts < MAX_EVENT_COLLISION_TRIES)) {
                     // The previous entry just hasn't been removed yet. Take a short
                     // break and give a chance for the unregister to occur.
@@ -282,5 +290,5 @@ public class GeminiManager {
     /*================*/
 
     public Bundle getBundle() { return ctx.getBundle(); }  
-    
+
 }
