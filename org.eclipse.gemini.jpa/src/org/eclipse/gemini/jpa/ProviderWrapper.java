@@ -16,6 +16,7 @@
 package org.eclipse.gemini.jpa;
 
 import static org.eclipse.gemini.jpa.GeminiUtil.debug;
+import static org.eclipse.gemini.jpa.GeminiUtil.warning;
 import static org.eclipse.gemini.jpa.GeminiUtil.fatalError;
 import static org.eclipse.gemini.jpa.GeminiUtil.PUNIT_INFO_PROPERTY;
 
@@ -128,9 +129,23 @@ public class ProviderWrapper implements PersistenceProvider {
         return emf;
     }
 
+    @Override
+    public ProviderUtil getProviderUtil() { 
+        debug("ProviderWrapper getProviderUtil invoked");
+        return nativeProvider.getProviderUtil(); 
+    }
+
+    @Override
+    public boolean generateSchema(String unitName, Map properties) {
+        debug("ProviderWrapper generateSchema invoked for p-unit: ", unitName, " props: ", properties);
+        warning("The generateSchema() method is not currently supported by OSGi JPA");
+        return false;
+    }
+
     /**
-     * Container SPI call not supported.
+     * Container SPI methods not supported.
      */
+    
     @Override
     public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map properties) {        
         fatalError("Container SPI not supported by OSGi JPA", null);
@@ -138,9 +153,8 @@ public class ProviderWrapper implements PersistenceProvider {
     }
 
     @Override
-    public ProviderUtil getProviderUtil() { 
-        debug("ProviderWrapper getProviderUtil invoked");
-        return nativeProvider.getProviderUtil(); 
+    public void generateSchema(PersistenceUnitInfo info, Map properties) {
+        fatalError("Container SPI not supported by OSGi JPA", null);        
     }
 
     /*================*/
