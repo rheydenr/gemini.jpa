@@ -8,10 +8,10 @@ Bundle-Activator:
 Bundle-Vendor: Oracle Corporation
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: javax.naming,
- javax.persistence;jpa="2.0";version="1.1.0",
- javax.persistence.criteria;jpa="2.0";version="1.1.0",
- javax.persistence.metamodel;jpa="2.0";version="1.1.0",
- javax.persistence.spi;jpa="2.0";version="1.1.0",
+ javax.persistence;version="1.1.0",
+ javax.persistence.criteria;version="1.1.0",
+ javax.persistence.metamodel;version="1.1.0",
+ javax.persistence.spi;version="1.1.0",
  javax.sql,
  javax.xml.parsers,
  org.osgi.framework;version="1.6",

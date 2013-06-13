@@ -39,7 +39,7 @@ public class WeavingHookTransformer implements WeavingHook {
     /*==================*/
 
     // List of imports to be added to a woven bundle.
-    static public List<String> newImports = Arrays.asList("org.eclipse.persistence.indirection" + 
+    static public List<String> NEW_IMPORTS = Arrays.asList("org.eclipse.persistence.indirection" + 
                                                                 ";bundle-symbolic-name=org.eclipse.persistence.core" +
                                                                 ";bundle-version=2.3.0", 
                                                           "org.eclipse.persistence.queries" + 
@@ -63,7 +63,14 @@ public class WeavingHookTransformer implements WeavingHook {
                                                           "org.eclipse.persistence.internal.weaving" +
                                                                 ";bundle-symbolic-name=org.eclipse.persistence.core" +
                                                                 ";bundle-version=2.3.0");
+   
+    static public String PACKAGE_IMPORT_FROM_EL_2_4_2 =   "org.eclipse.persistence.internal.jpa.rs.metadata.model" +
+                                                                ";bundle-symbolic-name=org.eclipse.persistence.core" +
+                                                                ";bundle-version=2.4.2";
     
+    static public String CLASS_FROM_EL_2_4_2 = "org.eclipse.persistence.internal.jpa.rs.metadata.model.PersistenceUnit";
+    
+   
     /*================*/
     /* Instance state */
     /*================*/
@@ -129,11 +136,21 @@ public class WeavingHookTransformer implements WeavingHook {
                     // Note: Small window for concurrent weavers to add the same imports, causing duplicates
                     importsAdded = true;
                     List<String> currentImports = cls.getDynamicImports();
-                    for (String newImport : newImports) {
+                    for (String newImport : NEW_IMPORTS) {
                         if (!currentImports.contains(newImport)) {
                             currentImports.add(newImport);
                             GeminiUtil.debugWeaving("Added dynamic import ", newImport); 
                         }
+                    }
+                    // Bug #408607 - Try to load class that does not exist in releases before EclipseLink v2.4.2
+                    try {
+                        this.getClass().getClassLoader().loadClass(CLASS_FROM_EL_2_4_2);
+                        // If we can load it then we are running with 2.4.2 or higher so add the extra import
+                        currentImports.add(PACKAGE_IMPORT_FROM_EL_2_4_2);
+                        GeminiUtil.debugWeaving("Added dynamic import ", PACKAGE_IMPORT_FROM_EL_2_4_2); 
+                    } catch (ClassNotFoundException cnfEx) {
+                        GeminiUtil.debugWeaving("Didn't add 2.4.2 import ", PACKAGE_IMPORT_FROM_EL_2_4_2); 
+                        // Do nothing (i.e. don't add import)
                     }
                 }
             } catch (IllegalClassFormatException e) {
