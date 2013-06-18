@@ -10,12 +10,12 @@
 <repository location="http://download.eclipse.org/gemini/dbaccess/updates/1.0/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.persistence.jpa.feature.group" version="2.4.0.v20120608-r11652"/>
+<unit id="org.eclipse.persistence.jpa.feature.group" version="2.5.0.v20130507-3faac2b"/>
 <repository location="http://download.eclipse.org/rt/eclipselink/updates/"/>
 </location>
 </locations>
 <includeBundles>
-<plugin id="org.eclipse.osgi.util.source" version="3.2.300.v20120522-1822"/>
+<plugin id="org.eclipse.osgi.util.source"/>
 <plugin id="org.eclipse.equinox.device.source"/>
 <plugin id="javax.inject.source"/>
 <plugin id="org.sat4j.pb"/>
@@ -23,7 +23,7 @@
 <plugin id="org.eclipse.persistence.core"/>
 <plugin id="org.eclipse.equinox.p2.garbagecollector.source"/>
 <plugin id="org.eclipse.equinox.http.servlet"/>
-<plugin id="org.eclipse.equinox.servletbridge.extensionbundle" version="1.2.100.v20120522-2049"/>
+<plugin id="org.eclipse.equinox.servletbridge.extensionbundle"/>
 <plugin id="org.eclipse.equinox.p2.console"/>
 <plugin id="org.eclipse.jface.source"/>
 <plugin id="org.eclipse.e4.core.di"/>
@@ -71,7 +71,7 @@
 <plugin id="org.eclipse.jetty.security"/>
 <plugin id="org.eclipse.ui.browser.source"/>
 <plugin id="org.apache.felix.gogo.shell"/>
-<plugin id="org.eclipse.osgi" version="3.8.1.v20120830-144521"/>
+<plugin id="org.eclipse.osgi"/>
 <plugin id="org.hamcrest.core.source"/>
 <plugin id="org.eclipse.e4.ui.di"/>
 <plugin id="org.eclipse.jface.databinding.source"/>
@@ -154,7 +154,7 @@
 <plugin id="org.eclipse.equinox.cm.source"/>
 <plugin id="org.eclipse.e4.ui.model.workbench"/>
 <plugin id="org.eclipse.jetty.server.source"/>
-<plugin id="org.eclipse.osgi.util" version="3.2.300.v20120522-1822"/>
+<plugin id="org.eclipse.osgi.util"/>
 <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
 <plugin id="org.eclipse.equinox.http.servletbridge.source"/>
 <plugin id="org.eclipse.e4.core.di.extensions.source"/>
@@ -174,10 +174,10 @@
 <plugin id="org.eclipse.equinox.security.ui.source"/>
 <plugin id="org.eclipse.equinox.p2.directorywatcher"/>
 <plugin id="org.eclipse.equinox.p2.ql"/>
-<plugin id="org.apache.felix.gogo.runtime" version="0.8.0.v201108120515"/>
+<plugin id="org.apache.felix.gogo.runtime"/>
 <plugin id="org.eclipse.equinox.ds.source"/>
 <plugin id="org.eclipse.equinox.transforms.xslt"/>
-<plugin id="javax.servlet" version="3.0.0.v201112011016"/>
+<plugin id="javax.servlet"/>
 <plugin id="org.eclipse.e4.core.services.source"/>
 <plugin id="org.eclipse.e4.ui.workbench3.source"/>
 <plugin id="org.eclipse.equinox.servletbridge"/>
@@ -196,7 +196,7 @@
 <plugin id="org.eclipse.equinox.http.registry"/>
 <plugin id="org.eclipse.e4.ui.css.swt.theme.source"/>
 <plugin id="org.eclipse.core.runtime"/>
-<plugin id="javax.persistence" version="2.0.4.v201112161009"/>
+<plugin id="javax.persistence"/>
 <plugin id="org.eclipse.help.source"/>
 <plugin id="org.eclipse.equinox.servletbridge.source"/>
 <plugin id="org.eclipse.e4.core.commands.source"/>
@@ -228,7 +228,7 @@
 <plugin id="org.eclipse.core.resources"/>
 <plugin id="org.eclipse.equinox.weaving.aspectj.source"/>
 <plugin id="org.eclipse.equinox.console"/>
-<plugin id="javax.xml" version="1.3.4.v201005080400"/>
+<plugin id="javax.xml"/>
 <plugin id="org.eclipse.equinox.supplement.source"/>
 <plugin id="org.apache.commons.httpclient"/>
 <plugin id="org.eclipse.e4.core.contexts"/>
@@ -259,14 +259,14 @@
 <plugin id="org.eclipse.e4.ui.css.core"/>
 <plugin id="org.eclipse.equinox.app"/>
 <plugin id="org.eclipse.equinox.region"/>
-<plugin id="org.apache.felix.gogo.command.source" version="0.8.0.v201108120515"/>
+<plugin id="org.apache.felix.gogo.command.source"/>
 <plugin id="org.eclipse.equinox.http.registry.source"/>
 <plugin id="org.eclipse.equinox.jsp.jasper.registry.source"/>
 <plugin id="org.eclipse.equinox.p2.engine"/>
-<plugin id="osgi.enterprise" version="4.2.0.201003190513"/>
+<plugin id="osgi.enterprise"/>
 <plugin id="org.eclipse.ecf.filetransfer.source"/>
 <plugin id="org.eclipse.core.contenttype"/>
-<plugin id="org.eclipse.osgi.services" version="3.3.100.v20120522-1822"/>
+<plugin id="org.eclipse.osgi.services"/>
 <plugin id="org.eclipse.e4.ui.css.swt.source"/>
 <plugin id="org.eclipse.equinox.p2.repository.tools"/>
 <plugin id="org.eclipse.equinox.transforms.hook.source"/>
@@ -282,7 +282,7 @@
 <plugin id="javax.mail"/>
 <plugin id="javax.servlet.jsp"/>
 <plugin id="org.eclipse.equinox.security.ui"/>
-<plugin id="org.apache.felix.gogo.command" version="0.8.0.v201108120515"/>
+<plugin id="org.apache.felix.gogo.command"/>
 <plugin id="org.eclipse.ecf.ssl.source"/>
 <plugin id="org.apache.batik.util"/>
 <plugin id="org.eclipse.e4.ui.workbench.swt.source"/>
@@ -294,7 +294,7 @@
 <plugin id="org.eclipse.e4.core.services"/>
 <plugin id="org.eclipse.persistence.jpa.jpql"/>
 <plugin id="org.eclipse.e4.ui.workbench3"/>
-<plugin id="javax.servlet.source" version="3.0.0.v201112011016"/>
+<plugin id="javax.servlet.source"/>
 <plugin id="org.w3c.dom.svg.source"/>
 <plugin id="org.eclipse.e4.ui.css.swt.theme"/>
 <plugin id="org.eclipse.ecf.ssl"/>
@@ -303,7 +303,7 @@
 <plugin id="org.eclipse.ui.source"/>
 <plugin id="org.eclipse.equinox.concurrent"/>
 <plugin id="org.eclipse.equinox.util.source"/>
-<plugin id="javax.persistence.source" version="2.0.4.v201112161009"/>
+<plugin id="javax.persistence.source"/>
 <plugin id="org.eclipse.equinox.p2.director.source"/>
 <plugin id="org.hamcrest.core"/>
 <plugin id="org.eclipse.equinox.weaving.caching.j9.source"/>
@@ -313,7 +313,7 @@
 <plugin id="org.eclipse.equinox.p2.updatesite.source"/>
 <plugin id="org.eclipse.jetty.util.source"/>
 <plugin id="org.eclipse.equinox.p2.repository.source"/>
-<plugin id="org.eclipse.osgi.services.source" version="3.3.100.v20120522-1822"/>
+<plugin id="org.eclipse.osgi.services.source"/>
 <plugin id="org.eclipse.jetty.http.source"/>
 <plugin id="org.eclipse.e4.ui.services.source"/>
 <plugin id="org.eclipse.equinox.wireadmin.source"/>
@@ -322,7 +322,7 @@
 <plugin id="org.eclipse.equinox.p2.publisher.source"/>
 <plugin id="org.eclipse.persistence.jpa.equinox"/>
 <plugin id="org.eclipse.equinox.p2.console.source"/>
-<plugin id="org.apache.felix.gogo.runtime.source" version="0.8.0.v201108120515"/>
+<plugin id="org.apache.felix.gogo.runtime.source"/>
 <plugin id="org.eclipse.core.databinding.property"/>
 <plugin id="org.eclipse.equinox.p2.reconciler.dropins.source"/>
 <plugin id="org.eclipse.core.databinding.observable.source"/>
@@ -359,7 +359,7 @@
 <plugin id="org.eclipse.e4.ui.widgets"/>
 <plugin id="org.eclipse.core.expressions.source"/>
 <plugin id="org.junit.source"/>
-<plugin id="org.eclipse.osgi.source" version="3.8.1.v20120830-144521"/>
+<plugin id="org.eclipse.osgi.source"/>
 <plugin id="javax.el"/>
 <plugin id="org.w3c.css.sac.source"/>
 <plugin id="org.eclipse.help"/>
