@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gemini JPA
 Bundle-SymbolicName: org.eclipse.gemini.jpa
-Bundle-Version: 1.2.0.qualifier
+Bundle-Version: 1.2.0.M1
 Bundle-Activator: 
  org.eclipse.gemini.jpa.Activator
 Bundle-Vendor: Oracle Corporation
