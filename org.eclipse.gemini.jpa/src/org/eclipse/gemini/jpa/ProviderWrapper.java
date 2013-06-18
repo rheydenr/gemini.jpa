@@ -135,7 +135,7 @@ public class ProviderWrapper implements PersistenceProvider {
         return nativeProvider.getProviderUtil(); 
     }
 
-    @Override
+    // @Override - Leave off annotation so can compile against pre-JPA 2.1
     public boolean generateSchema(String unitName, Map properties) {
         debug("ProviderWrapper generateSchema invoked for p-unit: ", unitName, " props: ", properties);
         warning("The generateSchema() method is not currently supported by OSGi JPA");
@@ -152,7 +152,7 @@ public class ProviderWrapper implements PersistenceProvider {
         return null;
     }
 
-    @Override
+    // @Override - Leave off annotation so can compile against pre-JPA 2.1
     public void generateSchema(PersistenceUnitInfo info, Map properties) {
         fatalError("Container SPI not supported by OSGi JPA", null);        
     }
