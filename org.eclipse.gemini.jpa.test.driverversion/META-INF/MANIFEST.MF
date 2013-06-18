@@ -4,8 +4,8 @@ Bundle-Name: Gemini JPA Driver Version Tests
 Bundle-SymbolicName: org.eclipse.gemini.jpa.test.driverversion
 Bundle-Version: 1.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: javax.persistence;jpa="2.0";version="1.1.0",
- javax.persistence.metamodel;jpa="2.0";version="1.1.0",
+Import-Package: javax.persistence;version="1.1.0",
+ javax.persistence.metamodel;version="1.1.0",
  org.eclipse.gemini.jpa.test.common;version="1.0.0",
  org.junit;version="4.8.2",
  org.junit.runner;version="4.8.2",

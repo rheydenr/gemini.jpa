@@ -4,8 +4,8 @@ Bundle-Name: Gemini JPA Basic PUnit Tests
 Bundle-SymbolicName: org.eclipse.gemini.jpa.test.basic
 Bundle-Version: 1.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: javax.persistence;jpa="2.0";version="1.1.0",
- javax.persistence.metamodel;jpa="2.0";version="1.1.0",
+Import-Package: javax.persistence;version="1.1.0",
+ javax.persistence.metamodel;version="1.1.0",
  model.basic;version="1.0.0",
  org.eclipse.gemini.jpa.test.common;version="1.0.0",
  org.junit;version="4.8.2",
