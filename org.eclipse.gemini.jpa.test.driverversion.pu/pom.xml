@@ -18,7 +18,7 @@
 	<parent>
 		<groupId>org.eclipse.gemini</groupId>
 		<artifactId>org.eclipse.gemini.jpa.parent</artifactId>
-		<version>1.1.0-SNAPSHOT</version>
+		<version>1.2.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>org.eclipse.gemini.jpa.test.driverversion.pu</artifactId>
