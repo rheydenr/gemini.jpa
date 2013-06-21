@@ -33,8 +33,10 @@ import org.osgi.service.cm.ManagedServiceFactory;
 import org.eclipse.gemini.jpa.classloader.CompositeClassLoader;
 import org.eclipse.gemini.jpa.GeminiManager;
 import org.eclipse.gemini.jpa.GeminiPersistenceUnitProperties;
+import org.eclipse.gemini.jpa.GeminiSystemProperties;
 import org.eclipse.gemini.jpa.GeminiUtil;
 import org.eclipse.gemini.jpa.PUnitInfo;
+import org.eclipse.gemini.jpa.PersistenceBundleExtender;
 
 /**
  * This singleton class provides functionality to integrate with the 
@@ -255,7 +257,7 @@ public class ConfigAdminListener implements ManagedServiceFactory {
      *  cases apply:
      *  
      *  a) force parameter is true
-     *  b) The bundle is in limbo (had no previous descriptor)
+     *  b) The bundle is in limbo (had no previous descriptor) and global refresh option not set
      *  c) The bundle did have a descriptor and an EMF was already registered
      *  d) Gemini JPA refresh property was specified with a value of true
      */
@@ -283,6 +285,7 @@ public class ConfigAdminListener implements ManagedServiceFactory {
             } else {
                 // Don't refresh. Existing punit (with only EMFBuilder service) 
                 // Go ahead and update the unitInfo from the config and then register the EMF service
+                debug("ConfigAdminListener, no refresh needed, registering EMF service for bundle ", b);
                 config.updatePUnitInfo(unitInfo);
                 mgr.getServicesUtil().tryToRegisterEMFService(
                         unitInfo, 
@@ -293,8 +296,21 @@ public class ConfigAdminListener implements ManagedServiceFactory {
             // Try looking at the bundles that are in limbo (did not have existing descriptor)
             b = mgr.getExtender().getBundleInLimbo(config.getBsn());
             if (b != null) {
-                needsRefresh = true;
                 debug("ConfigAdminListener found punit bundle ", unitName, " in limbo");
+                if (GeminiSystemProperties.refreshPersistenceBundles()) {
+                    needsRefresh = true;
+                } else {
+                    // Fix for bug #397040.
+                    // If global refresh set to false then go ahead and push the bundle through the phases manually
+                    warning("Bundle " + b.getSymbolicName(), " not being refreshed because refresh is disabled");
+                    PersistenceBundleExtender extender = mgr.getExtender();
+                    extender.tryAssigningPersistenceUnitsInBundle(b);
+                    // If bundle is already active or in process of becoming active then do the register
+                    // Otherwise the extender will do this when the bundle gets to STARTING
+                    if ((b.getState() == Bundle.STARTING) || (b.getState() == Bundle.ACTIVE)) {
+                        extender.registerPersistenceUnitsInBundle(b);
+                    }
+                }
             }
         }
         // Now look to see if we actually obtained the bundle

@@ -96,7 +96,7 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     
     // Map of persistence bundles (keyed by BSN) that have been examined but 
     // didn't have descriptors. These will be refreshed if/when a config admin 
-    // configuration comes along.
+    // configuration comes along (unless global refresh option is set to false)
     Map<String, Bundle> inLimbo = 
         Collections.synchronizedMap(new HashMap<String, Bundle>());
     
@@ -231,7 +231,8 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
                 debug("Putting bundle ", b, " in limbo");
                 inLimbo.put(b.getSymbolicName(), b);
                 // The bundle will be removed from being in limbo by the config admin listener when 
-                // a config comes along that contains the bsn of this bundle. It will then be refreshed.
+                // a config comes along that contains the bsn of this bundle. It will then be refreshed
+                // (unless global refresh id disabled) and come through this phase again
                 return;
             }
         }
@@ -436,11 +437,11 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
     /* Helper methods */
     /*================*/
 
-    protected boolean isAssigned(Bundle b) {
+    public boolean isAssigned(Bundle b) {
         return unitsByBundle.containsKey(b);
     }
 
-    protected boolean isLazy(Bundle b) {
+    public boolean isLazy(Bundle b) {
         return lazyBundles.contains(b.getBundleId());
     }
     protected boolean addToLazyBundles(Bundle b) {
@@ -450,7 +451,7 @@ public class PersistenceBundleExtender implements SynchronousBundleListener  {
         return lazyBundles.remove(b.getBundleId());
     }
 
-    protected boolean isRefreshing(Bundle b) {
+    public boolean isRefreshing(Bundle b) {
         return refreshingBundles.contains(b.getBundleId());
     }
     protected void addToRefreshingBundles(Bundle b) {
