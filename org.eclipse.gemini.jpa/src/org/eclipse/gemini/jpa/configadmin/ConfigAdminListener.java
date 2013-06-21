@@ -315,7 +315,7 @@ public class ConfigAdminListener implements ManagedServiceFactory {
         }
         // Now look to see if we actually obtained the bundle
         if (b == null) {
-            debug("ConfigAdminListener did not find existing bundle to refresh for punit ", unitName);
+            debug("ConfigAdminListener did not find existing bundle to apply config to for punit ", unitName);
         } else {
             if (needsRefresh) {
                 // Bundle may have an existing descriptor, or it may not have had any
