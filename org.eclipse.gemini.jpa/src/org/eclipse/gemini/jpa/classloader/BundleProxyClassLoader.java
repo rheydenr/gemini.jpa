@@ -99,8 +99,9 @@ public class BundleProxyClassLoader extends ClassLoader {
             // may result in attempt to resolve bundle which we
             // don't want as a side effect.
             debugClassLoader("Bundle has no classloader so loadClass(", name,
-                ") is returning null");
-            return null;
+                ") is throwing CNFE");
+            // Bug 412404 - throw CNFE instead of returning null
+            throw new ClassNotFoundException(name);
         } else {
             return bundle.loadClass(name);
         }
