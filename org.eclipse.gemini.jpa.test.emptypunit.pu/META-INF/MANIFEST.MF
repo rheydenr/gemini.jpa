@@ -3,8 +3,9 @@ Bundle-ManifestVersion: 2
 Meta-Persistence: META-INF/emptyJpa.xml
 Bundle-Name: Gemini JPA Test Empty Persistence Unit
 Bundle-SymbolicName: org.eclipse.gemini.jpa.test.emptypunit.pu
-Bundle-Version: 1.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Version: 1.2.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: org.osgi.framework;version="1.4.0"
 ZZZComment-header: Require-Capability: osgi.extender;
  filter:="(&(osgi.extender=osgi.jpa)(version>=1.0))"
+Automatic-Module-Name: org.eclipse.gemini.jpa.test.emptypunit.pu

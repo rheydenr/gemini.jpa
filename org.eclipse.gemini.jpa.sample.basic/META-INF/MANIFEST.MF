@@ -4,7 +4,7 @@ Meta-Persistence: META-INF/persistence.xml
 Bundle-Name: Gemini JPA Basic Sample Persistence Unit
 Bundle-SymbolicName: org.eclipse.gemini.jpa.sample.basic
 Bundle-Version: 1.2.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: javax.persistence;version="1.1.0",
  javax.persistence.criteria;version="1.1.0",
  javax.persistence.metamodel;version="1.1.0",
@@ -13,4 +13,5 @@ Import-Package: javax.persistence;version="1.1.0",
  org.osgi.service.jpa
 Export-Package: model.account;version="1.1.0"
 Bundle-Activator: client.Activator
+Automatic-Module-Name: org.eclipse.gemini.jpa.sample.basic
 

@@ -3,8 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Gemini JPA Configuration Generator
 Bundle-SymbolicName: org.eclipse.gemini.jpa.sample.configadmin.gen
 Bundle-Version: 1.2.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: org.osgi.framework;version="1.4.0",
  org.osgi.util.tracker,
  org.osgi.service.cm
 Bundle-Activator: gen.Activator
+Automatic-Module-Name: org.eclipse.gemini.jpa.sample.configadmin.gen

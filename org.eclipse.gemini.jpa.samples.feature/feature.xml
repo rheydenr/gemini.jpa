@@ -29,29 +29,37 @@
       <import plugin="org.eclipse.persistence.core" version="2.4.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.persistence.jpa" version="2.4.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.persistence.jpa.jpql" version="2.0.0" match="greaterOrEqual"/>
-      <import plugin="javax.persistence" version="2.0.4" match="compatible"/>
       <import plugin="osgi.enterprise"/>
       <import plugin="org.eclipse.osgi"/>
+      <import plugin="jakarta.persistence"/>
    </requires>
 
    <plugin
          id="org.eclipse.gemini.jpa.sample.basic"
+         download-size="0"
+         install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.gemini.jpa.sample.configadmin.gen"
+         download-size="0"
+         install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.gemini.jpa.sample.configadmin.pu"
+         download-size="0"
+         install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.gemini.jpa.sample.configadmin"
+         download-size="0"
+         install-size="0"
          version="0.0.0"
          unpack="false"/>
-		 
+
 </feature>

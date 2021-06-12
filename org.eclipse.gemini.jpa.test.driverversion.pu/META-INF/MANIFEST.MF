@@ -4,7 +4,8 @@ Meta-Persistence: META-INF/jpa.xml
 Bundle-Name: Gemini JPA Test JDBC Driver version
 Bundle-SymbolicName: org.eclipse.gemini.jpa.test.driverversion.pu
 Bundle-Version: 1.1.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: org.osgi.framework;version="1.6.0"
 ZZZ-Require-Capability: osgi.extender;
  filter:="(&(osgi.extender=osgi.jpa)(version>=1.0))"
+Automatic-Module-Name: org.eclipse.gemini.jpa.test.driverversion.pu
