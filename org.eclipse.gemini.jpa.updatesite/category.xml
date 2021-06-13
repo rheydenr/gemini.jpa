@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.eclipse.gemini.jpa.feature_1.2.0.qualifier.jar" id="org.eclipse.gemini.jpa.feature" version="1.2.0.qualifier">
+   <feature url="features/org.eclipse.gemini.jpa.feature_1.2.0.jar" id="org.eclipse.gemini.jpa.feature" version="1.2.0">
       <category name="category_gemini_jpa"/>
    </feature>
-   <feature url="features/org.eclipse.gemini.jpa.samples.feature_1.2.0.qualifier.jar" id="org.eclipse.gemini.jpa.samples.feature" version="1.2.0.qualifier">
+   <feature url="features/org.eclipse.gemini.jpa.samples.feature_1.2.0.jar" id="org.eclipse.gemini.jpa.samples.feature" version="1.2.0">
       <category name="category_gemini_jpa"/>
    </feature>
 <!--

@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.gemini.jpa.samples.feature"
       label="Gemini JPA Samples"
-      version="1.2.0.qualifier"
+      version="1.2.0"
       provider-name="Oracle Corp."
       plugin="org.eclipse.gemini.jpa.samples">
 

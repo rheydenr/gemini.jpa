@@ -97,3 +97,10 @@ The config admin sample is composed of three bundles:
 All three bundles must be installed and started for the sample to work.
 In addition, the relevant configuration admin bundle for your OSGi framework must be installed
 (e.g. "org.eclipse.equinox.cm" for Equinox and "org.apache.felix.configadmin" for Felix).
+
+
+Running the tests
+-----------------
+
+The tests are organized as single plugins. You can't execute it via Maven build since the start level of some bundles
+have to be changed. Here are the settings for the 

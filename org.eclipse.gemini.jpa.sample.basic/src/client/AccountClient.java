@@ -30,6 +30,10 @@ import model.account.Customer;
  */
 public class AccountClient {
     
+    /*
+     * NOTE: Before running this test you have to start the Derby Database Server!
+     * 
+     */
     public void run(EntityManagerFactory emf) {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
