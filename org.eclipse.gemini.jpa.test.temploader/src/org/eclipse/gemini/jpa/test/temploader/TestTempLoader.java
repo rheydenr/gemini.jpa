@@ -17,12 +17,12 @@ package org.eclipse.gemini.jpa.test.temploader;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
-import model.tldr.Person;
-
-import org.junit.*;
+import org.eclipse.gemini.jpa.test.common.JpaTest;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.osgi.framework.BundleContext;
 
-import org.eclipse.gemini.jpa.test.common.JpaTest;
+import model.tldr.Person;
 
 /**
  * Test class to test looking up EMF Service from a client

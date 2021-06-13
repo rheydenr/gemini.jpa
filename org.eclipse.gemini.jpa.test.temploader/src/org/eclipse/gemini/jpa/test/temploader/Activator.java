@@ -14,9 +14,8 @@
  ******************************************************************************/
 package org.eclipse.gemini.jpa.test.temploader;
 
-import org.osgi.framework.BundleContext;
-
 import org.eclipse.gemini.jpa.test.common.TestActivator;
+import org.osgi.framework.BundleContext;
 
 /**
  * Activator to start tests when relevant service becomes available

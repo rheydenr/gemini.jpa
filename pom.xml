@@ -56,33 +56,41 @@ To update poms, manifests, and feature.xml files
 				<module>org.eclipse.gemini.jpa.sample.configadmin.gen</module>
 				<module>org.eclipse.gemini.jpa.sample.configadmin.pu</module>
 				<module>org.eclipse.gemini.jpa.sample.configadmin</module>
-				<module>org.eclipse.gemini.jpa.test.common</module>
-<!--				<module>org.eclipse.gemini.jpa.test.basic</module>
+				<module>org.eclipse.gemini.jpa.test.basic</module>
 				<module>org.eclipse.gemini.jpa.test.basic.pu</module>
-				<module>org.eclipse.gemini.jpa.test.emptypunit</module>
-				<module>org.eclipse.gemini.jpa.test.emptypunit.pu</module>
-				<module>org.eclipse.gemini.jpa.test.weaved</module>
-				<module>org.eclipse.gemini.jpa.test.weaved.pu</module>
-				<module>org.eclipse.gemini.jpa.test.embeddedpunit</module>
-				<module>org.eclipse.gemini.jpa.test.embeddedpunit.pu</module>
-				<module>org.eclipse.gemini.jpa.test.embeddedjdbc</module>
-				<module>org.eclipse.gemini.jpa.test.embeddedjdbc.pu</module>
-				<module>org.eclipse.gemini.jpa.test.xmlmapped</module>
-				<module>org.eclipse.gemini.jpa.test.xmlmapped.pu</module>
-				<module>org.eclipse.gemini.jpa.test.driverversion</module>
-				<module>org.eclipse.gemini.jpa.test.driverversion.pu</module>
-				<module>org.eclipse.gemini.jpa.test.mongo</module>
-				<module>org.eclipse.gemini.jpa.test.mongo.pu</module>
-				<module>org.eclipse.gemini.jpa.test.temploader</module>
-				<module>org.eclipse.gemini.jpa.test.temploader.pu</module>
-				<module>org.eclipse.gemini.jpa.test.configadmin.gen</module>
+				<module>org.eclipse.gemini.jpa.test.common</module>
 				<module>org.eclipse.gemini.jpa.test.configadmin</module>
+				<module>org.eclipse.gemini.jpa.test.configadmin.gen</module>
 				<module>org.eclipse.gemini.jpa.test.configadmin.pu</module>
 				<module>org.eclipse.gemini.jpa.test.configadmin.pu2</module>
--->				<module>org.eclipse.gemini.jpa.feature</module>
+				<module>org.eclipse.gemini.jpa.test.driverversion</module>
+				<module>org.eclipse.gemini.jpa.test.driverversion.pu</module>
+				<module>org.eclipse.gemini.jpa.test.embeddedjdbc</module>
+				<module>org.eclipse.gemini.jpa.test.embeddedjdbc.pu</module>
+				<module>org.eclipse.gemini.jpa.test.embeddedpunit</module>
+				<module>org.eclipse.gemini.jpa.test.embeddedpunit.pu</module>
+				<module>org.eclipse.gemini.jpa.test.emptypunit</module>
+				<module>org.eclipse.gemini.jpa.test.emptypunit.pu</module>
+				<module>org.eclipse.gemini.jpa.test.jndi</module>
+				<module>org.eclipse.gemini.jpa.test.jndi.pu</module>
+				<module>org.eclipse.gemini.jpa.test.jndi.gen</module>
+				<module>org.eclipse.gemini.jpa.test.mongo</module>
+				<module>org.eclipse.gemini.jpa.test.mongo.pu</module>
+				<module>org.eclipse.gemini.jpa.test.multiemf</module>
+				<module>org.eclipse.gemini.jpa.test.multiemf.pu</module>
+				<module>org.eclipse.gemini.jpa.test.nativeapi</module>
+				<module>org.eclipse.gemini.jpa.test.temploader</module>
+				<module>org.eclipse.gemini.jpa.test.temploader.pu</module>
+				<module>org.eclipse.gemini.jpa.test.unlisted</module>
+				<module>org.eclipse.gemini.jpa.test.unlisted.pu</module>
+				<module>org.eclipse.gemini.jpa.test.weaved</module>
+				<module>org.eclipse.gemini.jpa.test.weaved.pu</module>
+				<module>org.eclipse.gemini.jpa.test.xmlmapped</module>
+				<module>org.eclipse.gemini.jpa.test.xmlmapped.pu</module>
+				<module>org.eclipse.gemini.jpa.feature</module>
   				<module>org.eclipse.gemini.jpa.samples.feature</module>
 				<module>org.eclipse.gemini.jpa.source.feature</module> 
-<!--		-->		<module>org.eclipse.gemini.jpa.updatesite</module>
+				<module>org.eclipse.gemini.jpa.updatesite</module>
 			</modules>
 		</profile>
 		<profile>

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gemini JPA Embedded PUnit Tests
 Bundle-SymbolicName: org.eclipse.gemini.jpa.test.embeddedpunit
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 1.2.0
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: javax.persistence;version="1.1.0",
  javax.persistence.metamodel;version="1.1.0",
@@ -17,3 +17,4 @@ Import-Package: javax.persistence;version="1.1.0",
  org.osgi.util.tracker;version="1.3.1"
 Bundle-Activator: org.eclipse.gemini.jpa.test.embeddedpunit.Activator
 Automatic-Module-Name: org.eclipse.gemini.jpa.test.embeddedpunit
+Bundle-ActivationPolicy: lazy
