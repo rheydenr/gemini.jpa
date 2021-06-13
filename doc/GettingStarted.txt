@@ -70,6 +70,8 @@ of bundles during startup.
 Running the Samples
 -------------------
 
+NOTE: You have to start a Derby database server before launching the following tests. 
+
 [Basic Sample]
 
 The basic sample is a persistence unit and client combined within a single bundle: "org.eclipse.gemini.jpa.sample.basic".
@@ -103,4 +105,52 @@ Running the tests
 -----------------
 
 The tests are organized as single plugins. You can't execute it via Maven build since the start level of some bundles
-have to be changed. Here are the settings for the 
+have to be changed. Here are the settings for the org.eclipse.gemini.jpa.test.embeddedjdbc.TestEmbeddedJdbc test. You have to include 
+the following bundles into your launch configuration (numbers in parentheses give the start level): 
+   * com.sun.activation.jakarta.activation
+   * derby
+   * derbyclient
+   * jakarta.persistence
+   * javax.annotation
+   * javax.inject
+   * org.apache.commons.logging
+   * org.apache.derby
+   * org.apache.felix.gogo.runtime
+   * org.apache.felix.gogo.shell
+   * org.apache.felix.scr (start level 1)
+   * org.eclipse.core.contenttype
+   * org.eclipse.core.jobs
+   * org.eclipse.core.runtime
+   * org.eclipse.e4.core.contexts
+   * org.eclipse.e4.core.di.annotations
+   * org.eclipse.e4.core.di
+   * org.eclipse.e4.core.services
+   * org.eclipse.equinox.app
+   * org.eclipse.equinox.common (start level 2)
+   * org.eclipse.equinox.preferences
+   * org.eclipse.equinox.registry
+   * org.eclipse.equinox.simpleconfigurator (start level 1)
+   * org.eclipse.equinox.transforms.hook
+   * org.eclipse.equinox.weaving.hook
+   * org.eclipse.osgi.compatibility.state
+   * org.eclipse.osgi.services
+   * org.eclipse.osgi.util
+   * org.eclipse.osgi (start level -1)
+   * org.eclipse.persistence.antlr
+   * org.eclipse.persistence.asm
+   * org.eclipse.persistence.core
+   * org.eclipse.persistence.jpa.jpql
+   * org.eclipse.persistence.jpa
+   * org.hamcrest.core
+   * org.junit
+   * org.slf4j.api
+   * osgi.enterprise
+   * wrapped.org.apache.derby.derbyshared
+   * org.eclipse.gemini.dbaccess.derby (start level 2)
+   * org.eclipse.gemini.dbaccess.util
+   * org.eclipse.gemini.jpa.test.common
+   * org.eclipse.gemini.jpa.test.embeddedjdbc.pu (set "activate" to true)
+   * org.eclipse.gemini.jpa.test.embeddedjdbc
+   * org.eclipse.gemini.jpa@ (start level 3)
+
+Note that you have to add -Dorg.eclipse.gemini.refreshBundles=FALSE to VM start arguments.

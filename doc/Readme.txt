@@ -1,5 +1,5 @@
 
-Gemini JPA 1.1.0.RELEASE - Nov 15, 2012
+Gemini JPA 1.2.0.RELEASE - Jun 12, 2021
 
 This release provides you with access to the EclipseLink JPA 2.0 provider. The 
 bundles in the EclipseLink 2.4.0 release or later should be used.
@@ -8,6 +8,8 @@ For an example of how to access an EntityManager from an OSGi program see the
 sample bundles (e.g. org.eclipse.gemini.jpa.sample.basic).
 To do this, install and start the bundles described in "GettingStarted.txt" (included in this 
 distribution). 
+
+This release is only for migration to Java 11. No other bugs are fixed.
 
 Bugs fixed (including new features) since 1.0.0:
 
