@@ -39,3 +39,4 @@ Provide-Capability: osgi.extender;
  javax.persistence.spi";
  version:Version="1.1"
 Automatic-Module-Name: org.eclipse.gemini.jpa
+Bundle-ActivationPolicy: lazy
